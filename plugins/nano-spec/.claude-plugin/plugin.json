@@ -1,18 +1,7 @@
 {
   "name": "nano-spec",
-  "description": "Processo Spec-Driven da Nano Incub. Orquestra 8 fases: Specify → Design → Tasks → Execute → Review → Security → Docs → Commit. Auto-sizing por complexidade. Gates obrigatórios. Usa superpowers como motor.",
-  "version": "2.5.0",
+  "description": "Processo Spec-Driven da Nano Incub para Claude Code",
   "author": {
-    "name": "Nano Incub",
-    "url": "https://nanoincub.com.br"
-  },
-  "license": "CC-BY-4.0",
-  "keywords": [
-    "spec-driven",
-    "development-process",
-    "code-review",
-    "security-audit",
-    "atomic-commits",
-    "quality-gates"
-  ]
+    "name": "Nano Incub"
+  }
 }
