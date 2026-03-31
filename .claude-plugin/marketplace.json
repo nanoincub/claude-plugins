@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "nano-incub",
-  "description": "Plugins internos da Nano Incub para Claude Code — processos, produtividade e qualidade de desenvolvimento",
+  "description": "Plugins internos da Nano Incub para Claude Code",
   "owner": {
     "name": "Nano Incub",
     "email": "dev@nanoincub.com.br"
@@ -9,12 +9,12 @@
   "plugins": [
     {
       "name": "nano-spec",
-      "description": "Processo Spec-Driven com 8 fases: Specify → Design → Tasks → Execute → Review → Security → Docs → Commit. Auto-sizing, quality gates confirmativos, sinais R1-R8/S1-S11.",
+      "description": "Processo Spec-Driven com 8 fases: Specify, Design, Tasks, Execute, Review, Security, Docs, Commit. Auto-sizing e quality gates confirmativos.",
       "category": "development",
       "source": {
-        "source": "git",
+        "source": "url",
         "url": "https://github.com/nanoincub/nano-spec.git",
-        "ref": "main"
+        "sha": "42801e157e618a89e11b17fd73c54474a9ec002d"
       },
       "homepage": "https://github.com/nanoincub/nano-spec"
     }
