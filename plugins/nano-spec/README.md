@@ -118,6 +118,6 @@ nano-spec/
 
 ## Versão
 
-2.5.0 — Review/Security confirmativos, Commit ask-dev, sinais R1-R8 / S1-S11.
+2.6.0 — Review/Security confirmativos, Commit ask-dev, sinais R1-R8 / S1-S11.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.

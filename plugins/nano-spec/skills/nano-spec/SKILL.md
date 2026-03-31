@@ -9,7 +9,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 2.5.0
+  version: 2.6.0
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 

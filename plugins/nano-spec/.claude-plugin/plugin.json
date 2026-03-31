@@ -1,5 +1,6 @@
 {
   "name": "nano-spec",
+  "version": "2.6.0",
   "description": "Processo Spec-Driven da Nano Incub para Claude Code",
   "author": {
     "name": "Nano Incub"

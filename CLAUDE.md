@@ -17,6 +17,17 @@ Marketplace interno de plugins para Claude Code. Foco atual: aperfeiçoamento do
 - Nomes de arquivo: inglês, kebab-case
 - Skills: SKILL.md (SCREAMING_CASE), references em kebab-case
 
+## Versionamento do Plugin
+
+A cada commit, atualize a versão do nano-spec nos 4 arquivos abaixo (manter sincronizados):
+
+1. `plugins/nano-spec/.claude-plugin/plugin.json` — campo `"version"`
+2. `plugins/nano-spec/skills/nano-spec/SKILL.md` — campo `version:` no frontmatter
+3. `plugins/nano-spec/README.md` — seção "Versão"
+4. `README.md` — tabela de plugins
+
+Regra: incrementar **patch** (ex: 2.6.0 → 2.6.1) para fixes, **minor** (ex: 2.6.0 → 2.7.0) para features, **major** para breaking changes.
+
 ## Referência .specs/
 
 Documentação estruturada do projeto. Consultar antes de tomar decisões.

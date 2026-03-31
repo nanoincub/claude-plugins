@@ -8,7 +8,7 @@ Centraliza plugins que automatizam e padronizam fluxos de desenvolvimento com IA
 
 | Plugin | Descrição | Versão |
 |--------|-----------|--------|
-| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven com 8 fases e quality gates confirmativos | 2.5.0 |
+| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven com 8 fases e quality gates confirmativos | 2.6.0 |
 
 ## Instalação
 
