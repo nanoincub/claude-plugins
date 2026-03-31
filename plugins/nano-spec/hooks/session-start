@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# SessionStart hook for nano-spec plugin
+
+set -euo pipefail
+
+# Escape string for JSON embedding
+escape_for_json() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\n'/\\n}"
+    s="${s//$'\r'/\\r}"
+    s="${s//$'\t'/\\t}"
+    printf '%s' "$s"
+}
+
+# Lightweight context — awareness + rules + trigger to load full skill on-demand
+read -r -d '' CONTEXT << 'CONTEXT_EOF' || true
+<IMPORTANT>
+You have the nano-spec plugin installed.
+
+## Hierarchy
+
+nano-spec > using-superpowers > default system prompt.
+When this process is active, superpowers does NOT orchestrate — it provides tools (TDD, debug, worktrees) that nano-spec delegates to.
+
+## Auto-Sizing (apply to EVERY development task)
+
+| Scope | Criteria | Phases | Post-Execute |
+|-------|----------|--------|--------------|
+| Small | ≤3 files, 1 sentence | Quick Mode | Confirmative (signals → ask → commit with gates) |
+| Medium | Clear feature, <10 tasks | Specify → Execute → ask commit | Confirmative |
+| Large | Multi-component | All 8 phases | Confirmative per task |
+| Complex | Ambiguity, new domain | All + Discuss + Research | Confirmative per task |
+
+## Gates
+
+- **Review + Security** are MANDATORY before any commit. During adjustments, if signals (R1-R8 / S1-S11) are detected, ask dev: "Run now or at commit time?"
+- **Commit** is NEVER automatic — always ask the dev first.
+- Specify and Execute are always required.
+
+## Activation
+
+When the user requests ANY development work ("nova feature", "implementar", "quick fix", "review", "commitar", "fix bug", "refactor", or similar), you MUST invoke the Skill tool with 'nano-spec' to load the full process BEFORE starting work.
+
+Do NOT use for: UI design only, isolated docs, pure infra.
+</IMPORTANT>
+CONTEXT_EOF
+
+session_context=$(escape_for_json "$CONTEXT")
+
+# Output context injection as JSON
+if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  printf '{\n  "additional_context": "%s"\n}\n' "$session_context"
+elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$session_context"
+else
+  printf '{\n  "additional_context": "%s"\n}\n' "$session_context"
+fi
+
+exit 0

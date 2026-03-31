@@ -11,11 +11,7 @@
       "name": "nano-spec",
       "description": "Processo Spec-Driven com 8 fases: Specify, Design, Tasks, Execute, Review, Security, Docs, Commit. Auto-sizing e quality gates confirmativos.",
       "category": "development",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/nanoincub/nano-spec.git",
-        "sha": "42801e157e618a89e11b17fd73c54474a9ec002d"
-      },
+      "source": "./plugins/nano-spec",
       "homepage": "https://github.com/nanoincub/nano-spec"
     }
   ]
