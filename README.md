@@ -21,7 +21,7 @@ claude plugin marketplace add nanoincub/claude-plugins
 Instale o plugin desejado:
 
 ```bash
-claude plugin install nano-spec@nanoincub
+claude plugin install nano-spec@nano-incub
 ```
 
 ### Via organização (automático)
