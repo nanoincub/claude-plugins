@@ -12,7 +12,7 @@
       "description": "Processo Spec-Driven com 8 fases: Specify, Design, Tasks, Execute, Review, Security, Docs, Commit. Auto-sizing e quality gates confirmativos.",
       "category": "development",
       "source": "./plugins/nano-spec",
-      "homepage": "https://github.com/nanoincub/nano-spec"
+      "homepage": "https://github.com/nanoincub/claude-plugins"
     }
   ]
 }
