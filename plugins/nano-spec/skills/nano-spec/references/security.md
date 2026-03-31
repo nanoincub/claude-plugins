@@ -90,6 +90,32 @@ NUNCA commitar com vulnerabilidades abertas — escalar, não skipar.
 
 ---
 
+## Verificação de achados de subagentes
+
+> **Regra de ouro:** Se o agente principal não fez `Read` da linha de código citada, o achado **NÃO** entra no relatório. Nenhuma exceção.
+
+Falsos positivos de segurança são tão prejudiciais quanto falsos negativos — geram **alert fatigue** e fazem o dev ignorar findings reais. A verificação **NÃO** é opcional.
+
+Quando subagentes (Agent tool) ou skills externas retornam findings de segurança, o agente principal **DEVE** verificar cada um:
+
+- [ ] `Read` do arquivo e linha exata — o código existe como descrito?
+- [ ] `git diff` — a vulnerabilidade foi introduzida nesta branch ou é pré-existente?
+- [ ] Framework mitiga? — `$request->validate()` sanitiza, Eloquent usa prepared statements, template engines escapam por padrão, CSRF token automático
+- [ ] Decisão intencional? — endpoint público por design, `{!! !!}` em conteúdo controlado, hasher legado para compatibilidade
+- [ ] Classificação OWASP coerente? — o achado corresponde à categoria OWASP alegada no contexto real?
+
+**Prompts para subagentes de security** devem instruir: "Liste trechos de código que manipulam [input/auth/crypto/etc] com o conteúdo exato das linhas. NÃO classifique como vulnerabilidade."
+
+**Gate de aprovação:** Apresentar achados verificados ao dev com evidência concreta (arquivo, linha, código real, categoria OWASP, impacto). O dev é o juiz final — decide se o achado é realmente uma vulnerabilidade e como corrigir. O agente **NÃO** corrige automaticamente. Zero tolerância aplica-se apenas ao que o dev confirmar como vulnerabilidade real.
+
+**Separação no relatório:**
+- **Vulnerabilidades confirmadas da branch** — escopo da review, bloqueantes
+- **Observações pré-existentes** (opcional) — seção separada, fora do escopo
+
+Ver [agent-behavior.md](agent-behavior.md) para regras gerais de confiabilidade e padrões de falso positivo.
+
+---
+
 ## Modo passivo durante Execute
 
 Se a skill `security-best-practices` estiver instalada, ela opera de forma **passiva** durante a fase Execute, detectando vulnerabilidades enquanto o código é escrito. Isso não substitui o `/security-review` formal — serve como rede de segurança antecipada.

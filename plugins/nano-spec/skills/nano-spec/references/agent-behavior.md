@@ -70,6 +70,66 @@ Escalar = mostrar ao dev o que resta e perguntar como proceder.
 
 ---
 
+## Confiabilidade de subagentes
+
+Subagentes (Agent tool) são **coletores de dados, não juízes**. Quando usados para Review ou Security, o agente principal é o único responsável por classificar, filtrar e reportar findings.
+
+> **Regra de ouro:** Se o agente principal não fez `Read` da linha de código citada, o achado **NÃO** entra no relatório. Nenhuma exceção.
+
+### Fluxo confirmativo
+
+```
+Subagente coleta observações factuais
+    → Agente principal verifica cada achado (Read, git diff, contexto)
+    → Apresenta findings confirmados ao dev com evidência
+    → Dev aprova quais corrigir
+    → Só então implementa correções
+```
+
+O agente **NUNCA** corrige findings automaticamente. O dev é o juiz final — decide se o achado é real e como corrigir.
+
+### Prompt para subagentes
+
+Ao delegar análise de código para subagentes, o prompt **DEVE** conter:
+
+```
+Instruções:
+- Retorne o conteúdo exato dos trechos de código relevantes (arquivo, linha, código)
+- Descreva observações factuais ("função X chama Y na linha Z")
+- NÃO classifique severidade nem recomende correções
+- NÃO assuma ausência de mitigações que não verificou
+```
+
+### Gate de verificação
+
+Para **CADA** achado retornado por subagente, o agente principal **DEVE** executar antes de incluir no relatório:
+
+| Verificação | Como | Objetivo |
+|-------------|------|----------|
+| Código existe? | `Read` do arquivo e linha exata | Eliminar código fabricado |
+| Introduzido na branch? | `git diff` da branch | Separar novo de pré-existente |
+| Framework mitiga? | `Read` de config/middleware | Eliminar falso positivo de framework |
+| Decisão intencional? | `Read` de spec/CLAUDE.md ou perguntar ao dev | Respeitar contexto de domínio |
+
+### Padrões de falso positivo de subagentes
+
+| Padrão | Ação |
+|--------|------|
+| Código fabricado | `Read` da linha — confirmar que o código existe exatamente como descrito |
+| Inflação de severidade | Verificar mitigações existentes (rate limiting, captcha, middleware, validação) |
+| Ignorar contexto de domínio | Verificar se é decisão documentada; na dúvida, perguntar ao dev |
+| Misturar pré-existente com novo | `git diff` — só incluir issues introduzidos pela branch |
+| Falso positivo de framework | Verificar proteções automáticas (escape de templates, CSRF, prepared statements) |
+| Null safety sem contexto | Verificar schema/migrations — relações obrigatórias garantem existência |
+
+### Quando escalar
+
+Se após verificação restarem achados ambíguos (não claramente falso positivo nem claramente real), **escalar para o dev** com o contexto completo (código, evidência, dúvida) em vez de classificar arbitrariamente.
+
+Ver detalhes específicos em [review.md](review.md) e [security.md](security.md).
+
+---
+
 ## Quando empurrar de volta
 
 ### Spec vaga

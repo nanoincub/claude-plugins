@@ -105,6 +105,27 @@ comandos executados) antes de claims de "pronto".
 Se `subagent-driven-development` NÃO foi usado no Execute E escopo é Large/Complex:
 → perguntar se quer `superpowers:requesting-code-review` (subagent reviewer fresh).
 
+### 4. Verificação de achados de subagentes
+
+> **Regra de ouro:** Se o agente principal não fez `Read` da linha de código citada, o achado **NÃO** entra no relatório. Nenhuma exceção.
+
+Quando subagentes (Agent tool) ou skills externas retornam findings de review, o agente principal **DEVE** verificar cada um antes de reportar ou corrigir:
+
+- [ ] `Read` do arquivo e linha exata — o código existe como descrito?
+- [ ] `git diff` — o issue foi introduzido nesta branch ou é pré-existente?
+- [ ] Contexto de framework — o framework já mitiga? (escape de templates, CSRF automático, ORM com prepared statements)
+- [ ] Contexto de domínio — é decisão intencional? Na dúvida, perguntar ao dev
+
+**Prompts para subagentes de review** devem instruir: "Retorne conteúdo de arquivos e observações factuais. NÃO classifique severidade nem recomende correções."
+
+**Gate de aprovação:** Após verificação, apresentar achados verificados ao dev com evidência (arquivo, linha, código real, motivo). O dev é o juiz final — decide se o achado é realmente um issue e como corrigir. O agente **NÃO** implementa correções sem aprovação.
+
+**Separação no relatório:**
+- **Issues introduzidos pela branch** — escopo do review, ação requerida
+- **Observações pré-existentes** (opcional) — seção separada, fora do escopo da branch
+
+Ver [agent-behavior.md](agent-behavior.md) para regras gerais de confiabilidade e padrões de falso positivo.
+
 ---
 
 ## Limites
