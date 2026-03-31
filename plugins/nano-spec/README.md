@@ -16,11 +16,14 @@ Registre o marketplace (uma vez):
 claude plugin marketplace add nanoincub/claude-plugins
 ```
 
-Instale o plugin:
+Instale o nano-spec e o superpowers (dependencia):
 
 ```bash
+claude plugin install superpowers@claude-plugins-official
 claude plugin install nano-spec@nano-incub
 ```
+
+> **Nota:** O superpowers e o motor do nano-spec — fornece TDD, debugging, worktrees, code review e outras ferramentas que o processo orquestra. O nano-spec funciona sem ele, mas com capacidades reduzidas.
 
 ### Via organizacao (automatico)
 
