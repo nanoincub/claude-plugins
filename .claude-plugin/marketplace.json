@@ -13,10 +13,10 @@
       "category": "development",
       "source": {
         "source": "git",
-        "url": "https://github.com/rafaelyanagui/nano-spec.git",
+        "url": "https://github.com/nanoincub/nano-spec.git",
         "ref": "main"
       },
-      "homepage": "https://github.com/rafaelyanagui/nano-spec"
+      "homepage": "https://github.com/nanoincub/nano-spec"
     }
   ]
 }
