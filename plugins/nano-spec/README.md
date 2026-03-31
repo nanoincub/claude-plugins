@@ -1,6 +1,6 @@
 # Nano-Spec — Plugin para Claude Code
 
-Processo Spec-Driven da Nano Incub. Orquestra 8 fases de desenvolvimento com quality gates obrigatórios.
+Processo Spec-Driven da Nano Incub. Orquestra 8 fases de desenvolvimento com quality gates confirmativos.
 
 ```
 SPECIFY → DESIGN → TASKS → EXECUTE → REVIEW → SECURITY → DOCS → COMMIT
@@ -8,44 +8,28 @@ SPECIFY → DESIGN → TASKS → EXECUTE → REVIEW → SECURITY → DOCS → CO
 
 ## Instalacao
 
-### Via Claude Code (recomendado)
+### Via Marketplace Nano Incub (recomendado)
+
+Registre o marketplace (uma vez):
 
 ```bash
-claude plugins add rafaelyanagui/nano-spec
+claude plugin marketplace add nanoincub/claude-plugins
 ```
 
-### Via ZIP (organizacao)
+Instale o plugin:
 
-1. Descompactar o ZIP
-2. Copiar a pasta para `~/.claude/plugins/cache/nano-spec/nano-spec/2.5.0/`
-3. Adicionar em `~/.claude/plugins/installed_plugins.json`:
-
-```json
-"nano-spec@nano-spec": [
-  {
-    "scope": "user",
-    "installPath": "~/.claude/plugins/cache/nano-spec/nano-spec/2.5.0",
-    "version": "2.5.0",
-    "installedAt": "2026-03-31T00:00:00.000Z",
-    "lastUpdated": "2026-03-31T00:00:00.000Z"
-  }
-]
+```bash
+claude plugin install nano-spec@nanoincub
 ```
 
-4. Habilitar em `~/.claude/settings.json`:
+### Via organizacao (automatico)
 
-```json
-"enabledPlugins": {
-  "nano-spec@nano-spec": true
-}
-```
-
-5. Reiniciar o Claude Code.
+Se a organizacao ja sincronizou o marketplace `nanoincub/claude-plugins` com "Installed by default", o plugin e instalado automaticamente para todos os membros.
 
 ## Estrutura
 
 ```
-plugin/
+nano-spec/
 ├── .claude-plugin/
 │   └── plugin.json          # Metadados do plugin
 ├── hooks/
