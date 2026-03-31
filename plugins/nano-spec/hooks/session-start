@@ -41,7 +41,7 @@ When this process is active, superpowers does NOT orchestrate — it provides to
 
 ## Activation
 
-When the user requests ANY development work ("nova feature", "implementar", "quick fix", "review", "commitar", "fix bug", "refactor", or similar), you MUST invoke the Skill tool with 'nano-spec' to load the full process BEFORE starting work.
+When the user requests ANY development work ("nova feature", "implementar", "quick fix", "review", "commitar", "fix bug", "refactor", or similar), you MUST invoke the Skill tool with 'nano-spec:nano-spec' to load the full process BEFORE starting work.
 
 Do NOT use for: UI design only, isolated docs, pure infra.
 </IMPORTANT>
