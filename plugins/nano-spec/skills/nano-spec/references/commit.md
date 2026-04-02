@@ -15,21 +15,20 @@ Após concluir o Execute (ou série de ajustes), perguntar:
     Implementação concluída. Quer commitar?
       Arquivos modificados: [lista]
       Commit sugerido: <type>(<scope>): <description>
-      Sinais pendentes: [Review: R1, R4 | Security: S2, S7 | Nenhum]
 
-- Se **sim** → rodar Review (SEMPRE) → Security (SEMPRE) → Docs → Commit
+- Se **sim** → Docs → Commit
 - Se **não** → fim. Mudanças ficam no working tree. Dev decide quando retomar.
-- **NUNCA iniciar Review/Security/Commit sem confirmação do dev**
 
 ### 2. Gates pré-commit (após confirmação)
 
-Review e Security são **SEMPRE obrigatórios** antes do commit:
-- [ ] Review passou — ver [review.md](review.md)
-- [ ] Security passou — ver [security.md](security.md)
+- [ ] /simplify passou sobre diff acumulado (obrigatório)
+- [ ] Dev rodou suite completa de testes (obrigatório — ver nota abaixo)
 - [ ] Docs atualizado — ver [docs-update.md](docs-update.md)
 - [ ] Todos os "Done when" da task estão verificados
 
-**Nota:** Se review/security já foram rodados antecipadamente durante os ajustes (dev escolheu "agora" quando sinais foram detectados), não rodar novamente — a menos que houve mais ajustes depois.
+**Suite de testes:** O agente NÃO roda a suite completa — pede ao dev para rodar, informando o comando. Motivo: evitar gasto de tokens desnecessário em output de centenas de testes. O agente fornece o comando e aguarda confirmação do dev.
+
+**Nota:** /simplify deve ter rodado após o Execute. Se já rodou e não houve ajustes depois, não rodar novamente.
 
 ### 3. Criar commit atômico
 
@@ -166,6 +165,6 @@ Se worktree NÃO foi usado → apenas commit (e push se dev solicitar).
 
 ## Tips
 
-- **Commit é a última fase** — se chegou aqui, o código já foi revisado e auditado
+- **Commit é a última fase** — se chegou aqui, o código já passou por /simplify e dev confirmou testes
 - **Mensagem conta a história** — quem ler o git log deve entender o que e por que
 - **Atomic = reversível** — cada commit pode ser revertido independentemente

@@ -28,14 +28,14 @@ When this process is active, superpowers does NOT orchestrate — it provides to
 
 | Scope | Criteria | Phases | Post-Execute |
 |-------|----------|--------|--------------|
-| Small | ≤3 files, 1 sentence | Quick Mode | Confirmative (signals → ask → commit with gates) |
-| Medium | Clear feature, <10 tasks | Specify → Execute → ask commit | Confirmative |
-| Large | Multi-component | All 8 phases | Confirmative per task |
-| Complex | Ambiguity, new domain | All + Discuss + Research | Confirmative per task |
+| Small | ≤3 files, 1 sentence | Quick Mode | /simplify → commit |
+| Medium | Clear feature, <10 tasks | Specify → Execute → /simplify → commit | /simplify → commit |
+| Large | Multi-component | All phases | /simplify → commit |
+| Complex | Ambiguity, new domain | All + Discuss + Research | /simplify → commit |
 
 ## Gates
 
-- **Review + Security** are MANDATORY before any commit. During adjustments, if signals (R1-R8 / S1-S11) are detected, ask dev: "Run now or at commit time?"
+- **/simplify + full test suite** are MANDATORY before any commit.
 - **Commit** is NEVER automatic — always ask the dev first.
 - Specify and Execute are always required.
 

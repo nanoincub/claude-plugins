@@ -1,15 +1,15 @@
 ---
 name: nanoincub-spec-driven
 description: >
-  Processo Spec-Driven da Nano Incub. Orquestra 8 fases: Specify → Design → Tasks →
-  Execute → Review → Security → Docs → Commit. Auto-sizing por complexidade. Gates obrigatórios.
+  Processo Spec-Driven da Nano Incub. Orquestra fases: Specify → Design → Tasks →
+  Execute → /simplify → Docs → Commit. Verificação executável por task. Auto-sizing por complexidade.
   Usa superpowers como motor quando instalado, funciona standalone quando não.
   Triggers: "nova feature", "implementar", "quick fix", "review", "commitar",
   "pause work", "resume work". Não use para design UI, docs isoladas, infra pura.
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 2.6.0
+  version: 2.7.0
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -18,10 +18,10 @@ metadata:
 Orquestrador leve. Gates obrigatórios. Zero cerimônia.
 
 ```
-┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐   ┌────────┐   ┌──────────┐   ┌──────┐   ┌────────┐
-│ SPECIFY  │ → │  DESIGN  │ → │  TASKS  │ → │ EXECUTE │ → │ REVIEW │ → │ SECURITY │ → │ DOCS │ → │ COMMIT │
-└──────────┘   └──────────┘   └─────────┘   └─────────┘   └────────┘   └──────────┘   └──────┘   └────────┘
-   required      optional*      optional*     required    confirmative  confirmative    req M+     ask-dev
+┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐   ┌───────────┐   ┌──────┐   ┌────────┐
+│ SPECIFY  │ → │  DESIGN  │ → │  TASKS  │ → │ EXECUTE │ → │ /SIMPLIFY │ → │ DOCS │ → │ COMMIT │
+└──────────┘   └──────────┘   └─────────┘   └─────────┘   └───────────┘   └──────┘   └────────┘
+   required      optional*      optional*     required       required       req M+     ask-dev
 ```
 
 ## Princípio: nanoincub = trilho, superpowers = motor
@@ -36,21 +36,22 @@ O dispatcher do superpowers NÃO orquestra quando este processo está ativo.
 
 | Escopo | Critério | Specify | Design | Tasks | Execute | Ciclo Pós-Execute |
 |--------|----------|---------|--------|-------|---------|--------------------|
-| **Small** | ≤3 files, 1 frase | **Quick mode** | — | — | Implement + verify | Confirmativo (sinais → perguntar → commit com gates) |
-| **Medium** | Feature clara, <10 tasks | Spec breve | Skip — inline | Skip — implícito | Implement + verify | Confirmativo (sinais → perguntar → commit com gates) |
-| **Large** | Multi-componente | Full spec + IDs | Arquitetura + componentes | Breakdown + deps | Implement + verify por task | Confirmativo por task |
-| **Complex** | Ambiguidade, domínio novo | Full spec + [discuss](references/discuss.md) | [Research](references/design.md) + arq. | Breakdown + paralelo | Implement + [UAT](references/validate.md) | Confirmativo por task |
+| **Small** | ≤3 files, 1 frase | **Quick mode** | — | — | Implement + verify | /simplify → commit |
+| **Medium** | Feature clara, <10 tasks | Spec breve | Skip — inline | Skip — implícito | Implement + verify | /simplify → commit |
+| **Large** | Multi-componente | Full spec + IDs | Arquitetura + componentes | Breakdown + deps | Implement + verify por task | /simplify → commit |
+| **Complex** | Ambiguidade, domínio novo | Full spec + [discuss](references/discuss.md) | [Research](references/design.md) + arq. | Breakdown + paralelo | Implement + [UAT](references/validate.md) | /simplify → commit |
 
 **Regras:**
 - Specify e Execute são sempre obrigatórios
-- Review e Security são **obrigatórios antes de qualquer commit** — durante ajustes, sinais no diff disparam perguntas antecipadas ("rodar agora ou no commit?"), mas ambos rodam SEMPRE antes do commit
+- /simplify é **obrigatório antes de qualquer commit** — roda sobre o diff acumulado de todas as tasks
+- Suite completa de testes roda após /simplify, antes do commit
 - Commit nunca é automático — sempre perguntar ao dev (ver [commit.md](references/commit.md))
-- Na dúvida sobre rodar review/security antecipado → rodar
 - Docs é obrigatório para Medium+ ; no Quick Mode é checklist inline
 - Design é pulado quando não há decisões arquiteturais
 - Tasks é pulado quando há ≤3 passos óbvios
 - Discuss é triggered *dentro* do Specify apenas quando o agente detecta áreas ambíguas que precisam de input do usuário (apenas Complex)
 - UAT interativo é triggered *dentro* do Execute apenas para features user-facing com comportamento complexo (apenas Complex)
+- Review e Security estão **desativados por padrão** — ativar via defaults opt-out se dev pedir (ver [review.md](references/review.md) e [security.md](references/security.md))
 
 **Safety valve:** Se inline steps revelarem >5 steps → PARAR e criar tasks.md formal.
 
@@ -159,8 +160,8 @@ No início de cada feature (Medium+), apresentar defaults e deixar dev ajustar:
 ```
 Escopo detectado: [Large]
 Defaults: spec completa, tasks formais, execução sequencial,
-          /review + /simplify + /security-review + commit.
-Opções disponíveis: TDD, git worktree, subagent por task.
+          /simplify + suite de testes + commit.
+Opções disponíveis: TDD, git worktree, subagent por task, review, security.
 Quer ajustar algo? (Enter para seguir com defaults)
 ```
 
@@ -172,22 +173,22 @@ no CLAUDE.md do projeto, nunca mais perguntar.
 **Projeto novo:**
 1. Inicializar projeto → `.specs/project/` (PROJECT.md + ROADMAP.md)
 2. Mapear codebase → `.specs/codebase/` (7 docs, mesmo com scaffold mínimo)
-3. Para cada feature → Specify → (Design) → (Tasks) → Execute → Perguntar commit → (Review confirmativo) → (Security confirmativo) → Docs → Commit
+3. Para cada feature → Specify → (Design) → (Tasks) → Execute → /simplify → Suite de testes → Docs → Commit
 
 **Codebase existente:**
 1. Mapear codebase → `.specs/codebase/` (7 docs brownfield)
 2. Inicializar projeto → PROJECT.md + ROADMAP.md
 3. Para cada feature → mesmo fluxo adaptativo
 
-**Quick mode:** Descrever → Implementar → Verificar → Perguntar commit → (Review se sinais) → (Security se sinais) → Docs (inline) → Commit
+**Quick mode:** Descrever → Implementar → Verificar → /simplify → Suite de testes → Docs (inline) → Commit
 
 ## Getting Started
 
 ```
 Dev: "nova feature: login com Google"
 
-Agente: Escopo Medium. Defaults: spec breve → execute → /review → /simplify
-        → /security-review → commit. Opções: TDD, worktree. Ajustar? (Enter = defaults)
+Agente: Escopo Medium. Defaults: spec breve → execute → /simplify → suite de testes → commit.
+        Opções: TDD, worktree, review, security. Ajustar? (Enter = defaults)
 
 Dev: [Enter]
 
@@ -200,17 +201,20 @@ Agente: [gera spec.md com user stories + critérios de aceite]
 
 Dev: "sim"
 
-Agente: [Execute] Implementando...
-        ⚡ Sinais detectados: R3 (chamada API Google), S2 (auth OAuth), S6 (integração externa)
-        "Quer rodar review/security agora ou no commit?" → "no commit"
+Agente: [Execute] Implementando task 1...
+        ✅ Implementado. Task toca lógica de auth → criando teste. Verde.
 
-        [Commit?] "Quer commitar? Sinais pendentes: Review (R3), Security (S2, S6)"
+        Implementando task 2...
+        ✅ Implementado. Verificação manual (config). OK.
+
+        [/simplify] Analisando diff acumulado... 1 sugestão de reuse → corrigido.
+        [Testes] Suite completa: 15/15 passando.
+        [Docs] INTEGRATIONS.md atualizado (novo provider Google OAuth).
+
+        Quer commitar?
 Dev: "sim"
 
-Agente: [Review] /review → limpo. /simplify → 1 sugestão anotada em STATE.md.
-        [Security] /security-review → limpo.
-        [Docs] INTEGRATIONS.md atualizado (novo provider Google OAuth).
-        [Commit] feat(auth): add Google OAuth login — Refs: AUTH-01
+Agente: [Commit] feat(auth): add Google OAuth login — Refs: AUTH-01
 ```
 
 ## Project Structure
@@ -295,9 +299,8 @@ Ver [agent-behavior.md](references/agent-behavior.md). Resumo:
 | Specify | Perguntas conversacionais | `brainstorming` (opcional) → output para `context.md` |
 | Design | Research + design.md | `brainstorming` steps 5-8 → output para `design.md` |
 | Tasks | Breakdown manual | `writing-plans` → output para `tasks.md` |
-| Execute | Ciclo implement → verify | + TDD, worktrees, subagents, debug (opcionais) |
-| Review | /review + /simplify | + `verification-before-completion` (opcional) |
-| Security | /security-review | (sem equivalente no superpowers) |
+| Execute | Ciclo implement → verify (teste) | + TDD, worktrees, subagents, debug (opcionais) |
+| /simplify | /simplify sobre diff acumulado | (mesma skill) |
 | Docs | Checklist manual contra `.specs/codebase/` | `brownfield-mapping` para regenerar docs se necessário |
 | Commit | Conventional Commits | + `finishing-a-development-branch` (se worktree) |
 

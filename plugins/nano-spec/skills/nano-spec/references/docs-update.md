@@ -2,7 +2,7 @@
 
 **Goal**: Garantir que a documentação do codebase reflita as mudanças implementadas.
 
-**Fase obrigatória para Medium+** — executa após Security, antes do Commit.
+**Fase obrigatória para Medium+** — executa após /simplify, antes do Commit.
 **No Quick Mode (Small):** checklist inline, sem arquivo separado.
 
 ---

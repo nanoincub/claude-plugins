@@ -1,8 +1,10 @@
-# Security
+# Security (opt-in)
+
+**Desativado por padrão.** Ativar via defaults opt-out no início da feature ou quando o dev pedir explicitamente.
 
 **Goal**: Detectar vulnerabilidades de segurança antes do commit.
 
-**Obrigatória antes de qualquer commit.** Durante ajustes, o agente detecta sinais de segurança no diff e pergunta ao dev se quer rodar agora ou deixar pro commit.
+**Nota:** Cada linguagem e projeto tem necessidades de segurança específicas. Recomendado usar uma skill de segurança dedicada à stack do projeto (ex: OWASP para web, SAST para APIs) em vez de auditoria genérica. Se ativada, esta fase funciona como descrito abaixo.
 
 ## Sinais de Security (baseados no diff + keywords)
 
@@ -22,7 +24,7 @@ O agente avalia o diff real após cada ajuste. Se ALGUM sinal é detectado, avis
 | S10 | Keywords no diff | `password\|token\|auth\|secret\|query\|exec\|eval\|cookie\|session\|permission\|role\|admin\|encrypt\|hash` |
 | S11 | Nova dependência | Pacote novo ou upgrade major em composer.json/package.json |
 
-**Sinais servem para perguntas antecipadas** — se detectados durante ajustes, o agente pergunta se quer rodar security agora. Mas security roda SEMPRE antes do commit, com ou sem sinais detectados.
+**Sinais servem para perguntas antecipadas** — quando security está ativado, se detectados durante ajustes, o agente pergunta se quer rodar security agora.
 
 ## Fluxo Confirmativo
 
@@ -30,7 +32,7 @@ O agente avalia o diff real após cada ajuste. Se ALGUM sinal é detectado, avis
 2. Se sinal detectado → avisar o dev: "Detectei [sinal de segurança]. Quer rodar security agora ou deixar pro commit?"
 3. Se dev diz "agora" → rodar /security-review imediatamente
 4. Se dev diz "depois" → anotar sinal como pendente
-5. Antes do commit → rodar /security-review sobre diff acumulado (SEMPRE — obrigatório)
+5. Antes do commit → rodar /security-review sobre diff acumulado (se security ativado)
 
 **Regra:** Não interromper para todo sinal trivial. Agrupar sinais relacionados e avisar uma vez.
 **Escape hatch:** Na dúvida entre rodar ou skipar → RODAR.
@@ -133,7 +135,7 @@ Se a skill `security-best-practices` estiver instalada, ela opera de forma **pas
 
 ## Tips
 
-- **Security é obrigatória antes de qualquer commit quando sinais são detectados** — na dúvida, rodar
+- **Security é opt-in** — ativar via defaults ou quando dev pedir. Recomendado usar skill de segurança da stack
 - **Zero tolerância** — toda vulnerabilidade detectada bloqueia o commit
 - **Re-scan após correção** — correções de segurança podem introduzir novos vetores
 - **Secrets são bloqueantes** — nunca commitar com hardcoded secrets, mesmo em dev

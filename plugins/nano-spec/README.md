@@ -1,12 +1,12 @@
 # Nano-Spec — Plugin para Claude Code
 
-Processo Spec-Driven da Nano Incub. Orquestra 8 fases de desenvolvimento com quality gates confirmativos.
+Processo Spec-Driven da Nano Incub. Orquestra fases de desenvolvimento com verificação executável por task e /simplify obrigatório.
 
 ```
-┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐   ┌────────┐   ┌──────────┐   ┌──────┐   ┌────────┐
-│ SPECIFY  │ → │  DESIGN  │ → │  TASKS  │ → │ EXECUTE │ → │ REVIEW │ → │ SECURITY │ → │ DOCS │ → │ COMMIT │
-└──────────┘   └──────────┘   └─────────┘   └─────────┘   └────────┘   └──────────┘   └──────┘   └────────┘
-   required      optional*      optional*     required    confirmative  confirmative    req M+     ask-dev
+┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐   ┌───────────┐   ┌──────┐   ┌────────┐
+│ SPECIFY  │ → │  DESIGN  │ → │  TASKS  │ → │ EXECUTE │ → │ /SIMPLIFY │ → │ DOCS │ → │ COMMIT │
+└──────────┘   └──────────┘   └─────────┘   └─────────┘   └───────────┘   └──────┘   └────────┘
+   required      optional*      optional*     required       required       req M+     ask-dev
 ```
 
 ## Instalação
@@ -38,24 +38,18 @@ O processo adapta a complexidade automaticamente:
 
 | Escopo | Critério | Fases | Pós-Execute |
 |--------|----------|-------|-------------|
-| **Small** | ≤3 arquivos, 1 frase | Quick Mode | Confirmativo (sinais → ask → commit) |
-| **Medium** | Feature clara, <10 tasks | Specify → Execute → ask commit | Confirmativo |
-| **Large** | Multi-componente | Todas as 8 fases | Confirmativo por task |
-| **Complex** | Ambiguidade, domínio novo | Todas + Discuss + Research | Confirmativo por task |
+| **Small** | ≤3 arquivos, 1 frase | Quick Mode | /simplify → commit |
+| **Medium** | Feature clara, <10 tasks | Specify → Execute → /simplify → commit | /simplify → commit |
+| **Large** | Multi-componente | Todas as fases | /simplify → commit |
+| **Complex** | Ambiguidade, domínio novo | Todas + Discuss + Research | /simplify → commit |
 
 ## Quality Gates
 
 - **Specify + Execute** — sempre obrigatórios
-- **Review + Security** — obrigatórios antes de qualquer commit
+- **Verificação por task** — após cada task, avaliar se precisa de teste e rodar testes do módulo afetado
+- **/simplify + suite completa** — obrigatórios antes de qualquer commit
+- **Review + Security** — opt-in (ativar via defaults ou quando dev pedir)
 - **Commit** — nunca automático, sempre pergunta ao dev
-
-### Sistema de Sinais
-
-Durante a execução, o processo detecta padrões no código que disparam perguntas:
-
-**Review (R1-R8):** Lógica condicional, mutação de estado, chamadas API, controle de fluxo, estruturas de dados, mudanças estruturais, alto volume, testes.
-
-**Security (S1-S11):** Input de usuário, autenticação, autorização, dados sensíveis, criptografia, APIs externas, queries de banco, rendering dinâmico, configuração de segurança, keywords, novas dependências.
 
 ## Integração com Superpowers
 
@@ -66,8 +60,8 @@ O nano-spec é o **trilho** (o que fazer e em que ordem), o superpowers é o **m
 | Specify | Q&A conversacional | + brainstorming → context.md |
 | Design | Pesquisa manual | + brainstorming steps 5-8 |
 | Tasks | Breakdown manual | + writing-plans → tasks.md |
-| Execute | Code + verify | + TDD, worktrees, subagents, debug |
-| Review | /review + /simplify | + verification-before-completion |
+| Execute | Code + verify (teste) | + TDD, worktrees, subagents, debug |
+| /simplify | /simplify sobre diff acumulado | (mesma skill) |
 | Commit | Conventional Commits | + finishing-a-development-branch |
 
 ## Estrutura
@@ -118,6 +112,6 @@ nano-spec/
 
 ## Versão
 
-2.6.0 — Review/Security confirmativos, Commit ask-dev, sinais R1-R8 / S1-S11.
+2.7.0 — Verificação executável por task, /simplify obrigatório, Review/Security opt-in.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.

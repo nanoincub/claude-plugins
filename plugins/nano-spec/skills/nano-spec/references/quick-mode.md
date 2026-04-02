@@ -59,27 +59,21 @@ Após verificar, perguntar ao dev:
 Quer commitar?
   Arquivos: [lista]
   Commit sugerido: <type>(<scope>): <description>
-  Sinais detectados: [Review: R1, R3 | Security: S2 | Nenhum]
 ```
 
 - Se **não** → fim. Mudanças ficam no working tree.
-- Se **sim** → continuar com Review → Security → Docs → Commit.
+- Se **sim** → continuar com /simplify → Testes → Docs → Commit.
 
-> **Nota:** Se durante o ajuste foram detectados sinais R*/S* e o dev foi avisado mas escolheu "depois", eles são resolvidos aqui.
+### 6. /simplify (obrigatório antes do commit)
 
-### 6. Review (obrigatório antes do commit)
+Executar `/simplify` sobre o diff — reuse, qualidade, eficiência.
 
-Executar `/review` (sem /simplify no Quick Mode — escopo pequeno não justifica).
+1. Se issues encontrados → corrigir → re-executar `/simplify` (max 3x)
+2. Se limpo → continuar
 
-1. Executar `/review` — bugs, lógica, edge cases
-2. Se Critical/Important → corrigir → re-executar `/review` (max 3x)
-3. Se Suggestions → anotar em STATE.md
+### 7. Testes
 
-### 7. Security (obrigatório antes do commit)
-
-Executar `/security-review` sobre o diff acumulado.
-
-Se vulnerabilidades → corrigir → re-executar `/security-review` (max 3x).
+Pedir ao dev para rodar a suite de testes do projeto, informando o comando. Motivo: evitar gasto de tokens em output de testes. Aguardar confirmação do dev.
 
 ### 8. Docs Check (inline)
 

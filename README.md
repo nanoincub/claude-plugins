@@ -8,7 +8,7 @@ Centraliza plugins que automatizam e padronizam fluxos de desenvolvimento com IA
 
 | Plugin | Descrição | Versão |
 |--------|-----------|--------|
-| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven com 8 fases e quality gates confirmativos | 2.6.0 |
+| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven com verificação por task e /simplify obrigatório | 2.7.0 |
 
 ## Instalação
 
@@ -48,8 +48,8 @@ Após instalar, basta pedir qualquer tarefa de desenvolvimento. O nano-spec ativ
 ```
 Dev: "nova feature: login com Google"
 
-Agent: Medium scope. Defaults: spec breve → execute → review → security → commit.
-       Opções: TDD, worktree. Ajustar? (Enter = defaults)
+Agent: Medium scope. Defaults: spec breve → execute → /simplify → suite de testes → commit.
+       Opções: TDD, worktree, review, security. Ajustar? (Enter = defaults)
 
 Dev: [Enter]
 
@@ -59,13 +59,15 @@ Dev: "Usuário final, só Google, precisa linkar com conta existente"
 Agent: [Spec gerada] Spec ok? Posso implementar?
 Dev: "sim"
 
-Agent: [Execute] Implementando...
-       ⚡ Sinais: R3 (API), S2 (OAuth), S6 (externo)
-       "Rodar review/security agora ou no commit?"
-Dev: "no commit"
+Agent: [Execute] Implementando task 1... ✅ Teste criado e passando.
+       Implementando task 2... ✅ Verificação manual OK.
+       [/simplify] Diff acumulado analisado. 1 sugestão de reuse → corrigido.
+       [Testes] Suite completa: 15/15 passando.
+       [Docs] Atualizado.
+       Quer commitar?
+Dev: "sim"
 
-Agent: [Review] ✓  [Security] ✓  [Docs] Atualizado
-       [Commit] feat(auth): add Google OAuth login
+Agent: [Commit] feat(auth): add Google OAuth login
 ```
 
 **Triggers:** `"nova feature"`, `"implementar"`, `"quick fix"`, `"review"`, `"commitar"`, `"fix bug"`, `"refactor"`

@@ -75,23 +75,21 @@ Success: [how to verify]
 
 Check all criteria before marking done.
 
-### 6. Self-Check
+### 6. Verify (teste executável)
+
+Após implementar, avaliar se a task precisa de teste automatizado:
+
+- **Precisa de teste:** task toca lógica de negócio, mutação de estado, API, ou fluxo condicional → criar teste que prove o comportamento, rodar, verde = segue
+- **Não precisa:** task é apenas config, docs, rename, ou similar → verificação manual suficiente
+- Rodar apenas os testes do módulo/arquivo afetado pela task (não a suite completa)
+- A suite completa de testes roda uma vez só, após todas as tasks, antes do commit
+
+### 7. Self-Check
 
 Ask: "Would senior engineer flag this as overcomplicated?"
 
 - Yes → Simplify before continuing
-- No → Proceed to next task or Review phase (Fase 5)
-
-### 7. Awareness de Sinais (durante ajustes iterativos)
-
-Durante a implementação, o agente mantém consciência dos sinais de Review (R1-R8) e Security (S1-S11) presentes no diff. Ver [review.md](review.md) e [security.md](security.md) para tabelas completas.
-
-- Se detectar sinal → avisar o dev: "Detectei [sinal em arquivo:linha]. Quer rodar review/security agora ou deixar pro commit?"
-- Se dev diz "agora" → rodar a ferramenta imediatamente, retomar implementação
-- Se dev diz "depois" → anotar como pendente, continuar implementando
-- Se nenhum sinal → não interromper
-
-**Regra:** Não interromper para todo sinal trivial. Agrupar sinais relacionados e avisar uma vez. Ex: se 3 arquivos tocam auth, avisar uma vez — não 3 vezes.
+- No → Proceed to next task
 
 ### 8. Scope Guardrail
 
@@ -107,7 +105,7 @@ During implementation, you will notice things that could be improved, refactored
 
 Mark task complete in tasks.md. Update requirement traceability in spec.md if requirement IDs are used.
 
-Após completar todas as tasks (ou a task atual no Quick Mode), **perguntar ao dev se quer commitar** ([commit.md](commit.md)). Se sim, Review e Security rodam como gates obrigatórios antes do commit.
+Após completar todas as tasks (ou a task atual no Quick Mode), rodar `/simplify` sobre o diff acumulado → pedir ao dev para rodar a suite completa de testes → **perguntar ao dev se quer commitar** ([commit.md](commit.md)).
 
 ---
 
@@ -152,6 +150,8 @@ Ferramentas opcionais disponíveis durante Execute (configuradas via defaults op
 - [x] Done when criterion 2
 - [x] No unnecessary changes made
 - [x] Matches existing patterns
+- [x] Teste criado e passando (se aplicável)
+- [x] Testes do módulo afetado passando
 
 **Status**: ✅ Complete | ❌ Blocked | ⚠️ Partial
 ```
@@ -165,6 +165,6 @@ Ferramentas opcionais disponíveis durante Execute (configuradas via defaults op
 - **Reuses save tokens** — Copy patterns, don't reinvent
 - **Verify all criteria** — antes de marcar como concluído
 - **Stay surgical** — Touch only what's necessary
-- **Não commitar aqui** — o commit é responsabilidade da Fase 7
+- **Não commitar aqui** — após todas as tasks: /simplify → dev roda suite completa → commit
 - **Never "while I'm here"** — Scope creep during implementation is the #1 quality killer
 - **Learn from mistakes** — If something goes wrong, add a Lesson Learned to STATE.md

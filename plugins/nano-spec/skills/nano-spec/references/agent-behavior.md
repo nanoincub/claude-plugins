@@ -62,71 +62,32 @@ Quer ajustar algo? (Enter para seguir com defaults)
 
 | Fase | Máximo de re-runs | Após limite |
 |------|------------------|-------------|
-| Review (/review) | 3 | Escalar para dev com lista de issues pendentes |
-| Review (/simplify) | 3 | Escalar para dev |
-| Security (/security-review) | 3 | Escalar para dev — NUNCA commitar com issues abertas |
+| /simplify | 3 | Escalar para dev com lista de issues pendentes |
 
 Escalar = mostrar ao dev o que resta e perguntar como proceder.
 
 ---
 
-## Confiabilidade de subagentes
+## Qualidade de código
 
-Subagentes (Agent tool) são **coletores de dados, não juízes**. Quando usados para Review ou Security, o agente principal é o único responsável por classificar, filtrar e reportar findings.
+A qualidade é garantida incrementalmente durante o Execute:
 
-> **Regra de ouro:** Se o agente principal não fez `Read` da linha de código citada, o achado **NÃO** entra no relatório. Nenhuma exceção.
+1. **Verificação executável por task** — após implementar cada task, avaliar se precisa de teste. Se sim, criar e rodar. Rodar testes do módulo afetado.
+2. **/simplify após todas as tasks** — análise de reuse, qualidade e eficiência sobre o diff acumulado.
+3. **Suite completa de testes** — o agente pede ao dev para rodar, informando o comando. Evita gasto de tokens em output extenso.
 
-### Fluxo confirmativo
+### Review e Security (opt-in)
 
-```
-Subagente coleta observações factuais
-    → Agente principal verifica cada achado (Read, git diff, contexto)
-    → Apresenta findings confirmados ao dev com evidência
-    → Dev aprova quais corrigir
-    → Só então implementa correções
-```
+Review e Security estão **desativados por padrão**. Ativar via defaults opt-out no início da feature ou quando o dev pedir.
 
-O agente **NUNCA** corrige findings automaticamente. O dev é o juiz final — decide se o achado é real e como corrigir.
+- Review: ver [review.md](review.md)
+- Security: ver [security.md](security.md) — recomendado usar skill de segurança específica da stack do projeto
 
-### Prompt para subagentes
+### Subagentes (quando usados)
 
-Ao delegar análise de código para subagentes, o prompt **DEVE** conter:
+Se subagentes forem usados (ex: /simplify, subagent-driven-development), lembrar que são **coletores de dados, não juízes**. O agente principal é o responsável por classificar e filtrar findings.
 
-```
-Instruções:
-- Retorne o conteúdo exato dos trechos de código relevantes (arquivo, linha, código)
-- Descreva observações factuais ("função X chama Y na linha Z")
-- NÃO classifique severidade nem recomende correções
-- NÃO assuma ausência de mitigações que não verificou
-```
-
-### Gate de verificação
-
-Para **CADA** achado retornado por subagente, o agente principal **DEVE** executar antes de incluir no relatório:
-
-| Verificação | Como | Objetivo |
-|-------------|------|----------|
-| Código existe? | `Read` do arquivo e linha exata | Eliminar código fabricado |
-| Introduzido na branch? | `git diff` da branch | Separar novo de pré-existente |
-| Framework mitiga? | `Read` de config/middleware | Eliminar falso positivo de framework |
-| Decisão intencional? | `Read` de spec/CLAUDE.md ou perguntar ao dev | Respeitar contexto de domínio |
-
-### Padrões de falso positivo de subagentes
-
-| Padrão | Ação |
-|--------|------|
-| Código fabricado | `Read` da linha — confirmar que o código existe exatamente como descrito |
-| Inflação de severidade | Verificar mitigações existentes (rate limiting, captcha, middleware, validação) |
-| Ignorar contexto de domínio | Verificar se é decisão documentada; na dúvida, perguntar ao dev |
-| Misturar pré-existente com novo | `git diff` — só incluir issues introduzidos pela branch |
-| Falso positivo de framework | Verificar proteções automáticas (escape de templates, CSRF, prepared statements) |
-| Null safety sem contexto | Verificar schema/migrations — relações obrigatórias garantem existência |
-
-### Quando escalar
-
-Se após verificação restarem achados ambíguos (não claramente falso positivo nem claramente real), **escalar para o dev** com o contexto completo (código, evidência, dúvida) em vez de classificar arbitrariamente.
-
-Ver detalhes específicos em [review.md](review.md) e [security.md](security.md).
+> **Regra de ouro:** Se o agente principal não fez `Read` da linha de código citada, o achado **NÃO** entra no relatório.
 
 ---
 
@@ -138,11 +99,8 @@ Ver detalhes específicos em [review.md](review.md) e [security.md](security.md)
 ### Scope creep durante Execute
 > "Isso parece fora do escopo da task. Anoto em Deferred Ideas?"
 
-### Sinais de review/security detectados
-> "Detectei [sinal R3/S2 em arquivo:linha]. Quer rodar review/security agora ou deixar pro commit?"
-
-### Skip de gates obrigatórios
-> "Review e Security são obrigatórios antes do commit. Quer commitar agora?"
+### Skip de /simplify ou testes
+> "/simplify é obrigatório e dev deve rodar suite de testes antes do commit. Quer pular?"
 
 Se dev confirmar skip → aceitar e registrar em STATE.md.
 
@@ -166,8 +124,9 @@ Se dev confirmar skip → aceitar e registrar em STATE.md.
 
 | Tarefa | Sem skill (fallback manual) | Com skill |
 |--------|---------------------------|-----------|
-| Review | Ler arquivos modificados + analisar critérios | Skill tool: `simplify` |
-| Security | Auditoria manual contra OWASP | Skill tool: `security-best-practices` |
+| /simplify | Ler diff + analisar reuse/quality/efficiency | Skill tool: `simplify` |
+| Review (opt-in) | Ler arquivos modificados + analisar critérios | Skill tool: `simplify` |
+| Security (opt-in) | Auditoria manual contra OWASP | Skill de segurança da stack |
 | Diagramas | Inline mermaid no markdown | mermaid-studio |
 | Exploração de código | Grep, Glob, Read (built-in) | codenavi |
 | TDD | Ciclo implement → verify | superpowers:test-driven-development |
@@ -178,8 +137,7 @@ Se dev confirmar skip → aceitar e registrar em STATE.md.
 | Verificação formal | Self-check manual | superpowers:verification-before-completion |
 | Output de artefatos | `.specs/features/[feature]/` | `.specs/features/[feature]/` (sempre) |
 
-**Regra de fallback:** Se uma skill não está instalada, a fase NÃO é pulada.
-O agente executa o fallback manual. Review e Security são sempre obrigatórios.
+**Regra de fallback:** Se a skill `simplify` não está instalada, o agente executa o fallback manual (ler diff + analisar). /simplify é sempre obrigatório antes do commit.
 
 ---
 
@@ -190,7 +148,7 @@ O agente executa o fallback manual. Review e Security são sempre obrigatórios.
 # Exemplo: CRUD simples
 Processo Nano Incub com override:
 - Design: sempre pular
-- Security: /security-review obrigatório
+- Security: opt-in (skill de segurança da stack)
 
 # Exemplo: projeto crítico
 Processo Nano Incub com override:
@@ -200,4 +158,4 @@ Processo Nano Incub com override:
 - Security: /security-review + relatório completo
 ```
 
-Review e Security nunca podem ser desativados — apenas ajustados em profundidade.
+/simplify e suite de testes nunca podem ser desativados — apenas ajustados em profundidade. Review e Security são opt-in.

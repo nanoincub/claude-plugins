@@ -1,8 +1,10 @@
-# Review
+# Review (opt-in)
 
-**Goal**: Garantir que o código está correto, limpo e eficiente antes de Security e Commit.
+**Desativado por padrão.** Ativar via defaults opt-out no início da feature ou quando o dev pedir explicitamente.
 
-**Obrigatória antes de qualquer commit.** Durante ajustes, o agente detecta sinais no diff e pergunta ao dev se quer rodar agora ou deixar pro commit.
+**Goal**: Garantir que o código está correto, limpo e eficiente.
+
+**Nota:** A qualidade de código é garantida por /simplify (obrigatório) + verificação executável por task. Esta fase adicional é recomendada para projetos críticos ou quando o dev preferir uma camada extra de revisão.
 
 ## Sinais de Review (baseados no diff)
 
@@ -19,7 +21,7 @@ O agente avalia o diff real após cada ajuste. Se ALGUM sinal é detectado, avis
 | R7 | Volume com lógica | >5 arquivos com código (não docs/config) |
 | R8 | Testes | Testes novos ou modificados |
 
-**Sinais servem para perguntas antecipadas** — se detectados durante ajustes, o agente pergunta se quer rodar review agora. Mas review roda SEMPRE antes do commit, com ou sem sinais detectados.
+**Sinais servem para perguntas antecipadas** — quando review está ativado, se detectados durante ajustes, o agente pergunta se quer rodar review agora.
 
 ## Fluxo Confirmativo
 
@@ -27,7 +29,7 @@ O agente avalia o diff real após cada ajuste. Se ALGUM sinal é detectado, avis
 2. Se sinal detectado → avisar o dev: "Detectei [sinal]. Quer rodar review agora ou deixar pro commit?"
 3. Se dev diz "agora" → rodar /review imediatamente
 4. Se dev diz "depois" → anotar sinal como pendente
-5. Antes do commit → rodar /review sobre diff acumulado (SEMPRE — obrigatório)
+5. Antes do commit → rodar /review sobre diff acumulado (se review ativado)
 
 **Regra:** Não interromper para todo sinal trivial. Agrupar sinais relacionados e avisar uma vez.
 **Escape hatch:** Na dúvida entre rodar ou skipar → RODAR.
@@ -139,13 +141,13 @@ Ver [agent-behavior.md](agent-behavior.md) para regras gerais de confiabilidade 
 
 ## Quick Mode
 
-No Quick Mode (≤3 files): /review apenas (sem /simplify). Só executa quando sinais R1-R8 detectados e dev confirma commit.
+No Quick Mode (≤3 files): /review apenas (sem /simplify). Só executa quando review está ativado e dev confirma.
 
 ---
 
 ## Tips
 
-- Review é obrigatória antes de qualquer commit quando sinais são detectados — na dúvida, rodar
+- Review é opt-in — ativar via defaults ou quando dev pedir
 - Foque em Critical/Important primeiro
 - Suggestions são para o futuro — anote em STATE.md
 - Re-review após correção — correções podem introduzir problemas
