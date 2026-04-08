@@ -13,6 +13,13 @@
       "category": "development",
       "source": "./plugins/nano-spec",
       "homepage": "https://github.com/nanoincub/claude-plugins"
+    },
+    {
+      "name": "nano-resumo-dia",
+      "description": "Timeline de trabalho extraída dos históricos de sessão do Claude Code. Resumo por projeto, time track e métricas.",
+      "category": "productivity",
+      "source": "./plugins/nano-resumo-dia",
+      "homepage": "https://github.com/nanoincub/claude-plugins"
     }
   ]
 }

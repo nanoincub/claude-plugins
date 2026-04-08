@@ -1,0 +1,8 @@
+{
+  "name": "nano-resumo-dia",
+  "version": "1.0.0",
+  "description": "Timeline de trabalho extraída dos históricos de sessão do Claude Code",
+  "author": {
+    "name": "Nano Incub"
+  }
+}
