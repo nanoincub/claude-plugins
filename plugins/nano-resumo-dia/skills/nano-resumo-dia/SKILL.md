@@ -21,7 +21,7 @@ Extrai uma timeline de trabalho a partir dos históricos de sessão do Claude Co
 | Descrição | Primeira mensagem do usuário (limpa, até 80 chars) |
 | Duração | Diferença entre primeiro e último timestamp da sessão no dia |
 | Msgs | Total de mensagens (user + assistant) |
-| Session ID | ID da sessão (truncado a 8 chars na tabela) |
+| Session ID | ID completo da sessão (UUID, compatível com `claude --resume`) |
 
 ## Instruções
 
