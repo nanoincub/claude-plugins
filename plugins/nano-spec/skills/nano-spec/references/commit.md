@@ -8,6 +8,10 @@
 
 ## Processo
 
+### 0. Validação de branch (gitflow)
+
+Antes de qualquer commit, verificar a branch atual conforme [gitflow.md](gitflow.md). Se em branch protegida, sugerir criação de feature/hotfix branch. Sugestão, não bloqueio — dev tem a palavra final.
+
 ### 1. Perguntar ao dev
 
 Após concluir o Execute (ou série de ajustes), perguntar:

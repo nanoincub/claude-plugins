@@ -9,7 +9,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 2.7.0
+  version: 2.8.0
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -81,10 +81,12 @@ Do CLAUDE.md e PROJECT.md, extrair e aplicar automaticamente:
 | **Padrões de código** | coding-principles adaptados | camelCase, PascalCase, sufixos |
 | **Regras de arquitetura** | Design, constraints | multi-tenancy, migrations centrais |
 | **Containers/infra** | Comandos Artisan, migrations | Sempre via Docker |
+| **Modelo de branching** | Commit (gitflow gate) | gitflow clássico, trunk-based, branches protegidas |
 
 ### 3. Regras de adaptação
 
 - **Templates são esqueletos** — os exemplos dentro deles devem refletir a stack do projeto, não exemplos genéricos
+- **Se o CLAUDE.md define modelo de branching** → usar esse modelo ao invés do gitflow clássico padrão
 - **Se o CLAUDE.md define scopes de commit** → usar esses scopes, não inventar
 - **Se o CLAUDE.md define comandos** (test, migrate, artisan) → usar esses comandos no Execute
 - **Se o projeto tem .specs/codebase/** → carregar docs relevantes antes do Design
@@ -101,6 +103,7 @@ Projeto: [nome]
 Stack: [linguagem/framework/versão]
 Idioma: [PT-BR/EN/...]
 Scopes de commit: [lista]
+Branching: [gitflow clássico / trunk-based / custom]
 Comando de teste: [comando]
 Regras especiais: [lista resumida]
 ```
@@ -283,6 +286,7 @@ dentro de `.specs/features/[feature]/` — **NUNCA** em `docs/superpowers/` ou `
 | Auditoria de segurança | [security.md](references/security.md) |
 | Atualizar docs do codebase | [docs-update.md](references/docs-update.md) |
 | Commitar | [commit.md](references/commit.md) |
+| Gitflow / branching | [gitflow.md](references/gitflow.md) |
 | Quick fix | [quick-mode.md](references/quick-mode.md) |
 
 ## Comportamento do Agente
@@ -302,7 +306,7 @@ Ver [agent-behavior.md](references/agent-behavior.md). Resumo:
 | Execute | Ciclo implement → verify (teste) | + TDD, worktrees, subagents, debug (opcionais) |
 | /simplify | /simplify sobre diff acumulado | (mesma skill) |
 | Docs | Checklist manual contra `.specs/codebase/` | `brownfield-mapping` para regenerar docs se necessário |
-| Commit | Conventional Commits | + `finishing-a-development-branch` (se worktree) |
+| Commit | Conventional Commits + gitflow gate | + `finishing-a-development-branch` (se worktree) |
 
 ## Context Loading
 

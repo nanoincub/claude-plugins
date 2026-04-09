@@ -90,6 +90,7 @@ nano-spec/
 │           ├── security.md          # Auditoria de segurança
 │           ├── docs-update.md       # Atualização de docs
 │           ├── commit.md            # Commit com gates
+│           ├── gitflow.md           # Gitflow e validação de branch
 │           ├── quick-mode.md        # Quick fixes
 │           ├── discuss.md           # Discussão de áreas cinzas
 │           ├── concerns.md          # Documentação de riscos
@@ -112,6 +113,6 @@ nano-spec/
 
 ## Versão
 
-2.7.0 — Verificação executável por task, /simplify obrigatório, Review/Security opt-in.
+2.8.0 — Gitflow clássico integrado na fase Commit com validação de branch e orientação de merge.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.
