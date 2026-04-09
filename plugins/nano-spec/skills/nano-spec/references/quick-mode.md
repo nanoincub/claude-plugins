@@ -39,6 +39,19 @@ Verify: [how to prove it works]
 
 Get user approval before proceeding. If the pre-implementation check reveals the task is bigger than expected (>3 files, unclear dependencies, design decisions needed), recommend the full pipeline instead.
 
+### 2.5. Gate: Gitflow (obrigatório)
+
+Antes de implementar, verificar branch atual conforme [gitflow.md](gitflow.md):
+
+1. Executar `git branch --show-current`
+2. Se branch protegida (`main`, `develop`, `master`):
+   - Executar `git pull` para partir da versão mais recente
+   - Sugerir criação de branch de trabalho (`fix/*`, `feature/*`, `hotfix/*`)
+   - Aguardar decisão do dev antes de continuar
+3. Se branch de trabalho (`feature/*`, `hotfix/*`, etc.) → seguir normalmente
+
+**Este gate NÃO é opcional.** Quick Mode simplifica cerimônia, não pula safety gates.
+
 ### 3. Implement
 
 Follow [coding-principles.md](coding-principles.md):
@@ -88,7 +101,7 @@ Ver [docs-update.md](docs-update.md) para detalhes.
 
 ### 9. Commit
 
-Criar commit atômico. Ver [commit.md](commit.md) para formato completo.
+Seguir [commit.md](commit.md) **incluindo validação de branch (seção 0)**. Se o gate de gitflow foi pulado ou o dev escolheu ficar na branch protegida, esta é a última chance de criar branch antes de commitar.
 
 ```
 <type>(<scope>): <description>

@@ -113,6 +113,6 @@ nano-spec/
 
 ## Versão
 
-2.8.0 — Gitflow clássico integrado na fase Commit com validação de branch e orientação de merge.
+2.8.1 — Fix: gitflow gate obrigatório no Quick Mode — impede commit direto em branches protegidas.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.

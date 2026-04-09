@@ -53,7 +53,13 @@ O gitflow atua em dois momentos ao iniciar trabalho novo:
 
 ### Pré-specify: atualizar branch base
 
-Se em branch protegida, executar `git pull` para garantir que o trabalho parte da versão mais recente do remoto. Neste ponto ainda não se sabe o tipo de branch a criar.
+Se em branch protegida, executar:
+
+```bash
+git pull origin <branch-atual>
+```
+
+Garante que o trabalho parte da versão mais recente. Neste ponto ainda não se sabe o tipo de branch a criar.
 
 ### Pré-execute: criar branch de trabalho
 
@@ -71,6 +77,14 @@ Quer que eu crie a branch? (informe o nome ou aceite a sugestão)
 Ou prefere trabalhar direto aqui? ⚠️ Em projetos com mais de um dev,
 commitar direto em [branch] pode causar conflitos e sobrescrever trabalho de colegas.
 ```
+
+**Ao criar a branch, executar exatamente:**
+
+```bash
+git checkout -b <tipo>/<nome> <branch-base>
+```
+
+Onde `<branch-base>` é `develop` para features e `main` para hotfixes. Ver seção "Comandos Exatos por Fluxo" para sequências completas.
 
 **Regras:**
 - Sempre sugerir, nunca bloquear — o dev tem a palavra final
@@ -90,17 +104,83 @@ Se o gate de início de trabalho foi pulado ou o dev escolheu ficar na branch pr
 
 ---
 
-## Orientação de Merge
+## Comandos Exatos por Fluxo
 
-Quando o dev perguntar sobre merge ou quando o fluxo envolver integração:
+Sequências completas para cada tipo de branch. O agente DEVE usar estes comandos — não improvisar.
 
-- **Feature → develop**: sempre `--no-ff` para preservar histórico como grupo. Deletar branch após merge.
-- **Release → main + develop**: merge na main, criar tag `v<version>`, merge de volta na develop. Deletar branch.
-- **Hotfix → main + develop**: merge na main, criar tag, merge na develop. Se existe `release/*` ativa, merge na release ao invés de develop.
+### Feature
 
-**Regras:**
-- Sempre `--no-ff` em todos os merges
+```bash
+# Criar
+git checkout develop
+git pull origin develop
+git checkout -b feature/<scope>-<slug>
+
+# Trabalhar (commits normais)
+
+# Finalizar (após confirmação do dev)
+git checkout develop
+git pull origin develop
+git merge --no-ff feature/<scope>-<slug>
+git branch -d feature/<scope>-<slug>
+git push origin develop
+```
+
+### Release
+
+```bash
+# Criar
+git checkout develop
+git pull origin develop
+git checkout -b release/<version>
+
+# Preparar (bump version, docs, fixes menores)
+
+# Finalizar
+git checkout main
+git pull origin main
+git merge --no-ff release/<version>
+git tag -a v<version> -m "Release <version>"
+git checkout develop
+git merge --no-ff release/<version>
+git branch -d release/<version>
+git push origin main
+git push origin develop
+git push --tags
+```
+
+### Hotfix
+
+```bash
+# Criar
+git checkout main
+git pull origin main
+git checkout -b hotfix/<scope>-<slug>
+
+# Corrigir (commits normais)
+
+# Finalizar
+git checkout main
+git merge --no-ff hotfix/<scope>-<slug>
+git tag -a v<version> -m "Hotfix <version>"
+git checkout develop
+git merge --no-ff hotfix/<scope>-<slug>
+git branch -d hotfix/<scope>-<slug>
+git push origin main
+git push origin develop
+git push --tags
+```
+
+**Se existe `release/*` ativa durante hotfix:** merge na release ao invés de develop.
+
+---
+
+## Regras de Merge
+
+- Sempre `--no-ff` em todos os merges — preserva histórico como grupo
+- Sempre `git pull` antes de merge — evita conflitos por branch desatualizada
 - O agente orienta mas NÃO executa merges em branches protegidas sem confirmação do dev
+- Deletar branch local após merge bem-sucedido
 
 ---
 

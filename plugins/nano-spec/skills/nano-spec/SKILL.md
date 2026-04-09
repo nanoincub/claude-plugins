@@ -9,7 +9,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 2.8.0
+  version: 2.8.1
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -156,13 +156,16 @@ Documentação estruturada do projeto. Consultar antes de tomar decisões.
 
 Isto garante que qualquer agente que leia o CLAUDE.md saiba exatamente onde buscar cada tipo de informação.
 
-## Gate: Gitflow — em dois momentos
+## Gate: Gitflow — em TODOS os modos (incluindo Quick Mode)
 
-Conforme [gitflow.md](references/gitflow.md):
+Conforme [gitflow.md](references/gitflow.md). **Este gate NÃO é opcional.**
 
-1. **Pré-specify:** Se em branch protegida (`main`, `develop`, `master`), executar `git pull` para garantir que o trabalho parte da versão mais recente. Se o CLAUDE.md desativa gitflow, pular.
-2. **Pré-execute:** Sugerir criação da branch de trabalho (`feature/*`, `hotfix/*`, `release/*`) — neste ponto já se sabe o tipo de trabalho.
-3. **Pós-commit:** Perguntar ao dev sobre fechamento da branch — merge, PR, continuar trabalhando, ou manter.
+1. **Pré-specify (ou pré-describe no Quick Mode):** Se em branch protegida (`main`, `develop`, `master`), executar `git pull` para garantir que o trabalho parte da versão mais recente. Se o CLAUDE.md desativa gitflow, pular.
+2. **Pré-execute (ou pré-implement no Quick Mode):** Sugerir criação da branch de trabalho (`feature/*`, `hotfix/*`, `release/*`) — neste ponto já se sabe o tipo de trabalho. Aguardar decisão do dev antes de implementar.
+3. **Pré-commit (última chance):** Se steps 1-2 foram pulados, verificar branch antes de commitar. Última oportunidade de criar branch de trabalho.
+4. **Pós-commit:** Perguntar ao dev sobre fechamento da branch — merge, PR, continuar trabalhando, ou manter.
+
+**Quick Mode simplifica cerimônia de planejamento, não pula safety gates.** Ver seção "Gate: Gitflow" em [quick-mode.md](references/quick-mode.md).
 
 ## Defaults Opt-Out
 
@@ -191,7 +194,7 @@ no CLAUDE.md do projeto, nunca mais perguntar.
 2. Inicializar projeto → PROJECT.md + ROADMAP.md
 3. Para cada feature → mesmo fluxo adaptativo
 
-**Quick mode:** Descrever → Implementar → Verificar → /simplify → Suite de testes → Docs (inline) → Commit
+**Quick mode:** Descrever → **Gitflow gate** → Implementar → Verificar → /simplify → Suite de testes → Docs (inline) → Commit
 
 ## Getting Started
 
