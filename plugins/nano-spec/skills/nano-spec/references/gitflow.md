@@ -41,43 +41,52 @@ Exemplos:
 
 ---
 
-## Validação de Branch (Gate pré-commit)
+## Início de Trabalho (dois momentos)
 
-Antes de commitar, o agente DEVE verificar a branch atual:
+O gitflow atua em dois momentos ao iniciar trabalho novo:
 
-### Branches protegidas (NÃO commitar diretamente)
+### Branches protegidas
 
 - `main`
 - `develop`
 - `master` (alias de main em projetos legados)
 
-### Ação quando em branch protegida
+### Pré-specify: atualizar branch base
 
-Se o dev está em `main`, `develop` ou `master`:
+Se em branch protegida, executar `git pull` para garantir que o trabalho parte da versão mais recente do remoto. Neste ponto ainda não se sabe o tipo de branch a criar.
+
+### Pré-execute: criar branch de trabalho
+
+Após Specify (e Design/Tasks se aplicável), o tipo de trabalho já é conhecido. Sugerir criação da branch:
 
 ```
-⚠️ Você está na branch [branch]. Gitflow recomenda não commitar diretamente aqui.
+⚠️ Você está na branch [branch]. Gitflow recomenda criar uma branch de trabalho.
 
-Sugestão: criar uma branch antes de commitar.
-  → feature/<scope>-<slug>  (para features/refactors)
-  → hotfix/<scope>-<slug>   (para correção urgente)
+Sugestão:
+  → git checkout -b feature/<scope>-<slug>  (para features/refactors)
+  → git checkout -b hotfix/<scope>-<slug>   (para correção urgente)
+  → git checkout -b release/<version>       (para preparação de release)
 
 Quer que eu crie a branch? (informe o nome ou aceite a sugestão)
-Ou prefere commitar aqui mesmo? (seu projeto, sua decisão)
+Ou prefere trabalhar direto aqui? ⚠️ Em projetos com mais de um dev,
+commitar direto em [branch] pode causar conflitos e sobrescrever trabalho de colegas.
 ```
 
 **Regras:**
 - Sempre sugerir, nunca bloquear — o dev tem a palavra final
-- Se o dev confirmar que quer commitar na branch protegida, seguir sem insistir
+- Se o dev confirmar que quer trabalhar na branch protegida, seguir sem insistir
 - A sugestão de nome deve usar o scope da feature/fix atual
 
-### Branches válidas para commit direto
+### Branches válidas para trabalho direto
 
-- `feature/*` — desenvolvimento normal
-- `hotfix/*` — correção urgente
-- `release/*` — preparação de release
-- `support/*` — manutenção de versão
+- `feature/*`, `hotfix/*`, `release/*`, `support/*` — já isoladas, seguir normalmente
 - Qualquer branch personalizada que não seja protegida
+
+---
+
+## Validação de Branch (Gate pré-commit)
+
+Se o gate de início de trabalho foi pulado ou o dev escolheu ficar na branch protegida, o agente verifica novamente antes do commit conforme [commit.md](commit.md) Step 0. Última chance de criar branch antes de commitar.
 
 ---
 
@@ -115,9 +124,11 @@ Se o CLAUDE.md não menciona branching → usar gitflow clássico como default.
 
 | Fase | Comportamento com gitflow |
 |------|--------------------------|
-| **Execute** | Se worktree ativado, branch já está isolada — gitflow não interfere |
-| **Commit** | Validação de branch como Step 0 (ver [commit.md](commit.md)) |
-| **Finishing branch** | Se superpowers instalado, `finishing-a-development-branch` apresenta opções de merge |
+| **Pré-specify** | `git pull` se em branch protegida, para partir da versão mais recente |
+| **Pré-execute** | Sugerir criação de branch de trabalho — tipo já conhecido. Se worktree ativado, branch já está isolada |
+| **Commit** | Gate pré-commit: última verificação de branch (Step 0 em [commit.md](commit.md)) |
+| **Pós-commit** | 4 opções: review + merge, merge direto, continuar trabalhando, manter. Alerta de desvio de escopo da branch |
+| **Finishing branch** | Se superpowers/worktree, `finishing-a-development-branch` com cleanup adicional |
 
 ---
 

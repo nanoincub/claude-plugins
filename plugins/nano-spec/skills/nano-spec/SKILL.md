@@ -156,6 +156,14 @@ Documentação estruturada do projeto. Consultar antes de tomar decisões.
 
 Isto garante que qualquer agente que leia o CLAUDE.md saiba exatamente onde buscar cada tipo de informação.
 
+## Gate: Gitflow — em dois momentos
+
+Conforme [gitflow.md](references/gitflow.md):
+
+1. **Pré-specify:** Se em branch protegida (`main`, `develop`, `master`), executar `git pull` para garantir que o trabalho parte da versão mais recente. Se o CLAUDE.md desativa gitflow, pular.
+2. **Pré-execute:** Sugerir criação da branch de trabalho (`feature/*`, `hotfix/*`, `release/*`) — neste ponto já se sabe o tipo de trabalho.
+3. **Pós-commit:** Perguntar ao dev sobre fechamento da branch — merge, PR, continuar trabalhando, ou manter.
+
 ## Defaults Opt-Out
 
 No início de cada feature (Medium+), apresentar defaults e deixar dev ajustar:

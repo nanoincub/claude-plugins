@@ -153,17 +153,57 @@ Se usando tasks.md, marcar a task como completa e atualizar rastreabilidade em s
 
 ---
 
-## Se git worktree foi usado
+## Fechamento de Branch (gitflow)
 
-Quando `superpowers:using-git-worktrees` foi usado no Execute, após commitar invocar
-`superpowers:finishing-a-development-branch` que apresenta 4 opções:
+Após commitar, se o trabalho foi feito em uma branch criada pelo gitflow (`feature/*`, `hotfix/*`, `release/*`), perguntar ao dev sobre o próximo passo:
 
-1. Merge local para branch base
-2. Push + criar PR
-3. Manter branch como está
-4. Descartar trabalho
+```
+Commit feito na branch [branch]. Como quer prosseguir?
 
-Se worktree NÃO foi usado → apenas commit (e push se dev solicitar).
+  1. Review + merge para [branch-destino] (recomendado)
+  2. Merge direto para [branch-destino]
+  3. Continuar trabalhando nesta branch (mais commits pendentes)
+  4. Manter branch como está (sem ação agora)
+```
+
+**Branch destino** conforme [gitflow.md](gitflow.md):
+- `feature/*` → `develop`
+- `hotfix/*` → `main` + `develop`
+- `release/*` → `main` + `develop`
+
+**Regras:**
+- Sempre perguntar — nunca fazer merge ou push automaticamente
+- **Opção 1:** rodar review do diff da branch contra a branch destino antes do merge. Recomendado para features médias/grandes
+- **Opção 2:** merge direto com `--no-ff`. Adequado para quick fixes e mudanças pequenas
+- Se release/hotfix, orientar sobre tag após merge
+- Se houver mais tasks pendentes na mesma feature, opção 3 é a natural
+
+### Alerta de desvio de escopo
+
+Ao commitar, o agente DEVE verificar se o trabalho é coerente com o propósito da branch atual. Se detectar desvio, alertar:
+
+```
+⚠️ Você está na branch feature/login, mas este commit toca [área diferente].
+Isso deveria estar em uma branch separada?
+
+  → Criar nova branch para este trabalho (recomendado)
+  → Commitar aqui mesmo (minha branch, minha decisão)
+```
+
+**Sinais de desvio:**
+- Commit com scope diferente do scope da branch (ex: branch `feature/login`, commit toca `sms` ou `infra`)
+- Arquivos modificados fora do domínio da feature (ex: branch de feature tocando configs de deploy)
+- Tipo de trabalho incompatível (ex: branch `feature/*` com trabalho de `hotfix`)
+
+**Regras:**
+- Alertar uma vez por desvio detectado — não insistir se o dev optar por continuar
+- Se o dev pedir para criar nova branch, stashar mudanças atuais, criar a branch correta, e aplicar
+
+### Se git worktree foi usado
+
+Quando `superpowers:using-git-worktrees` foi usado no Execute, invocar
+`superpowers:finishing-a-development-branch` que apresenta as mesmas opções
+com suporte adicional para cleanup do worktree.
 
 ---
 

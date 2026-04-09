@@ -10,6 +10,8 @@ This is where code gets written. Every task follows the same cycle: plan → imp
 
 ## MANDATORY: Before Starting Any Implementation
 
+**Verificar branch (gitflow):** Se em branch protegida, sugerir criação da branch de trabalho apropriada (`feature/*`, `hotfix/*`, `release/*`) conforme [gitflow.md](gitflow.md). Neste ponto o tipo de trabalho já é conhecido.
+
 **Read [coding-principles.md](coding-principles.md) and state:**
 
 1. **Assumptions** - What am I assuming? Any uncertainty?
