@@ -333,38 +333,38 @@ def format_markdown(sessions, target_date):
 
     all_summary = build_project_summary(sessions)
 
-    # Filtrar projetos com menos de 15 min de interação real e ordenar por início
-    sorted_projects = sorted(
-        [(p, ps) for p, ps in all_summary.items() if ps["total_duration"] >= 15],
-        key=lambda x: x[1]["start"],
-    )
-
-    timetrack_entries = []
-    cursor = None  # onde o próximo entry começa
-
-    for p, ps in sorted_projects:
-        active_min = ps["total_duration"]
-        block_min = round_up_15(active_min)
-
-        if cursor is None:
-            entry_start = round_time_15(ps["start"], "down")
-        else:
-            # Se o início real é depois do cursor, usa o início real arredondado
-            if ps["start"] > cursor:
+    def build_timetrack_entries(session_list):
+        """Constrói entries de time track a partir de uma lista de sessões."""
+        summary = build_project_summary(session_list)
+        sorted_projects = sorted(
+            [(p, ps) for p, ps in summary.items() if ps["total_duration"] >= 15],
+            key=lambda x: x[1]["start"],
+        )
+        entries = []
+        cursor = None
+        for p, ps in sorted_projects:
+            active_min = ps["total_duration"]
+            block_min = round_up_15(active_min)
+            if cursor is None:
                 entry_start = round_time_15(ps["start"], "down")
             else:
-                entry_start = cursor
+                if ps["start"] > cursor:
+                    entry_start = round_time_15(ps["start"], "down")
+                else:
+                    entry_start = cursor
+            entry_end = entry_start + timedelta(minutes=block_min)
+            cursor = entry_end
+            entries.append({
+                "project": p,
+                "start": entry_start.strftime("%H:%M"),
+                "end": entry_end.strftime("%H:%M"),
+                "duration": f"{block_min // 60:02d}:{block_min % 60:02d}",
+                "active_min": active_min,
+            })
+        return entries
 
-        entry_end = entry_start + timedelta(minutes=block_min)
-        cursor = entry_end
-
-        timetrack_entries.append({
-            "project": p,
-            "start": entry_start.strftime("%H:%M"),
-            "end": entry_end.strftime("%H:%M"),
-            "duration": f"{block_min // 60:02d}:{block_min % 60:02d}",
-            "active_min": active_min,
-        })
+    tt_manha = build_timetrack_entries(manha)
+    tt_tarde = build_timetrack_entries(tarde)
 
     lines.append("")
     lines.append("## Sugestão para Time Track")
@@ -373,15 +373,29 @@ def format_markdown(sessions, target_date):
     lines.append("> arredondados para cima em blocos de **15 minutos** (mínimo 15 min por projeto),")
     lines.append("> organizados **sequencialmente** sem sobreposição.")
     lines.append("> Sessões com menos de 15 min de interação real são descartadas.")
-    lines.append("")
-    lines.append("| Horário | Duração | Projeto | Resumo |")
-    lines.append("|---------|---------|---------|--------|")
-    for e in timetrack_entries:
-        lines.append(f"| {e['start']} - {e['end']} | {e['duration']} | `{e['project']}` | {{RESUMO}} |")
 
-    total_tt = sum(e["active_min"] for e in timetrack_entries)
-    total_block = sum(round_up_15(e["active_min"]) for e in timetrack_entries)
-    lines.append(f"\n*Interação real: {total_tt} min | Arredondado (blocos 15 min): {total_block} min*")
+    def render_tt_table(entries, lines):
+        lines.append("")
+        lines.append("| Horário | Duração | Projeto | Resumo |")
+        lines.append("|---------|---------|---------|--------|")
+        for e in entries:
+            lines.append(f"| {e['start']} - {e['end']} | {e['duration']} | `{e['project']}` | {{RESUMO}} |")
+        sub_tt = sum(e["active_min"] for e in entries)
+        sub_block = sum(round_up_15(e["active_min"]) for e in entries)
+        lines.append(f"\n*Interação real: {sub_tt} min | Arredondado (blocos 15 min): {sub_block} min*")
+
+    if tt_manha:
+        lines.append("")
+        lines.append("### Manhã")
+        render_tt_table(tt_manha, lines)
+
+    if tt_tarde:
+        lines.append("")
+        lines.append("### Tarde")
+        render_tt_table(tt_tarde, lines)
+
+    if not tt_manha and not tt_tarde:
+        lines.append("\nNenhum projeto com ≥ 15 min de interação real.")
 
     # Itens ignorados (< 15 min de interação real)
     ignored = [(p, ps) for p, ps in all_summary.items() if ps["total_duration"] < 15]
