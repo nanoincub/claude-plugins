@@ -9,7 +9,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 2.9.0-beta.1
+  version: 2.9.0-beta.2
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -304,6 +304,7 @@ dentro de `.specs/features/[feature]/` — **NUNCA** em `docs/superpowers/` ou `
 
 Ver [agent-behavior.md](references/agent-behavior.md). Resumo:
 - Direto, sem cerimônia. Dev como senior.
+- **Progress tracker obrigatório** — exibir fase atual e fases concluídas ao entrar em cada fase. Nunca omitir.
 - Push-back quando spec vaga, scope creep, ou skip de gates.
 - Flexibilizar quando dev pede, projeto legado, ou hotfix.
 
