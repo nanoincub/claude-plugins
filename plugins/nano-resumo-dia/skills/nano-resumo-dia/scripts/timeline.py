@@ -203,6 +203,7 @@ def extract_sessions(target_date):
                         "user_msgs": user_msgs,
                         "assistant_msgs": assistant_msgs,
                         "session_id": session_id,
+                        "all_timestamps": sorted(all_timestamps),
                     })
             except Exception:
                 continue
@@ -313,7 +314,7 @@ def format_markdown(sessions, target_date):
         lines.append("### Tarde")
         render_summary_table(tarde_summary, lines)
 
-    # Sugestão de Time Track
+    # Sugestão de Time Track — baseada em clusters de atividade por projeto
     import math
 
     def round_up_15(minutes):
@@ -331,48 +332,98 @@ def format_markdown(sessions, target_date):
             rounded = minute + (15 - minute % 15) if minute % 15 != 0 else minute
         return dt.replace(minute=0, second=0) + timedelta(minutes=rounded)
 
-    all_summary = build_project_summary(sessions)
-
-    def build_timetrack_entries(session_list):
-        """Constrói entries de time track a partir de uma lista de sessões."""
-        summary = build_project_summary(session_list)
-        sorted_projects = sorted(
-            [(p, ps) for p, ps in summary.items() if ps["total_duration"] >= 15],
-            key=lambda x: x[1]["start"],
-        )
-        entries = []
-        cursor = None
-        for p, ps in sorted_projects:
-            active_min = ps["total_duration"]
-            block_min = round_up_15(active_min)
-            if cursor is None:
-                entry_start = round_time_15(ps["start"], "down")
+    def cluster_timestamps(timestamps, gap_minutes=15):
+        """Agrupa timestamps em clusters onde o gap entre msgs consecutivas < gap_minutes."""
+        if not timestamps:
+            return []
+        sorted_ts = sorted(timestamps)
+        clusters = []
+        current = [sorted_ts[0]]
+        for ts in sorted_ts[1:]:
+            if (ts - current[-1]).total_seconds() < gap_minutes * 60:
+                current.append(ts)
             else:
-                if ps["start"] > cursor:
-                    entry_start = round_time_15(ps["start"], "down")
-                else:
-                    entry_start = cursor
-            entry_end = entry_start + timedelta(minutes=block_min)
-            cursor = entry_end
-            entries.append({
-                "project": p,
-                "start": entry_start.strftime("%H:%M"),
-                "end": entry_end.strftime("%H:%M"),
-                "duration": f"{block_min // 60:02d}:{block_min % 60:02d}",
-                "active_min": active_min,
-            })
-        return entries
+                clusters.append(current)
+                current = [ts]
+        clusters.append(current)
+        return clusters
 
-    tt_manha = build_timetrack_entries(manha)
-    tt_tarde = build_timetrack_entries(tarde)
+    def build_timetrack_from_clusters(session_list):
+        """Junta todos os timestamps por projeto, clusteriza e gera entries de time track."""
+        # Agregar timestamps por projeto
+        project_timestamps = defaultdict(list)
+        for s in session_list:
+            project_timestamps[s["project"]].extend(s["all_timestamps"])
+
+        entries = []
+        ignored = []
+        for project, timestamps in project_timestamps.items():
+            clusters = cluster_timestamps(timestamps, gap_minutes=15)
+            for cluster in clusters:
+                cluster_start = cluster[0]
+                cluster_end = cluster[-1]
+                duration_min = (cluster_end - cluster_start).total_seconds() / 60
+                if duration_min < 3:
+                    ignored.append({"project": project, "duration_min": round(duration_min, 1)})
+                    continue
+                # Arredondar para blocos de 15 min
+                entry_start = round_time_15(cluster_start, "down")
+                entry_end = round_time_15(cluster_end, "up")
+                # Garantir mínimo de 15 min
+                if (entry_end - entry_start).total_seconds() < 900:
+                    entry_end = entry_start + timedelta(minutes=15)
+                block_min = round((entry_end - entry_start).total_seconds() / 60)
+                entries.append({
+                    "project": project,
+                    "start": entry_start.strftime("%H:%M"),
+                    "end": entry_end.strftime("%H:%M"),
+                    "start_dt": entry_start,
+                    "end_dt": entry_end,
+                    "duration": f"{block_min // 60:02d}:{block_min % 60:02d}",
+                    "block_min": block_min,
+                    "raw_min": round(duration_min),
+                })
+        # Merge clusters do mesmo projeto com gap <= 30 min entre eles
+        # Agrupa por projeto, merge dentro de cada, depois reordena
+        MERGE_GAP = 30 * 60  # 30 minutos em segundos
+
+        by_project = defaultdict(list)
+        for e in entries:
+            by_project[e["project"]].append(e)
+
+        merged = []
+        for project, proj_entries in by_project.items():
+            proj_entries.sort(key=lambda x: x["start_dt"])
+            current = proj_entries[0]
+            for e in proj_entries[1:]:
+                if (e["start_dt"] - current["end_dt"]).total_seconds() <= MERGE_GAP:
+                    current["end_dt"] = e["end_dt"]
+                    current["end"] = e["end"]
+                    current["raw_min"] += e["raw_min"]
+                    block_min = round((current["end_dt"] - current["start_dt"]).total_seconds() / 60)
+                    current["block_min"] = block_min
+                    current["duration"] = f"{block_min // 60:02d}:{block_min % 60:02d}"
+                else:
+                    merged.append(current)
+                    current = e
+            merged.append(current)
+
+        merged.sort(key=lambda x: x["start_dt"])
+        return merged, ignored
+
+    tt_entries, tt_ignored = build_timetrack_from_clusters(sessions)
+
+    # Separar por período
+    tt_manha = [e for e in tt_entries if e["start_dt"].hour < cutoff]
+    tt_tarde = [e for e in tt_entries if e["start_dt"].hour >= cutoff]
 
     lines.append("")
     lines.append("## Sugestão para Time Track")
     lines.append("")
-    lines.append("> Horários calculados com base no tempo de **interação real** (mensagens com gap < 15 min),")
-    lines.append("> arredondados para cima em blocos de **15 minutos** (mínimo 15 min por projeto),")
-    lines.append("> organizados **sequencialmente** sem sobreposição.")
-    lines.append("> Sessões com menos de 15 min de interação real são descartadas.")
+    lines.append("> Timestamps de todas as sessões agrupados **por projeto**.")
+    lines.append("> Mensagens com gap < 15 min formam um **cluster de atividade**.")
+    lines.append("> Início e fim arredondados para blocos de 15 min (mínimo 15 min).")
+    lines.append("> Clusters com < 3 min de atividade são descartados.")
 
     def render_tt_table(entries, lines):
         lines.append("")
@@ -380,9 +431,9 @@ def format_markdown(sessions, target_date):
         lines.append("|---------|---------|---------|--------|")
         for e in entries:
             lines.append(f"| {e['start']} - {e['end']} | {e['duration']} | `{e['project']}` | {{RESUMO}} |")
-        sub_tt = sum(e["active_min"] for e in entries)
-        sub_block = sum(round_up_15(e["active_min"]) for e in entries)
-        lines.append(f"\n*Interação real: {sub_tt} min | Arredondado (blocos 15 min): {sub_block} min*")
+        total_block = sum(e["block_min"] for e in entries)
+        total_raw = sum(e["raw_min"] for e in entries)
+        lines.append(f"\n*Atividade real: {total_raw} min | Arredondado (blocos 15 min): {total_block} min*")
 
     if tt_manha:
         lines.append("")
@@ -395,18 +446,17 @@ def format_markdown(sessions, target_date):
         render_tt_table(tt_tarde, lines)
 
     if not tt_manha and not tt_tarde:
-        lines.append("\nNenhum projeto com ≥ 15 min de interação real.")
+        lines.append("\nNenhum cluster de atividade com ≥ 3 min.")
 
-    # Itens ignorados (< 15 min de interação real)
-    ignored = [(p, ps) for p, ps in all_summary.items() if ps["total_duration"] < 15]
-    if ignored:
+    if tt_ignored:
         lines.append("")
-        lines.append("**Ignorados (< 15 min):**")
-        for p, ps in ignored:
-            lines.append(f"- `{p}` — {ps['total_duration']} min de interação real")
+        lines.append("**Ignorados (< 3 min):**")
+        for ig in tt_ignored:
+            lines.append(f"- `{ig['project']}` — {ig['duration_min']} min")
 
     lines.append("")
     lines.append("<!-- DADOS PARA GERAR RESUMO -->")
+    all_summary = build_project_summary(sessions)
     for p, ps in all_summary.items():
         lines.append(f"<!-- PROJETO: {p} -->")
         for d in ps["descriptions"]:
