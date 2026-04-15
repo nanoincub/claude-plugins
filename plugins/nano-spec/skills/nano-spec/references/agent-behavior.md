@@ -10,6 +10,34 @@
 
 ---
 
+## Progress Tracker (OBRIGATÓRIO)
+
+O agente DEVE exibir o progresso ao iniciar cada fase. Formato:
+
+```
+[SPECIFY] ← atual
+──────────────────────────
+✅ Gitflow gate
+→  Specify
+   Design
+   Tasks
+   Execute
+   /simplify
+   Docs
+   Commit
+```
+
+**Regras:**
+- Exibir **sempre** ao entrar em uma nova fase — sem exceção
+- Fases concluídas: `✅`
+- Fase atual: `→` (seta)
+- Fases futuras: indentadas, sem marcador
+- Fases puladas (por auto-sizing): omitir da lista
+- No Quick Mode, usar o pipeline simplificado: Describe → Gitflow → Implement → Verify → /simplify → Docs → Commit
+- Manter compacto — máximo 10 linhas. Não adicionar explicações ao tracker
+
+---
+
 ## Hierarquia de orquestração
 
 ```

@@ -160,8 +160,8 @@ Após commitar, se o trabalho foi feito em uma branch criada pelo gitflow (`feat
 ```
 Commit feito na branch [branch]. Como quer prosseguir?
 
-  1. Review + merge para [branch-destino] (recomendado)
-  2. Merge direto para [branch-destino]
+  1. Review + git flow finish (recomendado para features médias/grandes)
+  2. git flow finish direto (merge + tag + cleanup automático)
   3. Continuar trabalhando nesta branch (mais commits pendentes)
   4. Manter branch como está (sem ação agora)
 ```
@@ -173,9 +173,8 @@ Commit feito na branch [branch]. Como quer prosseguir?
 
 **Regras:**
 - Sempre perguntar — nunca fazer merge ou push automaticamente
-- **Opção 1:** rodar review do diff da branch contra a branch destino antes do merge. Recomendado para features médias/grandes
-- **Opção 2:** merge direto com `--no-ff`. Adequado para quick fixes e mudanças pequenas
-- Se release/hotfix, orientar sobre tag após merge
+- **Opção 1:** rodar review do diff da branch contra a branch destino, depois `git flow finish`. Recomendado para features médias/grandes
+- **Opção 2:** `git flow finish` direto — executa merge --no-ff + tag (release/hotfix) + delete branch automaticamente. Adequado para quick fixes e mudanças pequenas
 - Se houver mais tasks pendentes na mesma feature, opção 3 é a natural
 
 ### Alerta de desvio de escopo

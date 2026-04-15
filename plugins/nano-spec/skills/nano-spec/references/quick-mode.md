@@ -46,7 +46,7 @@ Antes de implementar, verificar branch atual conforme [gitflow.md](gitflow.md):
 1. Executar `git branch --show-current`
 2. Se branch protegida (`main`, `develop`, `master`):
    - Executar `git pull` para partir da versão mais recente
-   - Sugerir criação de branch de trabalho (`fix/*`, `feature/*`, `hotfix/*`)
+   - Sugerir criação de branch via `git flow <tipo> start <nome>`
    - Aguardar decisão do dev antes de continuar
 3. Se branch de trabalho (`feature/*`, `hotfix/*`, etc.) → seguir normalmente
 

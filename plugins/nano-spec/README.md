@@ -113,6 +113,6 @@ nano-spec/
 
 ## Versão
 
-2.8.1 — Fix: gitflow gate obrigatório no Quick Mode — impede commit direto em branches protegidas.
+2.9.0-beta.2 — Feat: gitflow reescrito para git-flow-next (Tower) — CLI atômica com detecção automática e instalação multiplataforma.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.
