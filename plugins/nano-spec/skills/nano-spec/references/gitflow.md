@@ -2,7 +2,40 @@
 
 **Goal**: Padronizar o modelo de branching da equipe usando gitflow clássico (Vincent Driessen), garantindo que commits aconteçam na branch correta e que o time siga um fluxo previsível.
 
+**Ferramenta**: [git-flow-next](https://github.com/gittower/git-flow-next) (Tower) — reimplementação moderna em Go, drop-in replacement do nvie/gitflow. **Obrigatória.**
+
 **Configurável por projeto** — se o CLAUDE.md define um modelo de branching diferente, respeitar.
+
+---
+
+## Detecção e Instalação
+
+O agente DEVE verificar **uma vez por sessão** (na primeira interação com gitflow) se git-flow-next está instalado:
+
+```bash
+git flow version
+```
+
+- **Se output contém "git-flow-next"** → prosseguir normalmente
+- **Se comando falha ou indica outra implementação** → **PARAR** e pedir ao dev para instalar antes de continuar:
+
+```
+macOS:    brew install gittower/tap/git-flow-next
+Linux:    brew install gittower/tap/git-flow-next
+Windows:  winget install GitTower.GitFlowNext
+Manual:   https://github.com/gittower/git-flow-next/releases (binário standalone)
+```
+
+**Não re-verificar** a cada gate — cachear o resultado na sessão.
+
+### Inicialização do repositório
+
+Se o repositório ainda não foi inicializado com git-flow, executar:
+
+```bash
+git flow init --defaults    # aceita branch naming padrão (main/develop/feature/release/hotfix)
+git flow init               # interativo — permite customizar nomes
+```
 
 ---
 
@@ -43,8 +76,6 @@ Exemplos:
 
 ## Início de Trabalho (dois momentos)
 
-O gitflow atua em dois momentos ao iniciar trabalho novo:
-
 ### Branches protegidas
 
 - `main`
@@ -61,35 +92,30 @@ git pull origin <branch-atual>
 
 Garante que o trabalho parte da versão mais recente. Neste ponto ainda não se sabe o tipo de branch a criar.
 
+> **Nota:** `git pull` é o único comando git manual no fluxo — git-flow-next não tem comando de sync para branches protegidas.
+
 ### Pré-execute: criar branch de trabalho
 
 Após Specify (e Design/Tasks se aplicável), o tipo de trabalho já é conhecido. Sugerir criação da branch:
 
 ```
-⚠️ Você está na branch [branch]. Gitflow recomenda criar uma branch de trabalho.
+Você está na branch [branch]. Gitflow recomenda criar uma branch de trabalho.
 
 Sugestão:
-  → git checkout -b feature/<scope>-<slug>  (para features/refactors)
-  → git checkout -b hotfix/<scope>-<slug>   (para correção urgente)
-  → git checkout -b release/<version>       (para preparação de release)
+  → git flow feature start <scope>-<slug>   (para features/refactors)
+  → git flow hotfix start <scope>-<slug>    (para correção urgente)
+  → git flow release start <version>        (para preparação de release)
 
 Quer que eu crie a branch? (informe o nome ou aceite a sugestão)
-Ou prefere trabalhar direto aqui? ⚠️ Em projetos com mais de um dev,
+Ou prefere trabalhar direto aqui? Em projetos com mais de um dev,
 commitar direto em [branch] pode causar conflitos e sobrescrever trabalho de colegas.
 ```
-
-**Ao criar a branch, executar exatamente:**
-
-```bash
-git checkout -b <tipo>/<nome> <branch-base>
-```
-
-Onde `<branch-base>` é `develop` para features e `main` para hotfixes. Ver seção "Comandos Exatos por Fluxo" para sequências completas.
 
 **Regras:**
 - Sempre sugerir, nunca bloquear — o dev tem a palavra final
 - Se o dev confirmar que quer trabalhar na branch protegida, seguir sem insistir
 - A sugestão de nome deve usar o scope da feature/fix atual
+- Usar `--fetch` para garantir que a branch parte da versão remota mais recente
 
 ### Branches válidas para trabalho direto
 
@@ -104,83 +130,80 @@ Se o gate de início de trabalho foi pulado ou o dev escolheu ficar na branch pr
 
 ---
 
-## Comandos Exatos por Fluxo
+## Comandos
 
-Sequências completas para cada tipo de branch. O agente DEVE usar estes comandos — não improvisar.
+O git-flow-next garante a sequência correta automaticamente (merge --no-ff, tag, cleanup). O agente DEVE usar estes comandos — não improvisar com git manual.
 
 ### Feature
 
 ```bash
-# Criar
-git checkout develop
-git pull origin develop
-git checkout -b feature/<scope>-<slug>
+# Criar (a partir de develop)
+git flow feature start <scope>-<slug>
 
-# Trabalhar (commits normais)
+# Sincronizar com develop durante o trabalho
+git flow update
 
-# Finalizar (após confirmação do dev)
-git checkout develop
-git pull origin develop
-git merge --no-ff feature/<scope>-<slug>
-git branch -d feature/<scope>-<slug>
-git push origin develop
+# Publicar no remote
+git flow publish
+
+# Finalizar — merge automático para develop com --no-ff + delete branch
+git flow finish
 ```
 
 ### Release
 
 ```bash
-# Criar
-git checkout develop
-git pull origin develop
-git checkout -b release/<version>
+# Criar (a partir de develop)
+git flow release start <version>
 
 # Preparar (bump version, docs, fixes menores)
 
-# Finalizar
-git checkout main
-git pull origin main
-git merge --no-ff release/<version>
-git tag -a v<version> -m "Release <version>"
-git checkout develop
-git merge --no-ff release/<version>
-git branch -d release/<version>
-git push origin main
-git push origin develop
-git push --tags
+# Finalizar — merge para main + tag + merge para develop + delete branch
+git flow finish
 ```
 
 ### Hotfix
 
 ```bash
-# Criar
-git checkout main
-git pull origin main
-git checkout -b hotfix/<scope>-<slug>
+# Criar (a partir de main)
+git flow hotfix start <scope>-<slug>
 
 # Corrigir (commits normais)
 
-# Finalizar
-git checkout main
-git merge --no-ff hotfix/<scope>-<slug>
-git tag -a v<version> -m "Hotfix <version>"
-git checkout develop
-git merge --no-ff hotfix/<scope>-<slug>
-git branch -d hotfix/<scope>-<slug>
-git push origin main
-git push origin develop
-git push --tags
+# Finalizar — merge para main + tag + merge para develop + delete branch
+git flow finish
 ```
 
-**Se existe `release/*` ativa durante hotfix:** merge na release ao invés de develop.
+**Se existe `release/*` ativa durante hotfix:** merge na release ao invés de develop (git-flow-next gerencia isso automaticamente).
+
+### Shorthands (auto-detect branch type)
+
+Comandos que detectam automaticamente o tipo da branch atual — **preferir sempre que o agente já está na branch correta**:
+
+| Comando | O que faz |
+|---------|-----------|
+| `git flow finish` | Finaliza a branch atual (merge + tag + cleanup) |
+| `git flow publish` | Push da branch atual para o remote |
+| `git flow update` | Sync da branch atual com a branch pai |
+| `git flow delete` | Remove a branch atual |
+| `git flow rename <nome>` | Renomeia a branch atual |
+
+### Flags úteis
+
+```bash
+git flow feature finish --keep        # não deleta a branch após merge
+git flow release finish --no-tag      # finaliza sem criar tag
+git flow hotfix finish --push         # push automático após finish
+git flow feature start --fetch        # fetch do remote antes de criar
+```
 
 ---
 
 ## Regras de Merge
 
-- Sempre `--no-ff` em todos os merges — preserva histórico como grupo
-- Sempre `git pull` antes de merge — evita conflitos por branch desatualizada
-- O agente orienta mas NÃO executa merges em branches protegidas sem confirmação do dev
-- Deletar branch local após merge bem-sucedido
+- git-flow-next já aplica `--no-ff` automaticamente — preserva histórico como grupo
+- O agente orienta mas NÃO executa `git flow finish` em branches protegidas sem confirmação do dev
+- Branch local é deletada automaticamente pelo `git flow finish` (usar `--keep` para preservar)
 
 ---
 
@@ -205,10 +228,16 @@ Se o CLAUDE.md não menciona branching → usar gitflow clássico como default.
 | Fase | Comportamento com gitflow |
 |------|--------------------------|
 | **Pré-specify** | `git pull` se em branch protegida, para partir da versão mais recente |
-| **Pré-execute** | Sugerir criação de branch de trabalho — tipo já conhecido. Se worktree ativado, branch já está isolada |
+| **Pré-execute** | `git flow <tipo> start` — tipo já conhecido. Se worktree ativado, branch já está isolada |
 | **Commit** | Gate pré-commit: última verificação de branch (Step 0 em [commit.md](commit.md)) |
-| **Pós-commit** | 4 opções: review + merge, merge direto, continuar trabalhando, manter. Alerta de desvio de escopo da branch |
+| **Pós-commit** | 4 opções: review + `git flow finish`, `git flow finish` direto, continuar trabalhando, manter |
 | **Finishing branch** | Se superpowers/worktree, `finishing-a-development-branch` com cleanup adicional |
+
+---
+
+## Referência Avançada
+
+Para cenários complexos (conflitos no finish, configuração avançada, hooks, filters), consultar Context7: `/gittower/git-flow-next`.
 
 ---
 
@@ -218,4 +247,3 @@ Se o CLAUDE.md não menciona branching → usar gitflow clássico como default.
 - CLAUDE.md explicitamente desativa gitflow
 - Dev pede para ignorar — respeitar sem insistir
 - Hotfix urgente onde o dev decide commitar direto na main
-
