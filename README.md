@@ -8,7 +8,7 @@ Centraliza plugins que automatizam e padronizam fluxos de desenvolvimento com IA
 
 | Plugin | Descrição | Versão |
 |--------|-----------|--------|
-| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven com verificação por task e /simplify obrigatório | 2.9.0 |
+| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven com verificação por task e /simplify obrigatório | 2.10.0 |
 | [**nano-resumo-dia**](plugins/nano-resumo-dia/) | Timeline de trabalho dos históricos de sessão do Claude Code | 1.0.0 |
 
 ## Instalação

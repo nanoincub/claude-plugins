@@ -113,6 +113,6 @@ nano-spec/
 
 ## Versão
 
-2.9.0 — Feat: gitflow reescrito para git-flow-next (Tower) — CLI atômica com detecção automática e instalação multiplataforma.
+2.10.0 — Feat: integração ativa com superpowers — detecção automática, skills como motor padrão, rastreabilidade spec→testes→commit.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.
