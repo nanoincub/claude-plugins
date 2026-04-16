@@ -52,11 +52,21 @@ Execute concluído
 2. /simplify (reuse, quality, efficiency)
     │
     ├── Issues → Corrigir → /simplify novamente (max 3x)
-    └── Limpo → Avançar para Security
+    └── Limpo → Avançar
     │
     ▼
-3. [Opcional] superpowers:verification-before-completion
-    └── Evidência antes de claims (se superpowers instalado)
+3. verification-before-completion (obrigatório quando superpowers ativo)
+    │
+    ├── superpowers detectado → invocar superpowers:verification-before-completion
+    │   └── Evidência FRESH antes de qualquer claim de "pronto"
+    └── superpowers ausente → self-check manual (rodar testes + verificar output)
+    │
+    ▼
+4. [Large/Complex + superpowers] requesting-code-review (subagent reviewer)
+    └── Despachar superpowers:requesting-code-review com BASE_SHA e HEAD_SHA
+    │
+    ▼
+Commit
 ```
 
 ---
@@ -98,14 +108,36 @@ Analisa reuse, quality, efficiency em paralelo.
 - Issues → Corrigir → Re-executar `/simplify`
 - Limpo → Avançar para Security
 
-### 3. Verificação formal (opcional)
+### 3. Verificação Formal (obrigatório quando superpowers ativo)
 
-Se `superpowers` instalado e dev optou por verificação nos defaults:
-→ `superpowers:verification-before-completion` — exige evidência concreta (output de testes,
-comandos executados) antes de claims de "pronto".
+**Iron Law: "NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE"**
 
-Se `subagent-driven-development` NÃO foi usado no Execute E escopo é Large/Complex:
-→ perguntar se quer `superpowers:requesting-code-review` (subagent reviewer fresh).
+**Quando superpowers detectado**, o agente DEVE invocar `superpowers:verification-before-completion`. Antes de qualquer claim de "pronto", o agente DEVE:
+
+1. Identificar o comando que prova o claim (testes, build, lint, etc.)
+2. Executar o comando FRESH — nunca reusar output anterior
+3. Ler o output completo — não assumir sucesso
+4. Verificar se o output confirma o claim — evidência concreta
+
+**Red flags que PARAM o agente** (não prosseguir sem corrigir):
+- Usar "should", "probably", "seems to" em claims de completude
+- Expressar satisfação antes de verificar
+- Referenciar output de execuções anteriores como prova
+
+**Quando superpowers NÃO detectado** — self-check manual:
+- Rodar testes relevantes e verificar output antes de claims
+- Confirmar que build/lint passam sem erros
+- O agente NÃO pode declarar "pronto" sem ter executado e verificado
+
+### 3.1. Code Review por Subagente (obrigatório para Large/Complex com superpowers)
+
+Quando superpowers ativo E escopo é Large/Complex, o agente DEVE despachar `superpowers:requesting-code-review` — um subagent code-reviewer fresh que avalia o código sem contexto da sessão, trazendo perspectiva independente.
+
+Parâmetros obrigatórios:
+- **BASE_SHA** — commit base antes das mudanças
+- **HEAD_SHA** — commit head com as mudanças
+
+O reviewer analisa o diff isoladamente, sem acesso ao histórico de conversa — isso garante avaliação imparcial. O agente principal DEVE verificar os achados do reviewer conforme seção 4 abaixo.
 
 ### 4. Verificação de achados de subagentes
 
@@ -128,6 +160,10 @@ Quando subagentes (Agent tool) ou skills externas retornam findings de review, o
 
 Ver [agent-behavior.md](agent-behavior.md) para regras gerais de confiabilidade e padrões de falso positivo.
 
+### 5. Recepção de Feedback
+
+Quando superpowers ativo, invocar `superpowers:receiving-code-review`. Protocolo: READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT. NUNCA implementar feedback cegamente — verificar tecnicamente primeiro. Push back com raciocínio técnico se errado.
+
 ---
 
 ## Limites
@@ -141,7 +177,7 @@ Ver [agent-behavior.md](agent-behavior.md) para regras gerais de confiabilidade 
 
 ## Quick Mode
 
-No Quick Mode (≤3 files): /review apenas (sem /simplify). Só executa quando review está ativado e dev confirma.
+No Quick Mode (≤3 files): /review só executa quando ativado e dev confirma. /simplify continua obrigatório (conforme quick-mode.md).
 
 ---
 

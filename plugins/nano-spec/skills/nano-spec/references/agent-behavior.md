@@ -103,6 +103,8 @@ A qualidade é garantida incrementalmente durante o Execute:
 1. **Verificação executável por task** — após implementar cada task, avaliar se precisa de teste. Se sim, criar e rodar. Rodar testes do módulo afetado.
 2. **/simplify após todas as tasks** — análise de reuse, qualidade e eficiência sobre o diff acumulado.
 3. **Suite completa de testes** — o agente pede ao dev para rodar, informando o comando. Evita gasto de tokens em output extenso.
+4. **Rastreabilidade spec → testes**: Testes DEVEM ser nomeados com IDs de requisito da spec.md (ex: `test_AUTH01_...`). Cada critério QUANDO/ENTÃO DEVE ter pelo menos um teste correspondente.
+5. **Verificação formal obrigatória**: Antes de qualquer claim de "pronto", o agente DEVE ter executado o comando de verificação E lido o output. "Should pass" não é evidência.
 
 ### Review e Security (opt-in)
 
@@ -116,6 +118,8 @@ Review e Security estão **desativados por padrão**. Ativar via defaults opt-ou
 Se subagentes forem usados (ex: /simplify, subagent-driven-development), lembrar que são **coletores de dados, não juízes**. O agente principal é o responsável por classificar e filtrar findings.
 
 > **Regra de ouro:** Se o agente principal não fez `Read` da linha de código citada, o achado **NÃO** entra no relatório.
+
+Quando receber feedback de code review (externo ou de subagent), o agente DEVE seguir o protocolo de `superpowers:receiving-code-review`: READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT. NUNCA implementar feedback cegamente — verificar tecnicamente primeiro. Push back se o feedback estiver errado.
 
 ---
 
@@ -150,20 +154,21 @@ Se dev confirmar skip → aceitar e registrar em STATE.md.
 
 ## Integração com skills
 
-| Tarefa | Sem skill (fallback manual) | Com skill |
-|--------|---------------------------|-----------|
-| /simplify | Ler diff + analisar reuse/quality/efficiency | Skill tool: `simplify` |
-| Review (opt-in) | Ler arquivos modificados + analisar critérios | Skill tool: `simplify` |
-| Security (opt-in) | Auditoria manual contra OWASP | Skill de segurança da stack |
-| Diagramas | Inline mermaid no markdown | mermaid-studio |
-| Exploração de código | Grep, Glob, Read (built-in) | codenavi |
-| TDD | Ciclo implement → verify | superpowers:test-driven-development |
-| Debug | Anotar em STATE.md | superpowers:systematic-debugging |
-| Subagent por task | Execução sequencial | superpowers:subagent-driven-development |
-| Git worktree | Trabalho na branch | superpowers:using-git-worktrees |
-| Finish branch | Commit + push | superpowers:finishing-a-development-branch |
-| Verificação formal | Self-check manual | superpowers:verification-before-completion |
-| Output de artefatos | `.specs/features/[feature]/` | `.specs/features/[feature]/` (sempre) |
+| Tarefa | Superpowers ativo (padrão) | Fallback (standalone) |
+|--------|---------------------------|----------------------|
+| Specify | DEVE invocar `superpowers:brainstorming` → 2-3 abordagens + spec-reviewer | Perguntas conversacionais |
+| Tasks | DEVE invocar `superpowers:writing-plans` → TDD steps + plan-reviewer | Breakdown manual |
+| TDD | DEVE invocar `superpowers:test-driven-development` — RED→GREEN→REFACTOR | Ciclo implement → verify |
+| Debug | DEVE invocar `superpowers:systematic-debugging` — 4 fases | Fix ad-hoc + anotar em STATE.md |
+| Subagent por task | DEVE invocar `superpowers:subagent-driven-development` — two-stage review | Execução sequencial |
+| Git worktree | DEVE invocar `superpowers:using-git-worktrees` (Large/Complex) | Trabalho na branch |
+| Verificação formal | DEVE invocar `superpowers:verification-before-completion` — Iron Law | Self-check manual |
+| Code review | DEVE invocar `superpowers:requesting-code-review` (Large/Complex) | /simplify + self-check |
+| Recepção de feedback | DEVE invocar `superpowers:receiving-code-review` | Implementar feedback direto |
+| Finish branch | DEVE invocar `superpowers:finishing-a-development-branch` | Commit + push manual |
+| /simplify | Skill tool: `simplify` | Ler diff + analisar reuse/quality |
+| Diagramas | mermaid-studio (se instalado) | Inline mermaid |
+| Exploração de código | codenavi (se instalado) | Grep, Glob, Read |
 
 **Regra de fallback:** Se a skill `simplify` não está instalada, o agente executa o fallback manual (ler diff + analisar). /simplify é sempre obrigatório antes do commit.
 

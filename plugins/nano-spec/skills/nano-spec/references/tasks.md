@@ -37,6 +37,22 @@
 
 ## Process
 
+### Geração via superpowers (quando disponível)
+
+Quando `superpowers` estiver instalado, o agente **DEVE** invocar `superpowers:writing-plans` para gerar as tasks antes de qualquer breakdown manual.
+
+**Por quê:** o `writing-plans` assume um engineer com zero contexto do projeto — cada step inclui código real inline, segue TDD rigoroso (write failing test → run → implement → run → commit), e executa self-review automático ao final.
+
+**Fluxo:**
+
+1. Invocar `superpowers:writing-plans` passando como input a spec (`spec.md`) e o design (`design.md`) da feature
+2. O output gerado vai para `.specs/features/[feature]/tasks.md`
+3. Seguir com o Plan Self-Review (seção abaixo) antes de aprovar
+
+**Se superpowers NÃO estiver disponível:** usar o breakdown manual descrito nas seções seguintes.
+
+---
+
 ### 1. Review Design
 
 Read `.specs/features/[feature]/design.md` before creating tasks.
@@ -118,12 +134,25 @@ T8 → T9
 **Where**: `src/path/to/file.ts`
 **Depends on**: None
 **Reuses**: `src/existing/BaseInterface.ts`
-**Requirement**: [FEAT]-01
+**Requirement**: [FEAT]-01 _(ID rastreável da spec.md — OBRIGATÓRIO)_
+**Verify**: `npm test -- --grep "X Interface"` → espera "✓ all methods defined"
 
 **Tools**:
 
 - MCP: `filesystem` (or NONE)
 - Skill: NONE
+
+**Steps** (quando superpowers ativo — cada step com checkbox para tracking):
+
+- [ ] Criar arquivo `src/path/to/file.ts` com interface base
+- [ ] Escrever teste que falha validando métodos da interface (TDD red)
+- [ ] Executar teste — confirmar falha esperada
+- [ ] Implementar interface completa conforme design
+- [ ] Executar teste — confirmar que passa (TDD green)
+- [ ] Commit: `feat([scope]): create X interface`
+
+> **Nota:** steps de teste DEVEM referenciar o critério QUANDO/ENTÃO da spec correspondente.
+> Ex.: spec [FEAT]-01 diz "QUANDO usuário submete form ENTÃO valida email" → teste deve cobrir esse cenário.
 
 **Done when**:
 
@@ -288,3 +317,30 @@ Every task MUST include:
 - Can task be verified without human judgment?
 - Is success criteria binary (pass/fail)?
 - Can verification be automated?
+
+---
+
+### Plan Self-Review (obrigatório quando superpowers ativo)
+
+Após gerar `tasks.md`, o agente **DEVE** executar self-review antes de considerar o plano aprovado:
+
+1. **Spec coverage**: cada requisito (`[FEAT]-XX`) da `spec.md` tem pelo menos uma task associada? Listar requisitos órfãos se houver.
+2. **Placeholder scan**: buscar "TBD", "TODO", "...", ou steps sem código real inline. Nenhum placeholder é aceitável no plano final.
+3. **Type consistency**: nomes de funções, métodos, interfaces e tipos são consistentes entre todas as tasks? (ex.: se T1 cria `UserService`, T3 não pode referenciar `UsersService`).
+
+**Para features Large/Complex:** despachar subagent via **Agent tool** com o prompt template de `plan-document-reviewer` do superpowers (localizado em `skills/writing-plans/plan-document-reviewer-prompt.md`). Passar os paths de `tasks.md` e `spec.md` como input. O reviewer valida: completude, alinhamento com spec, decomposição e buildability.
+
+**Se superpowers NÃO estiver disponível:** executar self-review manual contra os mesmos três critérios acima.
+
+---
+
+### Execution Handoff
+
+Após `tasks.md` aprovado (self-review concluído sem pendências), oferecer ao desenvolvedor:
+
+> **Como deseja executar?**
+>
+> 1. **Subagent-Driven** _(recomendado)_ — fresh subagent por task + two-stage review (code review + verification). Melhor isolamento de contexto e qualidade.
+> 2. **Execução Inline** — mesmo contexto, sequencial. Mais rápido para features pequenas.
+
+**Se superpowers NÃO estiver disponível:** execução inline é o único caminho — não oferecer opção de subagent.

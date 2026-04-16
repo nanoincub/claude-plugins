@@ -28,6 +28,10 @@ Good triggers for research: new libraries, unfamiliar APIs, performance-sensitiv
 
 Overview of how components interact. Use mermaid diagrams when helpful. Before creating any diagrams, check if the `mermaid-studio` skill is available (see Skill Integrations in SKILL.md).
 
+**Quando superpowers detectado:** Usar `superpowers:brainstorming` (steps 5-8) para propor 2-3 abordagens arquiteturais com trade-offs claros e recomendação. Apresentar o design incrementalmente por seção, com aprovação do dev entre seções. Só avançar para a próxima seção após confirmação.
+
+**Quando superpowers não detectado (fallback):** Gerar o design.md direto com a abordagem escolhida pelo agente.
+
 ### 3. Identify Code Reuse
 
 **CRITICAL**: What existing code can we leverage? This saves tokens and reduces errors.
@@ -41,6 +45,17 @@ Each component: Purpose, Location, Interfaces, Dependencies, What it reuses.
 ### 5. Define Data Models
 
 If the feature involves data, define models before implementation.
+
+### 6. Design Review (obrigatório quando superpowers ativo)
+
+Após gerar o design.md, o agente apresenta seção por seção ao dev para validação interativa.
+
+**Quando superpowers detectado:**
+- Apresentar cada seção do design.md individualmente, aguardando aprovação antes de avançar
+- Para features Large/Complex: executar spec self-review nos critérios de consistência, completude e ambiguidade
+- Corrigir problemas identificados antes de prosseguir para Tasks
+
+**Quando superpowers não detectado (fallback):** Apresentar o design completo de uma vez e perguntar "Aprovado?"
 
 ---
 
@@ -160,3 +175,4 @@ interface NomeModel {
 - **Small components** — If component does 3+ things, split it
 - **Check CONCERNS.md** — If it exists, flag fragile areas the design must address
 - **Confirm before Tasks** — User approves design before breaking into tasks
+- **Alternativas** — SEMPRE propor pelo menos 2 abordagens com trade-offs claros. Liderar com a recomendada. Dev escolhe.

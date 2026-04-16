@@ -29,8 +29,13 @@ Após concluir o Execute (ou série de ajustes), perguntar:
 - [ ] Dev rodou suite completa de testes (obrigatório — ver nota abaixo)
 - [ ] Docs atualizado — ver [docs-update.md](docs-update.md)
 - [ ] Todos os "Done when" da task estão verificados
+- [ ] Rastreabilidade verificada (ver nota abaixo)
 
-**Suite de testes:** O agente NÃO roda a suite completa — pede ao dev para rodar, informando o comando. Motivo: evitar gasto de tokens desnecessário em output de centenas de testes. O agente fornece o comando e aguarda confirmação do dev.
+**Integração ativa com superpowers:** Quando superpowers estiver detectado, invocar `superpowers:verification-before-completion` como gate obrigatório. Os testes DEVEM passar antes de oferecer opções de commit — se falharem, BLOQUEAR o fluxo de commit (não apenas pedir ao dev, mas impedir o avanço até que passem).
+
+**Suite de testes (sem superpowers):** O agente NÃO roda a suite completa — pede ao dev para rodar, informando o comando. Motivo: evitar gasto de tokens desnecessário em output de centenas de testes. O agente fornece o comando e aguarda confirmação do dev.
+
+**Rastreabilidade:** Antes de commitar, verificar que todos os IDs de requisito ([FEAT]-XX) da spec.md mapeados para esta task estão com status "Verified" na tabela de rastreabilidade. Se algum está "Pending" ou "Implementing", ALERTAR o dev com a lista de IDs pendentes e perguntar se deseja prosseguir mesmo assim.
 
 **Nota:** /simplify deve ter rodado após o Execute. Se já rodou e não houve ajustes depois, não rodar novamente.
 
@@ -155,15 +160,23 @@ Se usando tasks.md, marcar a task como completa e atualizar rastreabilidade em s
 
 ## Fechamento de Branch (gitflow)
 
-Após commitar, se o trabalho foi feito em uma branch criada pelo gitflow (`feature/*`, `hotfix/*`, `release/*`), perguntar ao dev sobre o próximo passo:
+Após commitar, se o trabalho foi feito em uma branch criada pelo gitflow (`feature/*`, `hotfix/*`, `release/*`), verificar se superpowers está disponível.
+
+### Com superpowers (integração ativa)
+
+DEVE invocar `superpowers:finishing-a-development-branch` — verifica testes, apresenta 4 opções (merge/PR/manter/discard), exige confirmação tipada para discard, e cuida do worktree cleanup automaticamente.
+
+### Sem superpowers (fluxo manual)
+
+Quando superpowers NÃO estiver disponível, apresentar as opções manualmente:
 
 ```
 Commit feito na branch [branch]. Como quer prosseguir?
 
-  1. Review + git flow finish (recomendado para features médias/grandes)
-  2. git flow finish direto (merge + tag + cleanup automático)
+  1. Merge local (review + git flow finish — recomendado para features médias/grandes)
+  2. Criar PR (push + abrir pull request para review externo)
   3. Continuar trabalhando nesta branch (mais commits pendentes)
-  4. Manter branch como está (sem ação agora)
+  4. Discard (descartar branch — requer confirmação: digitar "discard")
 ```
 
 **Branch destino** conforme [gitflow.md](gitflow.md):
@@ -174,8 +187,10 @@ Commit feito na branch [branch]. Como quer prosseguir?
 **Regras:**
 - Sempre perguntar — nunca fazer merge ou push automaticamente
 - **Opção 1:** rodar review do diff da branch contra a branch destino, depois `git flow finish`. Recomendado para features médias/grandes
-- **Opção 2:** `git flow finish` direto — executa merge --no-ff + tag (release/hotfix) + delete branch automaticamente. Adequado para quick fixes e mudanças pequenas
+- **Opção 2:** push da branch e criar pull request via `gh pr create`
+- **Opção 4:** exigir que o dev digite "discard" para confirmar — protege contra descarte acidental
 - Se houver mais tasks pendentes na mesma feature, opção 3 é a natural
+- Se git worktree foi usado, informar o dev para fazer cleanup manual do worktree após merge ou discard
 
 ### Alerta de desvio de escopo
 
@@ -197,12 +212,6 @@ Isso deveria estar em uma branch separada?
 **Regras:**
 - Alertar uma vez por desvio detectado — não insistir se o dev optar por continuar
 - Se o dev pedir para criar nova branch, stashar mudanças atuais, criar a branch correta, e aplicar
-
-### Se git worktree foi usado
-
-Quando `superpowers:using-git-worktrees` foi usado no Execute, invocar
-`superpowers:finishing-a-development-branch` que apresenta as mesmas opções
-com suporte adicional para cleanup do worktree.
 
 ---
 

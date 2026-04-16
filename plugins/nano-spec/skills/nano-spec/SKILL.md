@@ -110,6 +110,36 @@ Regras especiais: [lista resumida]
 
 Exibir este resumo UMA VEZ no início da primeira fase. Não repetir.
 
+### 4.1. Detectar Superpowers (OBRIGATÓRIO)
+
+Na primeira invocação da sessão, verificar se `superpowers` está instalado:
+
+```
+Verificar se as skills estão disponíveis:
+- superpowers:brainstorming
+- superpowers:writing-plans
+- superpowers:test-driven-development
+- superpowers:systematic-debugging
+- superpowers:verification-before-completion
+```
+
+**Se QUALQUER skill superpowers for encontrada** → `superpowers = true`.
+Cachear resultado na sessão — não re-verificar.
+
+Adicionar ao resumo de contexto:
+```
+Superpowers: [sim — skills disponíveis] ou [não — modo standalone]
+```
+
+**Quando `superpowers = true`:**
+- Skills do superpowers são o **motor padrão** em cada fase (ver tabela "Integração Ativa")
+- O dispatcher `using-superpowers` permanece DESATIVADO — nano-spec orquestra
+- Dev pode desativar skills individuais via defaults opt-out ou CLAUDE.md
+
+**Quando `superpowers = false`:**
+- Fallback manual em cada fase (o processo funciona 100% standalone)
+- Recomendar instalação UMA VEZ por sessão: `@superpowers` no marketplace
+
 ### 5. Gate: Project Init (OBRIGATÓRIO antes de qualquer feature)
 
 Antes de iniciar qualquer feature, verificar se os artefatos de projeto existem:
@@ -169,8 +199,19 @@ Conforme [gitflow.md](references/gitflow.md). **Este gate NÃO é opcional.**
 
 ## Defaults Opt-Out
 
-No início de cada feature (Medium+), apresentar defaults e deixar dev ajustar:
+No início de cada feature (Medium+), apresentar defaults e deixar dev ajustar.
 
+**Com superpowers detectado:**
+```
+Escopo detectado: [Large]  |  Superpowers: ativo
+Defaults: brainstorming → spec-reviewer → writing-plans → plan-reviewer →
+          subagent-driven (two-stage review) → /simplify → verification → commit.
+Opções para DESATIVAR: brainstorming, TDD, subagents, worktree.
+Opções para ATIVAR: review extra, security.
+Quer ajustar algo? (Enter para seguir com defaults)
+```
+
+**Sem superpowers:**
 ```
 Escopo detectado: [Large]
 Defaults: spec completa, tasks formais, execução sequencial,
@@ -308,17 +349,38 @@ Ver [agent-behavior.md](references/agent-behavior.md). Resumo:
 - Push-back quando spec vaga, scope creep, ou skip de gates.
 - Flexibilizar quando dev pede, projeto legado, ou hotfix.
 
-## Integração com Superpowers
+## Integração Ativa com Superpowers
 
-| Fase | Sem superpowers | Com superpowers |
-|------|----------------|-----------------|
-| Specify | Perguntas conversacionais | `brainstorming` (opcional) → output para `context.md` |
-| Design | Research + design.md | `brainstorming` steps 5-8 → output para `design.md` |
-| Tasks | Breakdown manual | `writing-plans` → output para `tasks.md` |
-| Execute | Ciclo implement → verify (teste) | + TDD, worktrees, subagents, debug (opcionais) |
-| /simplify | /simplify sobre diff acumulado | (mesma skill) |
-| Docs | Checklist manual contra `.specs/codebase/` | `brownfield-mapping` para regenerar docs se necessário |
-| Commit | Conventional Commits + gitflow gate | + `finishing-a-development-branch` (se worktree) |
+Quando `superpowers = true` (detectado na seção 4.1), as skills são o **motor padrão** —
+não opcionais. O agente DEVE invocá-las automaticamente. Se o dev quiser desativar,
+faz via defaults opt-out ou CLAUDE.md.
+
+| Fase | Superpowers (padrão quando detectado) | Fallback (standalone) |
+|------|---------------------------------------|----------------------|
+| **Specify** | **DEVE** invocar `brainstorming` → propor 2-3 abordagens → spec self-review via `spec-document-reviewer` → output para `context.md` + `spec.md` | Perguntas conversacionais |
+| **Design** | **DEVE** usar `brainstorming` steps 5-8 → apresentar design incremental por seção → output para `design.md` | Research + design.md direto |
+| **Tasks** | **DEVE** invocar `writing-plans` → tasks com TDD steps + código inline → plan self-review via `plan-document-reviewer` → output para `tasks.md` | Breakdown manual |
+| **Execute** | **DEVE** usar `subagent-driven-development` (Large/Complex) com two-stage review (spec compliance → code quality) por task. `test-driven-development` para cada task com lógica. `systematic-debugging` quando encontrar bug. Baseline test antes de começar. | Ciclo implement → verify manual |
+| **Execute (bug)** | **DEVE** invocar `systematic-debugging` → 4 fases (Root Cause → Pattern → Hypothesis → Fix) → failing test antes de corrigir | Fix ad-hoc |
+| **/simplify** | /simplify sobre diff acumulado | (mesma skill) |
+| **Review** | **DEVE** invocar `verification-before-completion` (Iron Law: evidência antes de claims) + `requesting-code-review` (subagent reviewer com BASE_SHA/HEAD_SHA) para Large/Complex | /simplify + self-check manual |
+| **Docs** | Checklist contra `.specs/codebase/` — `brownfield-mapping` se docs muito defasados | Checklist manual |
+| **Commit** | **DEVE** invocar `finishing-a-development-branch` → testes bloqueiam opções + 4 opções estruturadas + worktree cleanup | Conventional Commits + gitflow gate |
+
+**Regras:**
+- `DEVE` = invocação automática quando superpowers detectado. Não perguntar.
+- Dev pode desativar qualquer skill via defaults opt-out — mas o padrão é ON.
+- Skills são workers — o ciclo do nano-spec (Specify → Execute → /simplify → Commit) continua sendo o trilho.
+- Todo output de skills vai para `.specs/` — NUNCA para `docs/superpowers/` ou `.superpowers/`.
+
+### Rastreabilidade Spec → Testes → Commit
+
+Quando superpowers está ativo, a rastreabilidade é reforçada:
+
+1. **Spec → Tasks:** Após gerar `tasks.md`, o `plan-document-reviewer` DEVE verificar que TODOS os critérios QUANDO/ENTÃO da spec.md estão cobertos por pelo menos uma task.
+2. **Spec → Testes:** Cada critério de aceite QUANDO/ENTÃO DEVE gerar um teste nomeado com o ID do requisito (ex: `test_AUTH01_invalid_email_returns_422`).
+3. **Tasks → Commit:** Antes de commitar, `verification-before-completion` DEVE verificar que todos os requisitos mapeados na spec.md foram implementados e têm testes passando.
+4. **Execute → STATE.md:** Quando `systematic-debugging` é invocado, lessons learned DEVEM ser registradas em STATE.md com contexto estruturado.
 
 ## Context Loading
 

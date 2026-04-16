@@ -60,9 +60,34 @@ Follow [coding-principles.md](coding-principles.md):
 - Touch ONLY listed files
 - No scope creep — fix the thing, nothing else
 
+**Bug fixes com superpowers ativo:**
+
+Quando superpowers está detectado E a task é um bug fix:
+
+1. DEVE criar failing test que reproduz o bug ANTES de corrigir
+2. Ciclo: RED (test que falha reproduzindo o bug) → GREEN (fix minimal) → verify
+3. Invocar `superpowers:test-driven-development` para o ciclo
+4. Se o bug é difícil de reproduzir, invocar `superpowers:systematic-debugging` (Root Cause → Pattern → Hypothesis → Fix)
+
+Se superpowers não detectado: implementar fix + criar teste depois (fallback atual).
+
 ### 4. Verify
 
 Run verification from step 2. Mark done only after verification passes.
+
+**Verificação red-green com superpowers ativo (bug fixes):**
+
+Quando superpowers está detectado, a verificação DEVE incluir o ciclo red-green completo:
+
+1. Rodar teste novo (PASS)
+2. Reverter fix
+3. Rodar teste (MUST FAIL — prova que o teste realmente testa o bug)
+4. Restaurar fix
+5. Rodar teste (PASS)
+
+Isso prova que o teste é efetivo e não um falso positivo.
+
+Se superpowers não detectado: rodar verificação do step 2 (fallback).
 
 ### 5. Perguntar commit
 
@@ -115,7 +140,7 @@ Examples:
 - `feat(settings): add dark mode toggle`
 - `chore(deps): update eslint to v9`
 
-### 9. Track
+### 10. Track
 
 Update `.specs/project/STATE.md` with quick task record (see state-management.md Quick Tasks section).
 
@@ -169,6 +194,7 @@ Quick tasks live separately from planned features:
 - **No design decisions** — If you're choosing between approaches, use full pipeline
 - **No new dependencies** — Adding packages needs full pipeline review
 - **Track everything** — Even quick tasks get commits and STATE.md entries
+- **TDD para bugs** — Mesmo no Quick Mode, bug fixes devem ter failing test quando superpowers está ativo. Quick ≠ sem teste.
 
 ---
 

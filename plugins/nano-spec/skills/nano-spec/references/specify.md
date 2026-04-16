@@ -25,11 +25,25 @@ If needed:
 
 **Know when to stop.** When you understand what they're building, why, who it's for, and what done looks like — offer to proceed.
 
+#### Integração com superpowers (quando detectado)
+
+Quando o plugin **superpowers** estiver instalado, o agente **DEVE** invocar `superpowers:brainstorming` para conduzir o Specify. O brainstorming:
+
+- Explora contexto e faz perguntas **uma a uma**
+- Propõe **2-3 abordagens** com trade-offs claros
+- Apresenta o design **por seções** com aprovação incremental do dev
+
+Output do brainstorming vai para `.specs/features/[feature]/context.md`.
+
+Se superpowers **não** estiver detectado, usar o fluxo de perguntas conversacionais existente acima (fallback).
+
 ### 2. Capture User Stories with Priorities
 
 **P1 = MVP** (must ship), **P2** (should have), **P3** (nice to have)
 
 Each story MUST be **independently testable** - you can implement and demo just that story.
+
+> **Nota (superpowers ativo):** Quando o brainstorming propôs 2-3 abordagens, as user stories devem refletir **apenas a abordagem APROVADA** pelo dev, não todas as abordagens exploradas.
 
 ### 3. Write Acceptance Criteria
 
@@ -162,6 +176,24 @@ Incluir quando a feature tem constraints técnicas que o time de design/tasks pr
 
 ---
 
+### Spec Self-Review (obrigatório quando superpowers ativo)
+
+Quando o plugin **superpowers** estiver detectado, após gerar `spec.md`, o agente **DEVE** realizar spec self-review com os seguintes critérios:
+
+1. **Placeholder scan** — buscar "TBD", "TODO", seções vazias ou incompletas
+2. **Consistência interna** — seções se contradizem entre si?
+3. **Scope check** — spec está focada o suficiente para gerar um plano executável?
+4. **Ambiguity check** — algum requisito é interpretável de 2 formas diferentes?
+5. **YAGNI** — há features ou requisitos não solicitados pelo dev?
+
+Corrigir problemas encontrados **inline** na própria spec. Sem ciclo de re-review.
+
+Para escopo **Large/Complex**: despachar subagent via **Agent tool** com o prompt template de `spec-document-reviewer` do superpowers (localizado em `skills/brainstorming/spec-document-reviewer-prompt.md`). Passar o path do `spec.md` como input. O reviewer valida: completude, consistência, clareza, escopo e YAGNI.
+
+Se superpowers **não** estiver detectado: o agente faz self-review manual contra os mesmos 5 critérios acima.
+
+---
+
 ## Tips
 
 - **P1 = Vertical Slice** — feature completa e demo-ável, não só backend ou frontend
@@ -170,4 +202,5 @@ Incluir quando a feature tem constraints técnicas que o time de design/tasks pr
 - **Casos limite importam** — o que quebra? O que é vazio? O que é enorme?
 - **Fora do Escopo previne creep** — se não está aqui, não é construído
 - **Confirmar antes de Discuss** — usuário aprova spec antes de avançar
+- **Decomposição** — Se o pedido descreve múltiplos subsistemas independentes, decompor em sub-projetos antes de especificar. Cada sub-projeto tem seu próprio ciclo spec→plan→execute.
 - **Acentuação correta** — SEMPRE usar acentuação e caracteres especiais do idioma do projeto (ç, ã, é, etc.). Nunca gerar texto sem acentos.

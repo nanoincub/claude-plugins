@@ -73,6 +73,8 @@ Success: [how to verify]
   - Touch ONLY listed files
   - No scope creep
 
+**Quando superpowers ativo e `context.md` existe:** o agente DEVE ler `context.md` ANTES de implementar. Decisões arquiteturais e trade-offs registrados no `context.md` são constraints — não reoptar. Se uma decisão parece incorreta, escalar ao dev em vez de ignorar.
+
 ### 5. Verify "Done When"
 
 Check all criteria before marking done.
@@ -81,10 +83,12 @@ Check all criteria before marking done.
 
 Após implementar, avaliar se a task precisa de teste automatizado:
 
-- **Precisa de teste:** task toca lógica de negócio, mutação de estado, API, ou fluxo condicional → criar teste que prove o comportamento, rodar, verde = segue
+- **Precisa de teste:** task toca lógica de negócio, mutação de estado, API, ou fluxo condicional
 - **Não precisa:** task é apenas config, docs, rename, ou similar → verificação manual suficiente
 - Rodar apenas os testes do módulo/arquivo afetado pela task (não a suite completa)
 - A suite completa de testes roda uma vez só, após todas as tasks, antes do commit
+
+**Quando superpowers ativo:** os testes DEVEM referenciar critérios de aceite da spec. Não é "criar teste que prove o comportamento" genérico — é criar teste **nomeado com ID do requisito** que prove o critério QUANDO/ENTÃO específico (ex: `test_PAY03_expired_card_returns_declined`). Cada critério testável da spec deve ter pelo menos um teste correspondente com rastreabilidade explícita.
 
 ### 7. Self-Check
 
@@ -111,18 +115,21 @@ Após completar todas as tasks (ou a task atual no Quick Mode), rodar `/simplify
 
 ---
 
-## Se superpowers instalado
+## Motor Superpowers (padrão quando detectado)
 
-Ferramentas opcionais disponíveis durante Execute (configuradas via defaults opt-out no início da feature):
+Quando superpowers está instalado, o Execute usa estas skills **AUTOMATICAMENTE**:
 
-| Ferramenta | Quando usar | Skill |
-|-----------|-------------|-------|
-| **TDD** | Dev optou por TDD nos defaults | `superpowers:test-driven-development` — RED→GREEN→REFACTOR por task |
-| **Git worktree** | Dev optou por isolamento | `superpowers:using-git-worktrees` — setup antes da primeira task |
-| **Subagent por task** | Escopo Large/Complex com tasks independentes | `superpowers:subagent-driven-development` — inclui 2-stage review por task |
-| **Debug estruturado** | Bug encontrado durante implementação | `superpowers:systematic-debugging` — investigate → analyze → hypothesis → fix |
-| **Tasks paralelas** | Tasks independentes entre si | `superpowers:dispatching-parallel-agents` |
-| **Validate/UAT** | Feature user-facing Complex | Invoke [validate.md](validate.md) — UAT interativo com relatório |
+| Skill | Quando | Regra nano-spec específica |
+|-------|--------|---------------------------|
+| **Baseline test** | Antes de qualquer task | Rodar suite de testes → se falham, reportar ao dev e aguardar |
+| `superpowers:test-driven-development` | Tasks com lógica | Testes DEVEM ser nomeados com ID do requisito da spec (ex: `test_AUTH01_...`). Config/docs/rename → verificação manual |
+| `superpowers:systematic-debugging` | Bug encontrado | Após 3 fixes falharem → escalar ao dev, questionar arquitetura |
+| `superpowers:subagent-driven-development` | Large/Complex | Two-stage review: Spec Compliance → Code Quality por task |
+| `superpowers:using-git-worktrees` | Large/Complex | Antes da primeira task, para isolamento |
+| `superpowers:dispatching-parallel-agents` | Tasks independentes | Após retorno: verificar conflitos + suite completa |
+| **Final reviewer** | Após todas as tasks | Code-reviewer subagent para revisão da implementação completa |
+
+**Se superpowers NÃO detectado:** usar o ciclo manual existente (implement → verify Done When).
 
 **Regra:** Essas ferramentas são workers. O ciclo do Execute (pick → implement → verify) continua sendo o trilho.
 
