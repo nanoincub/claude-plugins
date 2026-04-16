@@ -125,7 +125,6 @@ Quando superpowers está instalado, o Execute usa estas skills **AUTOMATICAMENTE
 | `superpowers:test-driven-development` | Tasks com lógica | Testes DEVEM ser nomeados com ID do requisito da spec (ex: `test_AUTH01_...`). Config/docs/rename → verificação manual |
 | `superpowers:systematic-debugging` | Bug encontrado | Após 3 fixes falharem → escalar ao dev, questionar arquitetura |
 | `superpowers:subagent-driven-development` | Large/Complex | Two-stage review: Spec Compliance → Code Quality por task |
-| `superpowers:using-git-worktrees` | Large/Complex | Antes da primeira task, para isolamento |
 | `superpowers:dispatching-parallel-agents` | Tasks independentes | Após retorno: verificar conflitos + suite completa |
 | **Final reviewer** | Após todas as tasks | Code-reviewer subagent para revisão da implementação completa |
 

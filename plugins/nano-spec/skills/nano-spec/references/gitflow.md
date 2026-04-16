@@ -228,10 +228,10 @@ Se o CLAUDE.md não menciona branching → usar gitflow clássico como default.
 | Fase | Comportamento com gitflow |
 |------|--------------------------|
 | **Pré-specify** | `git pull` se em branch protegida, para partir da versão mais recente |
-| **Pré-execute** | `git flow <tipo> start` — tipo já conhecido. Se worktree ativado, branch já está isolada |
+| **Pré-execute** | `git flow <tipo> start` — tipo já conhecido |
 | **Commit** | Gate pré-commit: última verificação de branch (Step 0 em [commit.md](commit.md)) |
 | **Pós-commit** | 4 opções: review + `git flow finish`, `git flow finish` direto, continuar trabalhando, manter |
-| **Finishing branch** | Se superpowers/worktree, `finishing-a-development-branch` com cleanup adicional |
+| **Finishing branch** | Se superpowers detectado, `finishing-a-development-branch` |
 
 ---
 

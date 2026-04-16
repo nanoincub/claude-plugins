@@ -164,7 +164,7 @@ Após commitar, se o trabalho foi feito em uma branch criada pelo gitflow (`feat
 
 ### Com superpowers (integração ativa)
 
-DEVE invocar `superpowers:finishing-a-development-branch` — verifica testes, apresenta 4 opções (merge/PR/manter/discard), exige confirmação tipada para discard, e cuida do worktree cleanup automaticamente.
+DEVE invocar `superpowers:finishing-a-development-branch` — verifica testes, apresenta 4 opções (merge/PR/manter/discard), exige confirmação tipada para discard.
 
 ### Sem superpowers (fluxo manual)
 
@@ -190,7 +190,6 @@ Commit feito na branch [branch]. Como quer prosseguir?
 - **Opção 2:** push da branch e criar pull request via `gh pr create`
 - **Opção 4:** exigir que o dev digite "discard" para confirmar — protege contra descarte acidental
 - Se houver mais tasks pendentes na mesma feature, opção 3 é a natural
-- Se git worktree foi usado, informar o dev para fazer cleanup manual do worktree após merge ou discard
 
 ### Alerta de desvio de escopo
 

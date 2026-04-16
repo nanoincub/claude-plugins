@@ -161,7 +161,6 @@ Se dev confirmar skip → aceitar e registrar em STATE.md.
 | TDD | DEVE invocar `superpowers:test-driven-development` — RED→GREEN→REFACTOR | Ciclo implement → verify |
 | Debug | DEVE invocar `superpowers:systematic-debugging` — 4 fases | Fix ad-hoc + anotar em STATE.md |
 | Subagent por task | DEVE invocar `superpowers:subagent-driven-development` — two-stage review | Execução sequencial |
-| Git worktree | DEVE invocar `superpowers:using-git-worktrees` (Large/Complex) | Trabalho na branch |
 | Verificação formal | DEVE invocar `superpowers:verification-before-completion` — Iron Law | Self-check manual |
 | Code review | DEVE invocar `superpowers:requesting-code-review` (Large/Complex) | /simplify + self-check |
 | Recepção de feedback | DEVE invocar `superpowers:receiving-code-review` | Implementar feedback direto |

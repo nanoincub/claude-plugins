@@ -206,7 +206,7 @@ No início de cada feature (Medium+), apresentar defaults e deixar dev ajustar.
 Escopo detectado: [Large]  |  Superpowers: ativo
 Defaults: brainstorming → spec-reviewer → writing-plans → plan-reviewer →
           subagent-driven (two-stage review) → /simplify → verification → commit.
-Opções para DESATIVAR: brainstorming, TDD, subagents, worktree.
+Opções para DESATIVAR: brainstorming, TDD, subagents.
 Opções para ATIVAR: review extra, security.
 Quer ajustar algo? (Enter para seguir com defaults)
 ```
@@ -216,7 +216,7 @@ Quer ajustar algo? (Enter para seguir com defaults)
 Escopo detectado: [Large]
 Defaults: spec completa, tasks formais, execução sequencial,
           /simplify + suite de testes + commit.
-Opções disponíveis: TDD, git worktree, subagent por task, review, security.
+Opções disponíveis: TDD, subagent por task, review, security.
 Quer ajustar algo? (Enter para seguir com defaults)
 ```
 
@@ -243,7 +243,7 @@ no CLAUDE.md do projeto, nunca mais perguntar.
 Dev: "nova feature: login com Google"
 
 Agente: Escopo Medium. Defaults: spec breve → execute → /simplify → suite de testes → commit.
-        Opções: TDD, worktree, review, security. Ajustar? (Enter = defaults)
+        Opções: TDD, review, security. Ajustar? (Enter = defaults)
 
 Dev: [Enter]
 
@@ -360,12 +360,12 @@ faz via defaults opt-out ou CLAUDE.md.
 | **Specify** | **DEVE** invocar `brainstorming` → propor 2-3 abordagens → spec self-review via `spec-document-reviewer` → output para `context.md` + `spec.md` | Perguntas conversacionais |
 | **Design** | **DEVE** usar `brainstorming` steps 5-8 → apresentar design incremental por seção → output para `design.md` | Research + design.md direto |
 | **Tasks** | **DEVE** invocar `writing-plans` → tasks com TDD steps + código inline → plan self-review via `plan-document-reviewer` → output para `tasks.md` | Breakdown manual |
-| **Execute** | **DEVE** usar `subagent-driven-development` (Large/Complex) com two-stage review (spec compliance → code quality) por task. `test-driven-development` para cada task com lógica. `systematic-debugging` quando encontrar bug. Baseline test antes de começar. | Ciclo implement → verify manual |
+| **Execute** | **DEVE** usar `subagent-driven-development` (Large/Complex) com two-stage review (spec compliance → code quality) por task. `test-driven-development` para cada task com lógica. `systematic-debugging` quando encontrar bug. Baseline test antes de começar. Sem worktree — trabalho na branch. | Ciclo implement → verify manual |
 | **Execute (bug)** | **DEVE** invocar `systematic-debugging` → 4 fases (Root Cause → Pattern → Hypothesis → Fix) → failing test antes de corrigir | Fix ad-hoc |
 | **/simplify** | /simplify sobre diff acumulado | (mesma skill) |
 | **Review** | **DEVE** invocar `verification-before-completion` (Iron Law: evidência antes de claims) + `requesting-code-review` (subagent reviewer com BASE_SHA/HEAD_SHA) para Large/Complex | /simplify + self-check manual |
 | **Docs** | Checklist contra `.specs/codebase/` — `brownfield-mapping` se docs muito defasados | Checklist manual |
-| **Commit** | **DEVE** invocar `finishing-a-development-branch` → testes bloqueiam opções + 4 opções estruturadas + worktree cleanup | Conventional Commits + gitflow gate |
+| **Commit** | **DEVE** invocar `finishing-a-development-branch` → testes bloqueiam opções + 4 opções estruturadas | Conventional Commits + gitflow gate |
 
 **Regras:**
 - `DEVE` = invocação automática quando superpowers detectado. Não perguntar.
