@@ -113,6 +113,6 @@ nano-spec/
 
 ## Versão
 
-2.10.1 — Fix: remove worktree (incompatível com Docker), integração ativa com superpowers, rastreabilidade spec→testes→commit.
+2.10.2 — Fix: git-flow-next como hard block obrigatório, remove worktree, integração ativa com superpowers.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.
