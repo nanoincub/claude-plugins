@@ -8,25 +8,37 @@
 
 ---
 
-## Detecção e Instalação
+## Gate: Detecção e Instalação (HARD BLOCK)
 
-O agente DEVE verificar **uma vez por sessão** (na primeira interação com gitflow) se git-flow-next está instalado:
+O agente DEVE executar esta verificação **uma vez por sessão** (na primeira interação com gitflow):
 
 ```bash
 git flow version
 ```
 
-- **Se output contém "git-flow-next"** → prosseguir normalmente
-- **Se comando falha ou indica outra implementação** → **PARAR** e pedir ao dev para instalar antes de continuar:
+- **Se output contém "git-flow-next"** → cachear `gitflow = true`, prosseguir normalmente
+- **Se comando falha ou indica outra implementação** → **BLOQUEAR TODO O PROCESSO**
 
+**Quando bloqueado**, o agente DEVE:
+1. Exibir mensagem de bloqueio clara:
 ```
-macOS:    brew install gittower/tap/git-flow-next
-Linux:    brew install gittower/tap/git-flow-next
-Windows:  winget install GitTower.GitFlowNext
-Manual:   https://github.com/gittower/git-flow-next/releases (binário standalone)
-```
+⛔ git-flow-next NÃO está instalado. Este é um requisito obrigatório.
 
-**Não re-verificar** a cada gate — cachear o resultado na sessão.
+Instale antes de continuar:
+  macOS:    brew install gittower/tap/git-flow-next
+  Linux:    brew install gittower/tap/git-flow-next
+  Windows:  winget install GitTower.GitFlowNext
+  Manual:   https://github.com/gittower/git-flow-next/releases
+
+Após instalar, diga "pronto" para continuar.
+```
+2. **NÃO prosseguir** para nenhuma fase (Specify, Execute, Commit — NENHUMA)
+3. **NÃO oferecer alternativa** com git puro — git-flow-next é obrigatório
+4. **Aguardar** o dev confirmar que instalou, e então re-verificar com `git flow version`
+
+**Única exceção:** Se o CLAUDE.md do projeto contém `Sem gitflow` ou `trunk-based`, pular este gate.
+
+**Não re-verificar** a cada gate após sucesso — cachear o resultado na sessão.
 
 ### Inicialização do repositório
 
