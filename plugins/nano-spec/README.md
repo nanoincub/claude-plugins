@@ -113,6 +113,8 @@ nano-spec/
 
 ## Versão
 
+2.10.3 — Docs: `git flow finish --no-ff` inline (git-flow-next não aplica `--no-ff` por padrão, ao contrário do gitflow clássico).
+
 2.10.2 — Fix: git-flow-next como hard block obrigatório, remove worktree, integração ativa com superpowers.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.

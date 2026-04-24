@@ -173,7 +173,7 @@ Quando superpowers NÃO estiver disponível, apresentar as opções manualmente:
 ```
 Commit feito na branch [branch]. Como quer prosseguir?
 
-  1. Merge local (review + git flow finish — recomendado para features médias/grandes)
+  1. Merge local (review + git flow finish --no-ff — recomendado para features médias/grandes)
   2. Criar PR (push + abrir pull request para review externo)
   3. Continuar trabalhando nesta branch (mais commits pendentes)
   4. Discard (descartar branch — requer confirmação: digitar "discard")
@@ -186,7 +186,7 @@ Commit feito na branch [branch]. Como quer prosseguir?
 
 **Regras:**
 - Sempre perguntar — nunca fazer merge ou push automaticamente
-- **Opção 1:** rodar review do diff da branch contra a branch destino, depois `git flow finish`. Recomendado para features médias/grandes
+- **Opção 1:** rodar review do diff da branch contra a branch destino, depois `git flow finish --no-ff` (sempre inline, para preservar a bolha de merge no histórico — ver [gitflow.md](gitflow.md)). Recomendado para features médias/grandes
 - **Opção 2:** push da branch e criar pull request via `gh pr create`
 - **Opção 4:** exigir que o dev digite "discard" para confirmar — protege contra descarte acidental
 - Se houver mais tasks pendentes na mesma feature, opção 3 é a natural

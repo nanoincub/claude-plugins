@@ -144,7 +144,9 @@ Se o gate de início de trabalho foi pulado ou o dev escolheu ficar na branch pr
 
 ## Comandos
 
-O git-flow-next garante a sequência correta automaticamente (merge --no-ff, tag, cleanup). O agente DEVE usar estes comandos — não improvisar com git manual.
+O git-flow-next orquestra a sequência correta (merge, tag, cleanup). O agente DEVE usar estes comandos — não improvisar com git manual.
+
+> **⚠️ Importante:** diferente do gitflow clássico (AVH), o **git-flow-next NÃO aplica `--no-ff` por padrão** — quando possível ele faz fast-forward, o que apaga a "bolha" de merge da feature no histórico. Para preservar o histórico visual do gitflow, **sempre passar `--no-ff` inline** no `finish`.
 
 ### Feature
 
@@ -158,8 +160,8 @@ git flow update
 # Publicar no remote
 git flow publish
 
-# Finalizar — merge automático para develop com --no-ff + delete branch
-git flow finish
+# Finalizar — merge --no-ff para develop + delete branch
+git flow finish --no-ff
 ```
 
 ### Release
@@ -170,8 +172,8 @@ git flow release start <version>
 
 # Preparar (bump version, docs, fixes menores)
 
-# Finalizar — merge para main + tag + merge para develop + delete branch
-git flow finish
+# Finalizar — merge --no-ff para main + tag + merge --no-ff para develop + delete branch
+git flow finish --no-ff
 ```
 
 ### Hotfix
@@ -182,8 +184,8 @@ git flow hotfix start <scope>-<slug>
 
 # Corrigir (commits normais)
 
-# Finalizar — merge para main + tag + merge para develop + delete branch
-git flow finish
+# Finalizar — merge --no-ff para main + tag + merge --no-ff para develop + delete branch
+git flow finish --no-ff
 ```
 
 **Se existe `release/*` ativa durante hotfix:** merge na release ao invés de develop (git-flow-next gerencia isso automaticamente).
@@ -203,17 +205,32 @@ Comandos que detectam automaticamente o tipo da branch atual — **preferir semp
 ### Flags úteis
 
 ```bash
+git flow feature finish --no-ff       # força merge commit (preserva bolha no histórico) — SEMPRE usar
 git flow feature finish --keep        # não deleta a branch após merge
 git flow release finish --no-tag      # finaliza sem criar tag
 git flow hotfix finish --push         # push automático após finish
 git flow feature start --fetch        # fetch do remote antes de criar
 ```
 
+Flags podem ser combinadas: `git flow feature finish --no-ff --push`.
+
+### Tornar `--no-ff` permanente (opcional)
+
+Se o dev prefere não lembrar da flag, configurar por repositório:
+
+```bash
+git config gitflow.feature.finish.no-ff true
+git config gitflow.release.finish.no-ff true
+git config gitflow.hotfix.finish.no-ff true
+```
+
+O agente **continua passando `--no-ff` inline** mesmo com a config setada — é idempotente e deixa a intenção explícita no histórico de comandos.
+
 ---
 
 ## Regras de Merge
 
-- git-flow-next já aplica `--no-ff` automaticamente — preserva histórico como grupo
+- **Sempre passar `--no-ff` inline** no `git flow <tipo> finish` — git-flow-next faz fast-forward por padrão e apaga a bolha da feature no histórico
 - O agente orienta mas NÃO executa `git flow finish` em branches protegidas sem confirmação do dev
 - Branch local é deletada automaticamente pelo `git flow finish` (usar `--keep` para preservar)
 
