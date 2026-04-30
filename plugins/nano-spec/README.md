@@ -113,6 +113,8 @@ nano-spec/
 
 ## Versão
 
+2.10.4 — Fix: naming de hotfix usa semver (`hotfix/<version>`) — git-flow-next usa o nome da branch como tag por padrão.
+
 2.10.3 — Docs: `git flow finish --no-ff` inline (git-flow-next não aplica `--no-ff` por padrão, ao contrário do gitflow clássico).
 
 2.10.2 — Fix: git-flow-next como hard block obrigatório, remove worktree, integração ativa com superpowers.

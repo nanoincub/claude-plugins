@@ -69,18 +69,20 @@ git flow init               # interativo — permite customizar nomes
 ```
 feature/<scope>-<slug>
 release/<version>
-hotfix/<scope>-<slug>
+hotfix/<version>
 support/<version>
 ```
 
-- **scope**: o mesmo scope do commit (ex: `auth`, `cart`, `api`)
-- **slug**: descrição curta em kebab-case
-- **version**: semver (ex: `1.2.0`)
+- **scope** (feature): o mesmo scope do commit (ex: `auth`, `cart`, `api`)
+- **slug** (feature): descrição curta em kebab-case
+- **version**: semver (ex: `1.2.0`, `1.0.1`)
 
 Exemplos:
 - `feature/auth-google-login`
 - `release/2.1.0`
-- `hotfix/cart-negative-quantity`
+- `hotfix/1.0.1`
+
+**Nota — release e hotfix:** O git-flow-next usa o nome da branch como tag por padrão no `finish`. Por isso ambas seguem `<tipo>/<version>` em semver — a descrição do fix vai na mensagem do commit, NÃO no nome da branch. Se o nome da branch não for semver, a tag gerada também não será (ex: `hotfix/cart-negative-quantity` produz tag `cart-negative-quantity`). Para tag diferente do nome da branch, passar `--tagname <tag>` no finish.
 
 **IMPORTANTE:** Se o CLAUDE.md do projeto define convenção de naming diferente, usar a do projeto.
 
@@ -115,8 +117,8 @@ Você está na branch [branch]. Gitflow recomenda criar uma branch de trabalho.
 
 Sugestão:
   → git flow feature start <scope>-<slug>   (para features/refactors)
-  → git flow hotfix start <scope>-<slug>    (para correção urgente)
-  → git flow release start <version>        (para preparação de release)
+  → git flow hotfix start <version>         (para correção urgente, ex: 1.0.1 — nome vira a tag)
+  → git flow release start <version>        (para preparação de release — nome vira a tag)
 
 Quer que eu crie a branch? (informe o nome ou aceite a sugestão)
 Ou prefere trabalhar direto aqui? Em projetos com mais de um dev,
@@ -179,8 +181,8 @@ git flow finish --no-ff
 ### Hotfix
 
 ```bash
-# Criar (a partir de main)
-git flow hotfix start <scope>-<slug>
+# Criar (a partir de main) — nome da branch vira a tag (semver)
+git flow hotfix start <version>     # ex: 1.0.1
 
 # Corrigir (commits normais)
 
@@ -231,6 +233,7 @@ O agente **continua passando `--no-ff` inline** mesmo com a config setada — é
 ## Regras de Merge
 
 - **Sempre passar `--no-ff` inline** no `git flow <tipo> finish` — git-flow-next faz fast-forward por padrão e apaga a bolha da feature no histórico
+- **Tag em release e hotfix:** o git-flow-next usa o nome da branch como nome da tag por padrão. Por isso ambas seguem `<tipo>/<version>` (ex: `release/2.1.0`, `hotfix/1.0.1`). Se precisar de tag diferente do nome da branch, passar `--tagname <tag>` no `finish`.
 - O agente orienta mas NÃO executa `git flow finish` em branches protegidas sem confirmação do dev
 - Branch local é deletada automaticamente pelo `git flow finish` (usar `--keep` para preservar)
 
