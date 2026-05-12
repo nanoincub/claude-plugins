@@ -53,7 +53,7 @@ O dispatcher `using-superpowers` não intercepta. Skills do superpowers são fer
 não orquestradores.
 
 **Regra de artefatos:** Todo output de skills do superpowers que gera documentos
-de feature (planos, specs, brainstorms) vai para `.specs/features/[feature]/`.
+de feature (planos, specs, brainstorms) vai para `.specs/features/YYYY-MM-DD-[feature]/`.
 NUNCA criar `docs/superpowers/`, `.superpowers/`, ou diretórios próprios do superpowers
 para artefatos de feature.
 
@@ -154,22 +154,24 @@ Se dev confirmar skip → aceitar e registrar em STATE.md.
 
 ## Integração com skills
 
-| Tarefa | Superpowers ativo (padrão) | Fallback (standalone) |
-|--------|---------------------------|----------------------|
-| Specify | DEVE invocar `superpowers:brainstorming` → 2-3 abordagens + spec-reviewer | Perguntas conversacionais |
-| Tasks | DEVE invocar `superpowers:writing-plans` → TDD steps + plan-reviewer | Breakdown manual |
-| TDD | DEVE invocar `superpowers:test-driven-development` — RED→GREEN→REFACTOR | Ciclo implement → verify |
-| Debug | DEVE invocar `superpowers:systematic-debugging` — 4 fases | Fix ad-hoc + anotar em STATE.md |
-| Subagent por task | DEVE invocar `superpowers:subagent-driven-development` — two-stage review | Execução sequencial |
-| Verificação formal | DEVE invocar `superpowers:verification-before-completion` — Iron Law | Self-check manual |
-| Code review | DEVE invocar `superpowers:requesting-code-review` (Large/Complex) | /simplify + self-check |
-| Recepção de feedback | DEVE invocar `superpowers:receiving-code-review` | Implementar feedback direto |
-| Finish branch | DEVE invocar `superpowers:finishing-a-development-branch` | Commit + push manual |
-| /simplify | Skill tool: `simplify` | Ler diff + analisar reuse/quality |
-| Diagramas | mermaid-studio (se instalado) | Inline mermaid |
-| Exploração de código | codenavi (se instalado) | Grep, Glob, Read |
+Superpowers é obrigatório (HARD BLOCK no SessionStart). Todas as skills abaixo são garantidas em qualquer sessão do nano-spec.
 
-**Regra de fallback:** Se a skill `simplify` não está instalada, o agente executa o fallback manual (ler diff + analisar). /simplify é sempre obrigatório antes do commit.
+| Tarefa | Skill invocada |
+|--------|----------------|
+| Specify | `superpowers:brainstorming` → 2-3 abordagens + spec-reviewer |
+| Tasks | `superpowers:writing-plans` → TDD steps + plan-reviewer |
+| TDD | `superpowers:test-driven-development` — RED→GREEN→REFACTOR |
+| Debug | `superpowers:systematic-debugging` — 4 fases |
+| Subagent por task | `superpowers:subagent-driven-development` — two-stage review |
+| Verificação formal | `superpowers:verification-before-completion` — Iron Law |
+| Code review | `superpowers:requesting-code-review` (Large/Complex) |
+| Recepção de feedback | `superpowers:receiving-code-review` |
+| Finish branch | `superpowers:finishing-a-development-branch` |
+| /simplify | Skill tool: `simplify` |
+| Diagramas | mermaid-studio (se instalado, opcional) |
+| Exploração de código | codenavi (se instalado, opcional) |
+
+**Skills auxiliares opcionais** (mermaid-studio, codenavi): se não instaladas, o agente usa ferramentas built-in (inline mermaid, Grep/Glob/Read). Skills do superpowers NÃO têm fallback — são obrigatórias.
 
 ---
 

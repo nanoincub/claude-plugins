@@ -121,7 +121,7 @@ Fix tasks follow the same format as regular tasks and can be executed with the i
 # [Feature] Validation
 
 **Date**: [YYYY-MM-DD]
-**Spec**: `.specs/features/[feature]/spec.md`
+**Spec**: `.specs/features/YYYY-MM-DD-[feature]/spec.md`
 
 ---
 

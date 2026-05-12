@@ -25,17 +25,19 @@ If needed:
 
 **Know when to stop.** When you understand what they're building, why, who it's for, and what done looks like — offer to proceed.
 
-#### Integração com superpowers (quando detectado)
+#### Integração com superpowers
 
-Quando o plugin **superpowers** estiver instalado, o agente **DEVE** invocar `superpowers:brainstorming` para conduzir o Specify. O brainstorming:
+O agente **DEVE** invocar `superpowers:brainstorming` para conduzir o Specify. O brainstorming:
 
 - Explora contexto e faz perguntas **uma a uma**
 - Propõe **2-3 abordagens** com trade-offs claros
 - Apresenta o design **por seções** com aprovação incremental do dev
 
-Output do brainstorming vai para `.specs/features/[feature]/context.md`.
+Output do brainstorming vai para `.specs/features/YYYY-MM-DD-[feature]/context.md`.
 
-Se superpowers **não** estiver detectado, usar o fluxo de perguntas conversacionais existente acima (fallback).
+#### Naming da pasta
+
+Antes de escrever `spec.md`, crie a pasta `.specs/features/YYYY-MM-DD-[slug]/` usando a **data corrente** + slug em kebab-case derivado do título da feature. Exemplo: `.specs/features/2026-05-12-google-login/`. Esta data nunca é alterada depois.
 
 ### 2. Capture User Stories with Priorities
 
@@ -53,7 +55,7 @@ Use **WHEN/THEN/SHALL** format - it's precise and testable:
 
 ---
 
-## Template: `.specs/features/[feature]/spec.md`
+## Template: `.specs/features/YYYY-MM-DD-[feature]/spec.md`
 
 **IMPORTANTE:** Este template é um esqueleto. O agente DEVE:
 - Escrever no **idioma do projeto** (detectado do CLAUDE.md)
@@ -176,7 +178,7 @@ Incluir quando a feature tem constraints técnicas que o time de design/tasks pr
 
 ---
 
-### Spec Self-Review (obrigatório quando superpowers ativo)
+### Spec Self-Review (obrigatório)
 
 Quando o plugin **superpowers** estiver detectado, após gerar `spec.md`, o agente **DEVE** realizar spec self-review com os seguintes critérios:
 

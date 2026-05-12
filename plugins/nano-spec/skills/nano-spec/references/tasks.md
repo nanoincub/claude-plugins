@@ -46,7 +46,7 @@ Quando `superpowers` estiver instalado, o agente **DEVE** invocar `superpowers:w
 **Fluxo:**
 
 1. Invocar `superpowers:writing-plans` passando como input a spec (`spec.md`) e o design (`design.md`) da feature
-2. O output gerado vai para `.specs/features/[feature]/tasks.md`
+2. O output gerado vai para `.specs/features/YYYY-MM-DD-[feature]/tasks.md`
 3. Seguir com o Plan Self-Review (seção abaixo) antes de aprovar
 
 **Se superpowers NÃO estiver disponível:** usar o breakdown manual descrito nas seções seguintes.
@@ -55,7 +55,7 @@ Quando `superpowers` estiver instalado, o agente **DEVE** invocar `superpowers:w
 
 ### 1. Review Design
 
-Read `.specs/features/[feature]/design.md` before creating tasks.
+Read `.specs/features/YYYY-MM-DD-[feature]/design.md` before creating tasks.
 
 ### 2. Break Into Atomic Tasks
 
@@ -83,12 +83,12 @@ Group tasks into phases. Identify what can run in parallel.
 
 ---
 
-## Template: `.specs/features/[feature]/tasks.md`
+## Template: `.specs/features/YYYY-MM-DD-[feature]/tasks.md`
 
 ```markdown
 # [Feature] Tasks
 
-**Design**: `.specs/features/[feature]/design.md`
+**Design**: `.specs/features/YYYY-MM-DD-[feature]/design.md`
 **Status**: Draft | Approved | In Progress | Done
 
 ---
@@ -142,7 +142,7 @@ T8 → T9
 - MCP: `filesystem` (or NONE)
 - Skill: NONE
 
-**Steps** (quando superpowers ativo — cada step com checkbox para tracking):
+**Steps** (cada step com checkbox para tracking):
 
 - [ ] Criar arquivo `src/path/to/file.ts` com interface base
 - [ ] Escrever teste que falha validando métodos da interface (TDD red)
@@ -320,7 +320,7 @@ Every task MUST include:
 
 ---
 
-### Plan Self-Review (obrigatório quando superpowers ativo)
+### Plan Self-Review (obrigatório)
 
 Após gerar `tasks.md`, o agente **DEVE** executar self-review antes de considerar o plano aprovado:
 

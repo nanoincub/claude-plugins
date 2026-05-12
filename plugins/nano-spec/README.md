@@ -26,7 +26,7 @@ claude plugin install superpowers@claude-plugins-official
 claude plugin install nano-spec@nano-incub
 ```
 
-> **Nota:** O superpowers é o motor do nano-spec — fornece TDD, debugging, worktrees, code review e outras ferramentas que o processo orquestra. O nano-spec funciona sem ele, mas com capacidades reduzidas.
+> **Nota:** O superpowers é **obrigatório** desde a versão 3.0 do nano-spec. Fornece TDD, debugging, code review, brainstorming, writing-plans e outras ferramentas que o processo orquestra. O nano-spec faz HARD BLOCK no SessionStart se superpowers não estiver instalado.
 
 ### Via organização (automático)
 
@@ -53,16 +53,16 @@ O processo adapta a complexidade automaticamente:
 
 ## Integração com Superpowers
 
-O nano-spec é o **trilho** (o que fazer e em que ordem), o superpowers é o **motor** (como fazer):
+O nano-spec é o **trilho** (o que fazer e em que ordem), o superpowers é o **motor** obrigatório (como fazer):
 
-| Fase | Sem Superpowers | Com Superpowers |
-|------|-----------------|-----------------|
-| Specify | Q&A conversacional | + brainstorming → context.md |
-| Design | Pesquisa manual | + brainstorming steps 5-8 |
-| Tasks | Breakdown manual | + writing-plans → tasks.md |
-| Execute | Code + verify (teste) | + TDD, worktrees, subagents, debug |
-| /simplify | /simplify sobre diff acumulado | (mesma skill) |
-| Commit | Conventional Commits | + finishing-a-development-branch |
+| Fase | Skill do superpowers invocada |
+|------|-------------------------------|
+| Specify | brainstorming → context.md + spec-document-reviewer |
+| Design | brainstorming steps 5-8 (design incremental) |
+| Tasks | writing-plans → tasks.md + plan-document-reviewer |
+| Execute | TDD, subagents, systematic-debugging |
+| /simplify | (skill própria do Claude Code) |
+| Commit | verification-before-completion + finishing-a-development-branch |
 
 ## Estrutura
 
@@ -112,6 +112,10 @@ nano-spec/
 5. **Output:** Artefatos em `.specs/`, código implementado, commit com Conventional Commits
 
 ## Versão
+
+3.0.1 — Convenção: pasta de feature em `.specs/features/` passa a exigir prefixo de data `YYYY-MM-DD-[feature]` (ex: `2026-05-12-google-login/`). Garante ordenação cronológica e preserva histórico após renames. Atualizado em SKILL.md, references, GUIA.md e CLAUDE.md. Inclui script `scripts/migrate-feature-dates.sh` para migrar pastas legadas (data vem do primeiro commit do `spec.md` via `git log`).
+
+3.0.0 (BREAKING) — Superpowers vira **obrigatório**: HARD BLOCK no SessionStart, remoção de todos os fallbacks "standalone" em references, SKILL.md, hook e docs. Sem superpowers, nano-spec não roda. Bump major sinaliza incompatibilidade com sessões que dependiam do modo standalone.
 
 2.11.1 — Fix: `--fetch` como default em todos os `git flow <tipo> start` na skill `nano-commit` (feature, bugfix, hotfix, release). Garante que branches partem da base remota atualizada, evitando criação a partir de develop/main stale. Adicionado bloco Bugfix.
 

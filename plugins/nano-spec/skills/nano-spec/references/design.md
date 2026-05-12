@@ -8,7 +8,7 @@
 
 ### 1. Load Context
 
-Read `.specs/features/[feature]/spec.md` before designing. If `.specs/features/[feature]/context.md` exists, load it too — it contains implementation decisions that constrain the design (layout choices, behavior preferences, interaction patterns). Decisions marked as "Agent's Discretion" are yours to decide.
+Read `.specs/features/YYYY-MM-DD-[feature]/spec.md` before designing. If `.specs/features/YYYY-MM-DD-[feature]/context.md` exists, load it too — it contains implementation decisions that constrain the design (layout choices, behavior preferences, interaction patterns). Decisions marked as "Agent's Discretion" are yours to decide.
 
 ### 1.5. Research (Optional but Recommended)
 
@@ -28,9 +28,7 @@ Good triggers for research: new libraries, unfamiliar APIs, performance-sensitiv
 
 Overview of how components interact. Use mermaid diagrams when helpful. Before creating any diagrams, check if the `mermaid-studio` skill is available (see Skill Integrations in SKILL.md).
 
-**Quando superpowers detectado:** Usar `superpowers:brainstorming` (steps 5-8) para propor 2-3 abordagens arquiteturais com trade-offs claros e recomendação. Apresentar o design incrementalmente por seção, com aprovação do dev entre seções. Só avançar para a próxima seção após confirmação.
-
-**Quando superpowers não detectado (fallback):** Gerar o design.md direto com a abordagem escolhida pelo agente.
+Usar `superpowers:brainstorming` (steps 5-8) para propor 2-3 abordagens arquiteturais com trade-offs claros e recomendação. Apresentar o design incrementalmente por seção, com aprovação do dev entre seções. Só avançar para a próxima seção após confirmação.
 
 ### 3. Identify Code Reuse
 
@@ -46,20 +44,17 @@ Each component: Purpose, Location, Interfaces, Dependencies, What it reuses.
 
 If the feature involves data, define models before implementation.
 
-### 6. Design Review (obrigatório quando superpowers ativo)
+### 6. Design Review (obrigatório)
 
-Após gerar o design.md, o agente apresenta seção por seção ao dev para validação interativa.
+Após gerar o design.md, o agente apresenta seção por seção ao dev para validação interativa:
 
-**Quando superpowers detectado:**
 - Apresentar cada seção do design.md individualmente, aguardando aprovação antes de avançar
 - Para features Large/Complex: executar spec self-review nos critérios de consistência, completude e ambiguidade
 - Corrigir problemas identificados antes de prosseguir para Tasks
 
-**Quando superpowers não detectado (fallback):** Apresentar o design completo de uma vez e perguntar "Aprovado?"
-
 ---
 
-## Template: `.specs/features/[feature]/design.md`
+## Template: `.specs/features/YYYY-MM-DD-[feature]/design.md`
 
 **IMPORTANTE:** Este template é um esqueleto stack-agnostic. O agente DEVE:
 - Escrever no **idioma do projeto** (detectado do CLAUDE.md)
@@ -70,7 +65,7 @@ Após gerar o design.md, o agente apresenta seção por seção ao dev para vali
 ````markdown
 # [Feature] — Design
 
-**Spec**: `.specs/features/[feature]/spec.md`
+**Spec**: `.specs/features/YYYY-MM-DD-[feature]/spec.md`
 **Status**: Draft | Approved
 
 ---

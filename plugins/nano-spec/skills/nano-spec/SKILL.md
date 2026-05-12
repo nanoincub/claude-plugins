@@ -3,13 +3,13 @@ name: nanoincub-spec-driven
 description: >
   Processo Spec-Driven da Nano Incub. Orquestra fases: Specify → Design → Tasks →
   Execute → /simplify → Docs → Commit. Verificação executável por task. Auto-sizing por complexidade.
-  Usa superpowers como motor quando instalado, funciona standalone quando não.
+  Requer superpowers como motor (HARD BLOCK).
   Triggers: "nova feature", "implementar", "quick fix", "review", "commitar",
   "pause work", "resume work". Não use para design UI, docs isoladas, infra pura.
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 2.11.1
+  version: 3.0.1
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -26,8 +26,8 @@ Orquestrador leve. Gates obrigatórios. Zero cerimônia.
 
 ## Princípio: nanoincub = trilho, superpowers = motor
 
-Este processo define O QUE fazer e EM QUE ORDEM. Quando `superpowers` está instalado,
-delega O COMO para suas skills. Sem superpowers, funciona 100% standalone.
+Este processo define O QUE fazer e EM QUE ORDEM. `superpowers` é o motor obrigatório
+que fornece O COMO (TDD, debugging, brainstorming, plans, code review, etc.).
 
 **Hierarquia:** nanoincub-spec-driven > using-superpowers > default system prompt.
 O dispatcher do superpowers NÃO orquestra quando este processo está ativo.
@@ -110,7 +110,7 @@ Regras especiais: [lista resumida]
 
 Exibir este resumo UMA VEZ no início da primeira fase. Não repetir.
 
-### 4.1. Detectar Superpowers (OBRIGATÓRIO)
+### 4.1. Gate: Superpowers Instalado (HARD BLOCK)
 
 Na primeira invocação da sessão, verificar se `superpowers` está instalado:
 
@@ -123,22 +123,31 @@ Verificar se as skills estão disponíveis:
 - superpowers:verification-before-completion
 ```
 
-**Se QUALQUER skill superpowers for encontrada** → `superpowers = true`.
-Cachear resultado na sessão — não re-verificar.
+**Se NENHUMA skill superpowers for encontrada → BLOQUEAR TODO O PROCESSO.**
+
+Exibir mensagem de bloqueio:
+
+```
+⛔ Superpowers NÃO está instalado. Este é um requisito obrigatório do nano-spec.
+
+Instale antes de continuar:
+  claude plugin install superpowers@claude-plugins-official
+
+Após instalar, recarregue a sessão (Ctrl+R ou /resume).
+```
+
+- NÃO prosseguir para nenhuma fase
+- NÃO oferecer alternativa standalone — sem superpowers, nano-spec não roda
+- Cachear resultado positivo na sessão — não re-verificar
+
+**Quando superpowers está disponível** (estado normal):
+- Skills do superpowers são o **motor obrigatório** em cada fase (ver tabela "Integração Ativa")
+- O dispatcher `using-superpowers` permanece DESATIVADO — nano-spec orquestra
 
 Adicionar ao resumo de contexto:
 ```
-Superpowers: [sim — skills disponíveis] ou [não — modo standalone]
+Superpowers: instalado · motor ativo
 ```
-
-**Quando `superpowers = true`:**
-- Skills do superpowers são o **motor padrão** em cada fase (ver tabela "Integração Ativa")
-- O dispatcher `using-superpowers` permanece DESATIVADO — nano-spec orquestra
-- Dev pode desativar skills individuais via defaults opt-out ou CLAUDE.md
-
-**Quando `superpowers = false`:**
-- Fallback manual em cada fase (o processo funciona 100% standalone)
-- Recomendar instalação UMA VEZ por sessão: `@superpowers` no marketplace
 
 ### 5. Gate: Project Init (OBRIGATÓRIO antes de qualquer feature)
 
@@ -179,9 +188,9 @@ Documentação estruturada do projeto. Consultar antes de tomar decisões.
 - `.specs/codebase/CONCERNS.md` — Tech debt, riscos e áreas frágeis
 
 ### Features
-- `.specs/features/[feature]/spec.md` — Requisitos e critérios de aceite
-- `.specs/features/[feature]/design.md` — Arquitetura e componentes
-- `.specs/features/[feature]/tasks.md` — Tasks atômicas de implementação
+- `.specs/features/YYYY-MM-DD-[feature]/spec.md` — Requisitos e critérios de aceite
+- `.specs/features/YYYY-MM-DD-[feature]/design.md` — Arquitetura e componentes
+- `.specs/features/YYYY-MM-DD-[feature]/tasks.md` — Tasks atômicas de implementação
 ```
 
 Isto garante que qualquer agente que leia o CLAUDE.md saiba exatamente onde buscar cada tipo de informação.
@@ -201,24 +210,14 @@ Fluxo completo na skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md). **Es
 
 ## Defaults Opt-Out
 
-No início de cada feature (Medium+), apresentar defaults e deixar dev ajustar.
+No início de cada feature (Medium+), apresentar defaults e deixar dev ajustar:
 
-**Com superpowers detectado:**
 ```
 Escopo detectado: [Large]  |  Superpowers: ativo
 Defaults: brainstorming → spec-reviewer → writing-plans → plan-reviewer →
           subagent-driven (two-stage review) → /simplify → verification → commit.
 Opções para DESATIVAR: brainstorming, TDD, subagents.
 Opções para ATIVAR: review extra, security.
-Quer ajustar algo? (Enter para seguir com defaults)
-```
-
-**Sem superpowers:**
-```
-Escopo detectado: [Large]
-Defaults: spec completa, tasks formais, execução sequencial,
-          /simplify + suite de testes + commit.
-Opções disponíveis: TDD, subagent por task, review, security.
 Quer ajustar algo? (Enter para seguir com defaults)
 ```
 
@@ -288,7 +287,7 @@ Agente: [Commit] feat(auth): add Google OAuth login — Refs: AUTH-01
 │   ├── STACK.md, ARCHITECTURE.md, CONVENTIONS.md
 │   ├── STRUCTURE.md, TESTING.md, INTEGRATIONS.md
 │   └── CONCERNS.md
-├── features/[feature]/
+├── features/YYYY-MM-DD-[feature]/    # Prefixo de data OBRIGATÓRIO (ex: 2026-05-12-google-login)
 │   ├── spec.md         # Requisitos com IDs rastreáveis
 │   ├── context.md      # Decisões do usuário (inclui output de brainstorming)
 │   ├── design.md       # Arquitetura & componentes
@@ -298,16 +297,63 @@ Agente: [Commit] feat(auth): add Google OAuth login — Refs: AUTH-01
     ├── TASK.md, SUMMARY.md
 ```
 
+## Naming da pasta de feature (OBRIGATÓRIO)
+
+Toda pasta em `.specs/features/` **DEVE** seguir o padrão `YYYY-MM-DD-[feature]`, onde:
+
+- `YYYY-MM-DD` = data de criação da feature (data atual quando a fase Specify rodar)
+- `[feature]` = slug em kebab-case derivado do título/intenção
+
+**Exemplos válidos:**
+- `.specs/features/2026-05-12-google-login/`
+- `.specs/features/2026-05-12-payment-checkout/`
+- `.specs/features/2026-05-13-fix-token-refresh/`
+
+**Razão:** garante ordenação cronológica natural no filesystem e preserva histórico mesmo após renames.
+
+**Quando criar:** no início da fase Specify, antes de escrever `spec.md`. Use a data corrente (não a data de início da sessão se diferente).
+
+**Quando NÃO renomear:** depois de criada, a pasta mantém a data original mesmo que a feature seja revisada em outro dia.
+
+### Migração de pastas legadas (pré-3.0.1)
+
+Na detecção de contexto da sessão, **o agente DEVE** rodar:
+
+```bash
+find .specs/features -mindepth 1 -maxdepth 1 -type d \
+  ! -regex '.*/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-.*' 2>/dev/null
+```
+
+Se retornar 1+ pastas, oferecer **uma vez por sessão** (não a cada feature):
+
+```
+Detectei N pasta(s) em .specs/features/ sem prefixo de data (padrão pré-3.0.1):
+  - <pasta1>
+  - <pasta2>
+
+Quer renomear para o padrão YYYY-MM-DD-[feature]? A data vem do primeiro commit
+do spec.md (ou do filesystem, se a pasta nunca foi commitada).
+
+[s] sim, renomear todas    [d] dry-run primeiro    [n] não, deixar como está
+```
+
+Resposta do dev:
+- **s** → rodar `bash <PLUGIN_ROOT>/scripts/migrate-feature-dates.sh --yes`
+- **d** → rodar `bash <PLUGIN_ROOT>/scripts/migrate-feature-dates.sh --dry-run` e perguntar de novo
+- **n** → não tocar; lembrar do `STATE.md` que a migração foi recusada (não perguntar de novo na mesma sessão)
+
+O script usa `git mv` quando possível (preserva histórico) e cai para `mv` simples fora de repo git.
+
 ## Superpowers: Output para .specs/ (OBRIGATÓRIO)
 
 Quando skills do superpowers gerarem artefatos de feature, **SEMPRE** salvar
-dentro de `.specs/features/[feature]/` — **NUNCA** em `docs/superpowers/` ou `.superpowers/`.
+dentro de `.specs/features/YYYY-MM-DD-[feature]/` — **NUNCA** em `docs/superpowers/` ou `.superpowers/`.
 
 | Skill superpowers | Output padrão (NÃO usar) | Output correto (.specs/) |
 |---|---|---|
-| `brainstorming` | `.superpowers/brainstorm/` | `.specs/features/[feature]/context.md` |
-| `writing-plans` (plano) | `docs/superpowers/plans/` | `.specs/features/[feature]/tasks.md` |
-| `writing-plans` (design) | `docs/superpowers/specs/` | `.specs/features/[feature]/design.md` |
+| `brainstorming` | `.superpowers/brainstorm/` | `.specs/features/YYYY-MM-DD-[feature]/context.md` |
+| `writing-plans` (plano) | `docs/superpowers/plans/` | `.specs/features/YYYY-MM-DD-[feature]/tasks.md` |
+| `writing-plans` (design) | `docs/superpowers/specs/` | `.specs/features/YYYY-MM-DD-[feature]/design.md` |
 
 **Regras de merge:**
 - **brainstorming → context.md:** Decisões e escolhas vão para `context.md` no formato nano-spec. Artefatos HTML interativos vão para `assets/`.
@@ -353,31 +399,31 @@ Ver [agent-behavior.md](references/agent-behavior.md). Resumo:
 
 ## Integração Ativa com Superpowers
 
-Quando `superpowers = true` (detectado na seção 4.1), as skills são o **motor padrão** —
-não opcionais. O agente DEVE invocá-las automaticamente. Se o dev quiser desativar,
-faz via defaults opt-out ou CLAUDE.md.
+Superpowers é o **motor obrigatório** do nano-spec (garantido pelo HARD BLOCK na seção 4.1).
+O agente DEVE invocar as skills automaticamente em cada fase. Dev pode desativar skills
+individuais via defaults opt-out ou CLAUDE.md.
 
-| Fase | Superpowers (padrão quando detectado) | Fallback (standalone) |
-|------|---------------------------------------|----------------------|
-| **Specify** | **DEVE** invocar `brainstorming` → propor 2-3 abordagens → spec self-review via `spec-document-reviewer` → output para `context.md` + `spec.md` | Perguntas conversacionais |
-| **Design** | **DEVE** usar `brainstorming` steps 5-8 → apresentar design incremental por seção → output para `design.md` | Research + design.md direto |
-| **Tasks** | **DEVE** invocar `writing-plans` → tasks com TDD steps + código inline → plan self-review via `plan-document-reviewer` → output para `tasks.md` | Breakdown manual |
-| **Execute** | **DEVE** usar `subagent-driven-development` (Large/Complex) com two-stage review (spec compliance → code quality) por task. `test-driven-development` para cada task com lógica. `systematic-debugging` quando encontrar bug. Baseline test antes de começar. Sem worktree — trabalho na branch. | Ciclo implement → verify manual |
-| **Execute (bug)** | **DEVE** invocar `systematic-debugging` → 4 fases (Root Cause → Pattern → Hypothesis → Fix) → failing test antes de corrigir | Fix ad-hoc |
-| **/simplify** | /simplify sobre diff acumulado | (mesma skill) |
-| **Review** | **DEVE** invocar `verification-before-completion` (Iron Law: evidência antes de claims) + `requesting-code-review` (subagent reviewer com BASE_SHA/HEAD_SHA) para Large/Complex | /simplify + self-check manual |
-| **Docs** | Checklist contra `.specs/codebase/` — `brownfield-mapping` se docs muito defasados | Checklist manual |
-| **Commit** | Skill `nano-spec:nano-commit` invoca `verification-before-completion` + `finishing-a-development-branch` → testes bloqueiam opções + 4 opções estruturadas | Skill `nano-spec:nano-commit` (Conventional Commits + gitflow gate + 4 opções incluindo discard) |
+| Fase | Skill do superpowers invocada |
+|------|-------------------------------|
+| **Specify** | `brainstorming` → propor 2-3 abordagens → spec self-review via `spec-document-reviewer` → output para `context.md` + `spec.md` |
+| **Design** | `brainstorming` steps 5-8 → apresentar design incremental por seção → output para `design.md` |
+| **Tasks** | `writing-plans` → tasks com TDD steps + código inline → plan self-review via `plan-document-reviewer` → output para `tasks.md` |
+| **Execute** | `subagent-driven-development` (Large/Complex) com two-stage review (spec compliance → code quality) por task. `test-driven-development` para cada task com lógica. `systematic-debugging` quando encontrar bug. Baseline test antes de começar. Sem worktree — trabalho na branch. |
+| **Execute (bug)** | `systematic-debugging` → 4 fases (Root Cause → Pattern → Hypothesis → Fix) → failing test antes de corrigir |
+| **/simplify** | /simplify sobre diff acumulado (skill própria) |
+| **Review** | `verification-before-completion` (Iron Law: evidência antes de claims) + `requesting-code-review` (subagent reviewer com BASE_SHA/HEAD_SHA) para Large/Complex |
+| **Docs** | Checklist contra `.specs/codebase/` — `brownfield-mapping` se docs muito defasados |
+| **Commit** | Skill `nano-spec:nano-commit` invoca `verification-before-completion` + `finishing-a-development-branch` → testes bloqueiam opções + 4 opções estruturadas |
 
 **Regras:**
-- `DEVE` = invocação automática quando superpowers detectado. Não perguntar.
-- Dev pode desativar qualquer skill via defaults opt-out — mas o padrão é ON.
+- Invocação automática — não perguntar.
+- Dev pode desativar qualquer skill via defaults opt-out, mas o padrão é ON.
 - Skills são workers — o ciclo do nano-spec (Specify → Execute → /simplify → Commit) continua sendo o trilho.
 - Todo output de skills vai para `.specs/` — NUNCA para `docs/superpowers/` ou `.superpowers/`.
 
 ### Rastreabilidade Spec → Testes → Commit
 
-Quando superpowers está ativo, a rastreabilidade é reforçada:
+A rastreabilidade é reforçada via superpowers:
 
 1. **Spec → Tasks:** Após gerar `tasks.md`, o `plan-document-reviewer` DEVE verificar que TODOS os critérios QUANDO/ENTÃO da spec.md estão cobertos por pelo menos uma task.
 2. **Spec → Testes:** Cada critério de aceite QUANDO/ENTÃO DEVE gerar um teste nomeado com o ID do requisito (ex: `test_AUTH01_invalid_email_returns_422`).
