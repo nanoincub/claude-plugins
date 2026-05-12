@@ -113,6 +113,8 @@ nano-spec/
 
 ## Versão
 
+2.11.0 — Feat: extrai fluxo de gitflow + commit para skill autônoma `nano-spec:nano-commit`, invocável standalone sem carregar o orquestrador. References `gitflow.md` e `commit.md` viram pointers para compatibilidade.
+
 2.10.4 — Fix: naming de hotfix usa semver (`hotfix/<version>`) — git-flow-next usa o nome da branch como tag por padrão.
 
 2.10.3 — Docs: `git flow finish --no-ff` inline (git-flow-next não aplica `--no-ff` por padrão, ao contrário do gitflow clássico).

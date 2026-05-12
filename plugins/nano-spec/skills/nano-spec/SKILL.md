@@ -9,7 +9,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 2.10.4
+  version: 2.11.0
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -45,7 +45,7 @@ O dispatcher do superpowers NÃO orquestra quando este processo está ativo.
 - Specify e Execute são sempre obrigatórios
 - /simplify é **obrigatório antes de qualquer commit** — roda sobre o diff acumulado de todas as tasks
 - Suite completa de testes roda após /simplify, antes do commit
-- Commit nunca é automático — sempre perguntar ao dev (ver [commit.md](references/commit.md))
+- Commit nunca é automático — sempre perguntar ao dev (invocar skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md))
 - Docs é obrigatório para Medium+ ; no Quick Mode é checklist inline
 - Design é pulado quando não há decisões arquiteturais
 - Tasks é pulado quando há ≤3 passos óbvios
@@ -188,7 +188,7 @@ Isto garante que qualquer agente que leia o CLAUDE.md saiba exatamente onde busc
 
 ## Gate: Gitflow — em TODOS os modos (incluindo Quick Mode)
 
-Conforme [gitflow.md](references/gitflow.md). **Este gate NÃO é opcional.**
+Fluxo completo na skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md). **Este gate NÃO é opcional.**
 
 **Pré-requisito (HARD BLOCK):** Na primeira interação com gitflow na sessão, executar `git flow version`. Se git-flow-next NÃO está instalado → **BLOQUEAR TODO O PROCESSO** até o dev instalar. Sem exceções, sem fallback para git puro. Única exceção: CLAUDE.md define `Sem gitflow` ou `trunk-based`.
 
@@ -339,8 +339,8 @@ dentro de `.specs/features/[feature]/` — **NUNCA** em `docs/superpowers/` ou `
 | Review de código | [review.md](references/review.md) |
 | Auditoria de segurança | [security.md](references/security.md) |
 | Atualizar docs do codebase | [docs-update.md](references/docs-update.md) |
-| Commitar | [commit.md](references/commit.md) |
-| Gitflow / branching | [gitflow.md](references/gitflow.md) |
+| Commitar | skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md) |
+| Gitflow / branching | skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md) |
 | Quick fix | [quick-mode.md](references/quick-mode.md) |
 
 ## Comportamento do Agente
@@ -367,7 +367,7 @@ faz via defaults opt-out ou CLAUDE.md.
 | **/simplify** | /simplify sobre diff acumulado | (mesma skill) |
 | **Review** | **DEVE** invocar `verification-before-completion` (Iron Law: evidência antes de claims) + `requesting-code-review` (subagent reviewer com BASE_SHA/HEAD_SHA) para Large/Complex | /simplify + self-check manual |
 | **Docs** | Checklist contra `.specs/codebase/` — `brownfield-mapping` se docs muito defasados | Checklist manual |
-| **Commit** | **DEVE** invocar `finishing-a-development-branch` → testes bloqueiam opções + 4 opções estruturadas | Conventional Commits + gitflow gate |
+| **Commit** | Skill `nano-spec:nano-commit` invoca `verification-before-completion` + `finishing-a-development-branch` → testes bloqueiam opções + 4 opções estruturadas | Skill `nano-spec:nano-commit` (Conventional Commits + gitflow gate + 4 opções incluindo discard) |
 
 **Regras:**
 - `DEVE` = invocação automática quando superpowers detectado. Não perguntar.
