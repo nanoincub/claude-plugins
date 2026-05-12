@@ -187,7 +187,7 @@ Implementação concluída. Quer commitar?
 
 **Integração ativa com superpowers:** quando superpowers detectado, invocar `superpowers:verification-before-completion` como gate obrigatório. Testes DEVEM passar antes de oferecer opções de commit — se falharem, BLOQUEAR o fluxo (não apenas pedir ao dev, mas impedir o avanço).
 
-**Suite de testes (sem superpowers):** agente NÃO roda — pede ao dev e aguarda confirmação. Motivo: evita gasto de tokens em output de centenas de testes.
+**Suite de testes:** agente NÃO roda — pede ao dev e aguarda confirmação (evita gasto de tokens em output de centenas de testes). `superpowers:verification-before-completion` valida que os testes passaram antes de liberar o commit.
 
 **Rastreabilidade:** verificar que todos os IDs de requisito (`[FEAT]-XX`) da spec.md mapeados para esta task estão com status "Verified" na tabela de rastreabilidade. Se algum está "Pending" ou "Implementing", ALERTAR o dev com a lista de IDs pendentes e perguntar se deseja prosseguir.
 
@@ -406,34 +406,18 @@ O agente **continua passando `--no-ff` inline** mesmo com a config setada — é
 
 ## Pós-Commit: Fechamento de Branch
 
-Após commitar em `feature/*`, `hotfix/*` ou `release/*`, verificar se superpowers está disponível.
-
-### Com superpowers (integração ativa)
-
-DEVE invocar `superpowers:finishing-a-development-branch` — verifica testes, apresenta 4 opções (merge/PR/manter/discard), exige confirmação tipada para discard.
-
-### Sem superpowers (fluxo manual)
-
-```
-Commit feito na branch [branch]. Como quer prosseguir?
-
-  1. Merge local (review + git flow finish --no-ff — recomendado para features médias/grandes)
-  2. Criar PR (push + abrir pull request para review externo)
-  3. Continuar trabalhando nesta branch (mais commits pendentes)
-  4. Discard (descartar branch — requer confirmação: digitar "discard")
-```
+Após commitar em `feature/*`, `bugfix/*`, `hotfix/*` ou `release/*`, DEVE invocar `superpowers:finishing-a-development-branch` — verifica testes, apresenta 4 opções estruturadas (merge/PR/manter/discard) e exige confirmação tipada (`discard`) para descarte.
 
 **Branch destino:**
-- `feature/*` → `develop`
+- `feature/*` / `bugfix/*` → `develop`
 - `hotfix/*` → `main` + `develop`
 - `release/*` → `main` + `develop`
 
-**Regras:**
+**Regras (aplicadas pela skill do superpowers):**
 - Sempre perguntar — nunca fazer merge ou push automaticamente
-- **Opção 1:** rodar review do diff da branch contra destino, depois `git flow finish --no-ff` (sempre inline)
-- **Opção 2:** push da branch e criar PR via `gh pr create`
-- **Opção 4:** exigir que o dev digite `discard` para confirmar — protege contra descarte acidental
-- Se mais tasks pendentes na mesma feature → opção 3 é a natural
+- Opção 1 (merge local): review do diff da branch contra destino, depois `git flow finish --no-ff` (sempre inline)
+- Opção 2 (PR): push da branch e criar PR via `gh pr create`
+- Opção 4 (discard): exigir dev digitar `discard` para confirmar — protege contra descarte acidental
 
 ---
 
@@ -452,9 +436,9 @@ Se usando `tasks.md`, marcar a task como completa e atualizar rastreabilidade em
 | **Pré-specify** | `git pull` se em branch protegida |
 | **Pré-execute** | `git flow <tipo> start --fetch` — tipo já conhecido, base atualizada do remote |
 | **Commit** | Esta skill é invocada — gates + commit + fechamento |
-| **Pós-commit** | 4 opções (merge/PR/continuar/discard) ou `finishing-a-development-branch` se superpowers |
+| **Pós-commit** | `superpowers:finishing-a-development-branch` (4 opções estruturadas) |
 
-Quando invocada **standalone** (sem orquestrador rodando), aplicar o fluxo completo do HARD BLOCK ao fechamento de branch.
+Quando invocada **diretamente** (sem o orquestrador `nano-spec` rodando — ex: dev pediu "commitar" sem ter entrado no fluxo de spec), aplicar o fluxo completo do HARD BLOCK ao fechamento de branch.
 
 ---
 

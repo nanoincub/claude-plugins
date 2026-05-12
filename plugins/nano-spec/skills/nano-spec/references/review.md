@@ -55,14 +55,12 @@ Execute concluído
     └── Limpo → Avançar
     │
     ▼
-3. verification-before-completion (obrigatório quando superpowers ativo)
-    │
-    ├── superpowers detectado → invocar superpowers:verification-before-completion
-    │   └── Evidência FRESH antes de qualquer claim de "pronto"
-    └── superpowers ausente → self-check manual (rodar testes + verificar output)
+3. verification-before-completion (obrigatório)
+    └── Invocar superpowers:verification-before-completion
+        └── Evidência FRESH antes de qualquer claim de "pronto"
     │
     ▼
-4. [Large/Complex + superpowers] requesting-code-review (subagent reviewer)
+4. [Large/Complex] requesting-code-review (subagent reviewer)
     └── Despachar superpowers:requesting-code-review com BASE_SHA e HEAD_SHA
     │
     ▼
@@ -108,11 +106,11 @@ Analisa reuse, quality, efficiency em paralelo.
 - Issues → Corrigir → Re-executar `/simplify`
 - Limpo → Avançar para Security
 
-### 3. Verificação Formal (obrigatório quando superpowers ativo)
+### 3. Verificação Formal (obrigatório)
 
 **Iron Law: "NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE"**
 
-**Quando superpowers detectado**, o agente DEVE invocar `superpowers:verification-before-completion`. Antes de qualquer claim de "pronto", o agente DEVE:
+O agente DEVE invocar `superpowers:verification-before-completion`. Antes de qualquer claim de "pronto", o agente DEVE:
 
 1. Identificar o comando que prova o claim (testes, build, lint, etc.)
 2. Executar o comando FRESH — nunca reusar output anterior

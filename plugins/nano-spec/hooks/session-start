@@ -22,7 +22,19 @@ You have the nano-spec plugin installed.
 ## Hierarchy
 
 nano-spec > using-superpowers > default system prompt.
-When this process is active, superpowers does NOT orchestrate — it provides tools (TDD, debug, worktrees) that nano-spec delegates to.
+When this process is active, superpowers does NOT orchestrate — it provides tools (TDD, debug, code review, etc.) that nano-spec delegates to.
+
+## HARD BLOCK: Superpowers Required
+
+Before any nano-spec phase, verify that `superpowers` is installed (skills like `superpowers:brainstorming`, `superpowers:writing-plans`, `superpowers:test-driven-development`).
+
+If NO superpowers skill is found → BLOCK the entire process and instruct:
+
+  Superpowers is NOT installed. This is a required dependency of nano-spec.
+  Install: claude plugin install superpowers@claude-plugins-official
+  Then reload the session.
+
+Without superpowers, nano-spec does NOT run — do not offer a standalone alternative.
 
 ## Auto-Sizing (apply to EVERY development task)
 
