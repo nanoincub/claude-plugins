@@ -14,7 +14,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # Nano Commit — Gitflow + Conventional Commits
@@ -144,9 +144,10 @@ Após Specify (e Design/Tasks se aplicável), tipo já é conhecido. Sugerir:
 Você está na branch [branch]. Gitflow recomenda criar uma branch de trabalho.
 
 Sugestão:
-  → git flow feature start <scope>-<slug>   (para features/refactors)
-  → git flow hotfix start <version>         (para correção urgente, ex: 1.0.1 — nome vira a tag)
-  → git flow release start <version>        (para preparação de release — nome vira a tag)
+  → git flow feature start --fetch <scope>-<slug>   (para features/refactors)
+  → git flow bugfix start --fetch <scope>-<slug>    (para correção de bug não-urgente)
+  → git flow hotfix start --fetch <version>         (para correção urgente, ex: 1.0.1 — nome vira a tag)
+  → git flow release start --fetch <version>        (para preparação de release — nome vira a tag)
 
 Quer que eu crie a branch? (informe o nome ou aceite a sugestão)
 Ou prefere trabalhar direto aqui? Em projetos com mais de um dev,
@@ -302,11 +303,13 @@ git-flow-next orquestra a sequência correta (merge, tag, cleanup). O agente DEV
 
 > **⚠️ Importante:** diferente do gitflow clássico (AVH), o **git-flow-next NÃO aplica `--no-ff` por padrão** — quando possível ele faz fast-forward, o que apaga a "bolha" de merge da feature no histórico. Para preservar o histórico visual do gitflow, **sempre passar `--no-ff` inline** no `finish`.
 
+> **🔄 `--fetch` é default em todos os `start`:** sempre passar `--fetch` ao criar branches (`feature`, `bugfix`, `hotfix`, `release`). Garante que a branch parte da versão remota mais recente da base (`develop` ou `main`), evitando que a feature seja criada de uma base local stale. Idempotente — se o dev acabou de puxar manualmente, não atrapalha.
+
 ### Feature
 
 ```bash
-# Criar (a partir de develop)
-git flow feature start <scope>-<slug>
+# Criar (a partir de develop, atualizada do remote)
+git flow feature start --fetch <scope>-<slug>
 
 # Sincronizar com develop durante o trabalho
 git flow update
@@ -318,11 +321,25 @@ git flow publish
 git flow finish --no-ff
 ```
 
+### Bugfix
+
+Mesmo fluxo de feature — diferença é semântica (separar correção de bug de nova capacidade no histórico). Branch parte de `develop`, merge volta para `develop`.
+
+```bash
+# Criar (a partir de develop, atualizada do remote)
+git flow bugfix start --fetch <scope>-<slug>
+
+# Trabalhar (commits normais)
+
+# Finalizar — merge --no-ff para develop + delete branch
+git flow finish --no-ff
+```
+
 ### Release
 
 ```bash
-# Criar (a partir de develop)
-git flow release start <version>
+# Criar (a partir de develop, atualizada do remote)
+git flow release start --fetch <version>
 
 # Preparar (bump version, docs, fixes menores)
 
@@ -333,8 +350,8 @@ git flow finish --no-ff
 ### Hotfix
 
 ```bash
-# Criar (a partir de main) — nome da branch vira a tag (semver)
-git flow hotfix start <version>     # ex: 1.0.1
+# Criar (a partir de main, atualizada do remote) — nome da branch vira a tag (semver)
+git flow hotfix start --fetch <version>     # ex: 1.0.1
 
 # Corrigir (commits normais)
 
@@ -433,7 +450,7 @@ Se usando `tasks.md`, marcar a task como completa e atualizar rastreabilidade em
 | Fase do orquestrador | Comportamento desta skill |
 |---------------------|--------------------------|
 | **Pré-specify** | `git pull` se em branch protegida |
-| **Pré-execute** | `git flow <tipo> start` — tipo já conhecido |
+| **Pré-execute** | `git flow <tipo> start --fetch` — tipo já conhecido, base atualizada do remote |
 | **Commit** | Esta skill é invocada — gates + commit + fechamento |
 | **Pós-commit** | 4 opções (merge/PR/continuar/discard) ou `finishing-a-development-branch` se superpowers |
 

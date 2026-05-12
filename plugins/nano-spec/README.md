@@ -113,6 +113,8 @@ nano-spec/
 
 ## Versão
 
+2.11.1 — Fix: `--fetch` como default em todos os `git flow <tipo> start` na skill `nano-commit` (feature, bugfix, hotfix, release). Garante que branches partem da base remota atualizada, evitando criação a partir de develop/main stale. Adicionado bloco Bugfix.
+
 2.11.0 — Feat: extrai fluxo de gitflow + commit para skill autônoma `nano-spec:nano-commit`, invocável standalone sem carregar o orquestrador. References `gitflow.md` e `commit.md` viram pointers para compatibilidade.
 
 2.10.4 — Fix: naming de hotfix usa semver (`hotfix/<version>`) — git-flow-next usa o nome da branch como tag por padrão.
