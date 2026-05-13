@@ -113,6 +113,10 @@ nano-spec/
 
 ## Versão
 
+3.0.3 — Docs: auditoria de ruído na skill `nano-commit`. Remove blocos redundantes (`Configuração por Projeto` duplicada, `Tornar --no-ff permanente`, `Tips`, subseção `Branches protegidas`), encurta o aviso sobre `--fetch` (vira anti-pattern em 1 parágrafo + regra invariante), unifica avisos "Importante" em duas regras invariantes. Skill mais densa, sem perda de conteúdo prescritivo.
+
+3.0.2 — Fix: `nano-commit` corrige instrução incorreta de que `git flow <type> start --fetch` parte da base remota atualizada. O flag executa apenas `git fetch origin` e NÃO fast-forwarda a base local — `git checkout <base> && git pull --ff-only` explícito é obrigatório antes do `start`. Adiciona seção "Anti-patterns conhecidos" documentando sintoma, correção em curso e prevenção.
+
 3.0.1 — Convenção: pasta de feature em `.specs/features/` passa a exigir prefixo de data `YYYY-MM-DD-[feature]` (ex: `2026-05-12-google-login/`). Garante ordenação cronológica e preserva histórico após renames. Atualizado em SKILL.md, references, GUIA.md e CLAUDE.md. Inclui script `scripts/migrate-feature-dates.sh` para migrar pastas legadas (data vem do primeiro commit do `spec.md` via `git log`).
 
 3.0.0 (BREAKING) — Superpowers vira **obrigatório**: HARD BLOCK no SessionStart, remoção de todos os fallbacks "standalone" em references, SKILL.md, hook e docs. Sem superpowers, nano-spec não roda. Bump major sinaliza incompatibilidade com sessões que dependiam do modo standalone.

@@ -14,14 +14,12 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 1.0.1
+  version: 1.0.3
 ---
 
 # Nano Commit — Gitflow + Conventional Commits
 
 **Goal**: Padronizar branching e commits da Nano Incub via [git-flow-next](https://github.com/gittower/git-flow-next). Gates obrigatórios. Configurável por projeto via CLAUDE.md.
-
-**Fase final confirmativa** — sempre perguntar ao dev antes de iniciar o fluxo de commit.
 
 ---
 
@@ -90,18 +88,12 @@ Se CLAUDE.md não menciona branching → gitflow clássico (Vincent Driessen) co
 
 | Branch | Origem | Destino | Propósito |
 |--------|--------|---------|-----------|
-| `main` | — | — | Código em produção. Apenas merges de `release/*` e `hotfix/*` |
-| `develop` | `main` | — | Integração de features. Base para novas features |
+| `main` (ou `master` em legados) | — | — | Código em produção. Apenas merges de `release/*` e `hotfix/*`. **Protegida.** |
+| `develop` | `main` | — | Integração de features. Base para novas features. **Protegida.** |
 | `feature/*` | `develop` | `develop` | Desenvolvimento de features |
 | `release/*` | `develop` | `main` + `develop` | Preparação de release |
 | `hotfix/*` | `main` | `main` + `develop` | Correção urgente em produção |
 | `support/*` | `main` (tag) | — | Manutenção de versões anteriores (raro) |
-
-### Branches protegidas
-
-- `main`
-- `develop`
-- `master` (alias de main em projetos legados)
 
 ### Naming
 
@@ -118,7 +110,7 @@ support/<version>
 
 Exemplos: `feature/auth-google-login`, `release/2.1.0`, `hotfix/1.0.1`.
 
-**Nota — release e hotfix:** git-flow-next usa o nome da branch como tag por padrão no `finish`. Por isso ambas seguem `<tipo>/<version>` em semver — a descrição vai na mensagem do commit, NÃO no nome da branch. Para tag diferente do nome da branch, passar `--tagname <tag>` no finish.
+**Nota — release/hotfix:** nome da branch vira tag no `finish`. Por isso `<tipo>/<version>` em semver.
 
 **Se CLAUDE.md define convenção diferente, usar a do projeto.**
 
@@ -131,10 +123,8 @@ Exemplos: `feature/auth-google-login`, `release/2.1.0`, `hotfix/1.0.1`.
 Se em branch protegida, executar:
 
 ```bash
-git pull origin <branch-atual>
+git pull --ff-only
 ```
-
-Garante que o trabalho parte da versão mais recente. `git pull` é o único comando git manual no fluxo — git-flow-next não tem comando de sync para branches protegidas.
 
 ### Pré-execute: criar branch de trabalho
 
@@ -143,11 +133,23 @@ Após Specify (e Design/Tasks se aplicável), tipo já é conhecido. Sugerir:
 ```
 Você está na branch [branch]. Gitflow recomenda criar uma branch de trabalho.
 
-Sugestão:
-  → git flow feature start --fetch <scope>-<slug>   (para features/refactors)
-  → git flow bugfix start --fetch <scope>-<slug>    (para correção de bug não-urgente)
-  → git flow hotfix start --fetch <version>         (para correção urgente, ex: 1.0.1 — nome vira a tag)
-  → git flow release start --fetch <version>        (para preparação de release — nome vira a tag)
+Sugestão (sempre prefixado por `git checkout <base> && git pull --ff-only`):
+
+  Feature/refactor (base: develop):
+    git checkout develop && git pull --ff-only && \
+    git flow feature start <scope>-<slug>
+
+  Bugfix não-urgente (base: develop):
+    git checkout develop && git pull --ff-only && \
+    git flow bugfix start <scope>-<slug>
+
+  Hotfix urgente (base: main — nome vira tag semver):
+    git checkout main && git pull --ff-only && \
+    git flow hotfix start <version>
+
+  Release (base: develop — nome vira tag semver):
+    git checkout develop && git pull --ff-only && \
+    git flow release start <version>
 
 Quer que eu crie a branch? (informe o nome ou aceite a sugestão)
 Ou prefere trabalhar direto aqui? Em projetos com mais de um dev,
@@ -158,7 +160,7 @@ commitar direto em [branch] pode causar conflitos e sobrescrever trabalho de col
 - Sempre sugerir, nunca bloquear — dev tem palavra final
 - Se dev confirmar trabalho na branch protegida, seguir sem insistir
 - Sugestão de nome deve usar o scope da feature/fix atual
-- Usar `--fetch` para garantir que a branch parte da versão remota mais recente
+- Sempre `git checkout <base> && git pull --ff-only` ANTES do `git flow <type> start`. Não usar `--fetch` (não substitui o pull)
 
 ### Pré-commit (Step 0): validação de branch
 
@@ -190,8 +192,6 @@ Implementação concluída. Quer commitar?
 **Suite de testes:** agente NÃO roda — pede ao dev e aguarda confirmação (evita gasto de tokens em output de centenas de testes). `superpowers:verification-before-completion` valida que os testes passaram antes de liberar o commit.
 
 **Rastreabilidade:** verificar que todos os IDs de requisito (`[FEAT]-XX`) da spec.md mapeados para esta task estão com status "Verified" na tabela de rastreabilidade. Se algum está "Pending" ou "Implementing", ALERTAR o dev com a lista de IDs pendentes e perguntar se deseja prosseguir.
-
-**Nota:** `/simplify` deve ter rodado após o Execute. Se já rodou e não houve ajustes depois, não rodar novamente.
 
 ### Step 3: detectar desvio de escopo
 
@@ -301,15 +301,16 @@ Refs: AUTH-05
 
 git-flow-next orquestra a sequência correta (merge, tag, cleanup). O agente DEVE usar estes comandos — não improvisar com git manual.
 
-> **⚠️ Importante:** diferente do gitflow clássico (AVH), o **git-flow-next NÃO aplica `--no-ff` por padrão** — quando possível ele faz fast-forward, o que apaga a "bolha" de merge da feature no histórico. Para preservar o histórico visual do gitflow, **sempre passar `--no-ff` inline** no `finish`.
-
-> **🔄 `--fetch` é default em todos os `start`:** sempre passar `--fetch` ao criar branches (`feature`, `bugfix`, `hotfix`, `release`). Garante que a branch parte da versão remota mais recente da base (`develop` ou `main`), evitando que a feature seja criada de uma base local stale. Idempotente — se o dev acabou de puxar manualmente, não atrapalha.
+> **⚠️ Duas regras invariantes:**
+> 1. **Sempre `git checkout <base> && git pull --ff-only` antes de `git flow <type> start`** — o `--fetch` do git-flow-next não fast-forwarda a base local; ver Anti-patterns.
+> 2. **Sempre `--no-ff` inline no `finish`** — git-flow-next faz fast-forward por padrão, o que apaga a bolha de merge.
 
 ### Feature
 
 ```bash
-# Criar (a partir de develop, atualizada do remote)
-git flow feature start --fetch <scope>-<slug>
+# Atualizar base local + criar branch
+git checkout develop && git pull --ff-only
+git flow feature start <scope>-<slug>
 
 # Sincronizar com develop durante o trabalho
 git flow update
@@ -326,8 +327,9 @@ git flow finish --no-ff
 Mesmo fluxo de feature — diferença é semântica (separar correção de bug de nova capacidade no histórico). Branch parte de `develop`, merge volta para `develop`.
 
 ```bash
-# Criar (a partir de develop, atualizada do remote)
-git flow bugfix start --fetch <scope>-<slug>
+# Atualizar base local + criar branch
+git checkout develop && git pull --ff-only
+git flow bugfix start <scope>-<slug>
 
 # Trabalhar (commits normais)
 
@@ -338,8 +340,9 @@ git flow finish --no-ff
 ### Release
 
 ```bash
-# Criar (a partir de develop, atualizada do remote)
-git flow release start --fetch <version>
+# Atualizar base local + criar branch
+git checkout develop && git pull --ff-only
+git flow release start <version>
 
 # Preparar (bump version, docs, fixes menores)
 
@@ -350,8 +353,9 @@ git flow finish --no-ff
 ### Hotfix
 
 ```bash
-# Criar (a partir de main, atualizada do remote) — nome da branch vira a tag (semver)
-git flow hotfix start --fetch <version>     # ex: 1.0.1
+# Atualizar base local (main) + criar branch — nome da branch vira a tag (semver)
+git checkout main && git pull --ff-only
+git flow hotfix start <version>     # ex: 1.0.1
 
 # Corrigir (commits normais)
 
@@ -380,20 +384,13 @@ git flow feature finish --no-ff       # força merge commit (preserva bolha) —
 git flow feature finish --keep        # não deleta a branch após merge
 git flow release finish --no-tag      # finaliza sem criar tag
 git flow hotfix finish --push         # push automático após finish
-git flow feature start --fetch        # fetch do remote antes de criar
 ```
 
 Flags podem ser combinadas: `git flow feature finish --no-ff --push`.
 
-### Tornar `--no-ff` permanente (opcional)
+### Anti-patterns conhecidos
 
-```bash
-git config gitflow.feature.finish.no-ff true
-git config gitflow.release.finish.no-ff true
-git config gitflow.hotfix.finish.no-ff true
-```
-
-O agente **continua passando `--no-ff` inline** mesmo com a config setada — é idempotente e deixa a intenção explícita no histórico de comandos.
+**`git flow <type> start --fetch` em vez de `pull`:** `--fetch` atualiza `origin/develop` mas não fast-forwarda a base local — a branch nasce stale. Sintoma: `git log feature/foo..origin/develop` mostra commits logo após o `start`. Correção: rebase contra a base atualizada.
 
 ### Regras de Merge
 
@@ -434,25 +431,11 @@ Se usando `tasks.md`, marcar a task como completa e atualizar rastreabilidade em
 | Fase do orquestrador | Comportamento desta skill |
 |---------------------|--------------------------|
 | **Pré-specify** | `git pull` se em branch protegida |
-| **Pré-execute** | `git flow <tipo> start --fetch` — tipo já conhecido, base atualizada do remote |
+| **Pré-execute** | `git checkout <base> && git pull --ff-only && git flow <tipo> start` — base atualizada via pull explícito |
 | **Commit** | Esta skill é invocada — gates + commit + fechamento |
 | **Pós-commit** | `superpowers:finishing-a-development-branch` (4 opções estruturadas) |
 
 Quando invocada **diretamente** (sem o orquestrador `nano-spec` rodando — ex: dev pediu "commitar" sem ter entrado no fluxo de spec), aplicar o fluxo completo do HARD BLOCK ao fechamento de branch.
-
----
-
-## Configuração por Projeto
-
-| Configuração no CLAUDE.md | Efeito |
-|---------------------------|--------|
-| `## Branching` ou `## Git Flow` | Usar modelo definido |
-| `Branch principal: master` | Tratar `master` como `main` |
-| `Branches protegidas: [lista]` | Usar lista do projeto |
-| `Sem gitflow` / `trunk-based` | Desativar validação |
-| `Prefixo de branch: [padrão]` | Usar padrão do projeto |
-
-Se CLAUDE.md não menciona branching → gitflow clássico como default.
 
 ---
 
@@ -469,10 +452,3 @@ Para cenários complexos (conflitos no finish, configuração avançada, hooks, 
 - Dev pede para ignorar → respeitar sem insistir
 - Hotfix urgente onde o dev decide commitar direto na main
 
----
-
-## Tips
-
-- Commit é a última fase — se chegou aqui, código já passou por `/simplify` e dev confirmou testes
-- Mensagem conta a história — quem ler o git log deve entender o que e por que
-- Atomic = reversível — cada commit pode ser revertido independentemente
