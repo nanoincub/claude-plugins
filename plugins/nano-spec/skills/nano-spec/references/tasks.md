@@ -35,6 +35,80 @@
 
 ---
 
+## Modos de breakdown
+
+A geração de tasks tem **dois modos**. O agente escolhe baseado no escopo:
+
+| Modo | Quando usar | Granularidade |
+|------|-------------|---------------|
+| **Horizontal (default)** | Small/Medium, ou Large/Complex single-component | 1 task = 1 componente / função / arquivo |
+| **Vertical-slice (tracer bullets)** | Large/Complex multi-camada (schema + API + UI) | 1 task = 1 fatia end-to-end através de todas as camadas |
+
+Em features multi-camada, o modo vertical-slice produz incrementos demoáveis isoladamente — cada slice "atravessa" o sistema inteiro. Útil quando há risco de integração ou quando o dev quer ver valor entregue continuamente.
+
+Adaptado de `to-issues` (matpocock-skills). Diferença: no Nano, slices viram tasks no `tasks.md` local — não publicamos automaticamente em issue tracker externo (publicação no ClickUp fica opcional via skill `ticket`).
+
+### Interação com `superpowers:writing-plans`
+
+Vertical-slice define a **fronteira** de cada task (end-to-end através de camadas); `writing-plans` define o **interior** de cada task (TDD step-by-step com código inline). Não são incompatíveis — são camadas diferentes:
+
+1. Primeiro desenhar slices (HITL/AFK + dependências + acceptance criteria)
+2. Depois, para cada slice aprovado, invocar `superpowers:writing-plans` passando o slice como input — ele expande os TDD steps internos
+3. Resultado em `tasks.md`: cada task é um slice com steps TDD inline gerados pelo writing-plans
+
+Quando vertical-slice está ativo, o `DEVE invocar writing-plans` da seção abaixo aplica-se **dentro de cada slice**, não para gerar o breakdown inteiro de uma vez.
+
+### Regras de vertical slice
+
+- Cada slice entrega um caminho **estreito mas COMPLETO** por todas as camadas (schema, API, UI, testes)
+- Slice concluído é **demoável ou verificável isoladamente**
+- Preferir muitos slices finos sobre poucos grossos
+- Cada slice é **HITL** (human-in-the-loop) ou **AFK** (autônomo)
+  - **HITL** — exige decisão arquitetural, revisão de design, ou aprovação do dev
+  - **AFK** — pode ser implementado e mergeado sem interação
+
+Preferir AFK quando possível.
+
+### Fluxo do modo vertical-slice
+
+1. Ler `spec.md` e `design.md`
+2. Desenhar slices (numerados, com tipo HITL/AFK e dependências)
+3. Apresentar breakdown ao dev como lista numerada com:
+   - **Título** curto e descritivo
+   - **Tipo** (HITL/AFK)
+   - **Blocked by** (refs a outros slices)
+   - **User stories cobertas** (refs a `[FEAT]-XX` da spec)
+4. Quiz ao dev:
+   - A granularidade está certa? (grosso/fino demais)
+   - As dependências estão corretas?
+   - Algum slice deve ser unido ou dividido?
+   - Marcação HITL/AFK está correta?
+5. Iterar até aprovação
+6. Gravar slices como tasks em `tasks.md` na ordem de dependência (blockers primeiro)
+
+### Template de task em modo vertical-slice
+
+```markdown
+### T1: [Slice — verbo + objeto end-to-end]
+
+**Tipo**: AFK | HITL
+**O que entrega**: [Descrição concisa do comportamento end-to-end. NÃO listar camada-por-camada.]
+**Camadas tocadas**: [schema, API, UI, testes — quais entram no slice]
+**Depends on**: None | T0
+**Cobre**: [FEAT]-01, [FEAT]-02
+
+**Critérios de aceite**:
+- [ ] [Critério 1 — demoável]
+- [ ] [Critério 2 — demoável]
+- [ ] [Critério 3 — demoável]
+
+**Verify**: [Comando ou cenário manual que prova o slice]
+```
+
+Evitar paths de arquivo específicos e snippets de código no campo "O que entrega" — eles ficam stale rápido. Exceção: se um protótipo (ver [discuss.md](discuss.md)) produziu um snippet que codifica uma decisão de forma mais precisa que prosa (state machine, schema, type shape), inlinar e marcar como vindo de protótipo.
+
+---
+
 ## Process
 
 ### Geração via superpowers (quando disponível)

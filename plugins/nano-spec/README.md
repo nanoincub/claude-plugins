@@ -113,6 +113,8 @@ nano-spec/
 
 ## Versão
 
+3.1.0 — Feat: integração de 3 skills do matpocock adaptadas ao padrão Nano — `grill.md` (stress-test de spec contra `CONVENTIONS.md` + ADRs em `.specs/decisions/`), modo vertical-slice em `tasks.md` (tracer bullets HITL/AFK), e protocolo dois-eixos em `review.md` (Standards + Spec via sub-agentes paralelos pré-commit, substitui `requesting-code-review` em Large/Complex).
+
 3.0.1 — Convenção: pasta de feature em `.specs/features/` passa a exigir prefixo de data `YYYY-MM-DD-[feature]` (ex: `2026-05-12-google-login/`). Garante ordenação cronológica e preserva histórico após renames. Atualizado em SKILL.md, references, GUIA.md e CLAUDE.md. Inclui script `scripts/migrate-feature-dates.sh` para migrar pastas legadas (data vem do primeiro commit do `spec.md` via `git log`).
 
 3.0.0 (BREAKING) — Superpowers vira **obrigatório**: HARD BLOCK no SessionStart, remoção de todos os fallbacks "standalone" em references, SKILL.md, hook e docs. Sem superpowers, nano-spec não roda. Bump major sinaliza incompatibilidade com sessões que dependiam do modo standalone.
