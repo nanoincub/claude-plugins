@@ -111,7 +111,13 @@ During implementation, you will notice things that could be improved, refactored
 
 Mark task complete in tasks.md. Update requirement traceability in spec.md if requirement IDs are used.
 
-Após completar todas as tasks (ou a task atual no Quick Mode), rodar `/simplify` sobre o diff acumulado → pedir ao dev para rodar a suite completa de testes → **perguntar ao dev se quer commitar** ([commit.md](commit.md)).
+Após completar todas as tasks (ou a task atual no Quick Mode), **nesta ordem fixa**:
+
+1. Rodar `/simplify` sobre o diff acumulado (refatora).
+2. Pedir ao dev para rodar a suite completa de testes (valida o diff **já refatorado**).
+3. Só então **perguntar ao dev se quer commitar** ([commit.md](commit.md)).
+
+> **Por que `/simplify` antes dos testes?** /simplify pode mexer em código existente durante a refatoração. Se a suite roda antes, o resultado verde é sobre código que ainda vai mudar — e refatoração quebrada passa direto. Rodando testes depois, qualquer regressão da refatoração é capturada no mesmo ciclo, sem precisar lembrar de re-testar.
 
 ---
 

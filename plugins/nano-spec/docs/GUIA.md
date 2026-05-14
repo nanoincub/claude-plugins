@@ -27,15 +27,16 @@
 **Nano-Spec é um trilho.** Você descreve o que quer; o agente conduz por um caminho com paradas obrigatórias até o commit:
 
 ```
-SPECIFY → DESIGN → TASKS → EXECUTE → /simplify → DOCS → COMMIT
-required  opcional  opcional required  obrigatório  M+    pergunta
+[BASELINE TEST GATE] → SPECIFY → DESIGN → TASKS → EXECUTE → /simplify → TESTES → DOCS → COMMIT
+   entrada obrig.     required  opcional  opcional required  obrigatório obrigatório M+   pergunta
 ```
 
-Três regras que nunca mudam:
+Quatro regras que nunca mudam:
 
-1. **`/simplify`** roda antes de qualquer commit.
-2. **Suite de testes** roda depois e precisa passar.
-3. **Commit nunca é automático** — o agente sempre pergunta.
+1. **Baseline Test Gate (entrada)** — antes de criar branch de trabalho, rodar suite na base (`develop`/`main`). Se vermelha → PARAR (recomendado) ou OVERRIDE com registro em STATE.md.
+2. **`/simplify`** roda **primeiro** no fim, sobre o diff acumulado.
+3. **Suite de testes** roda **depois** do /simplify (sobre o diff já refatorado) e precisa passar — inverter deixa regressão da refatoração escapar.
+4. **Commit nunca é automático** — o agente sempre pergunta.
 
 Tudo o mais (Design, Tasks, etc.) é pulado conforme o tamanho da tarefa.
 
@@ -263,10 +264,10 @@ O agente classifica automaticamente. Você pode forçar dizendo "trate como Quic
 
 | Escopo | Quando | Specify | Design | Tasks | Execute | Pós |
 |--------|--------|---------|--------|-------|---------|-----|
-| **Small** | ≤3 arquivos, 1 frase | Quick mode | — | — | Direto | `/simplify` → commit |
-| **Medium** | Feature clara, <10 tasks | Spec breve | Inline | Implícito | Por task | `/simplify` → commit |
-| **Large** | Multi-componente | Full spec + IDs | Arquitetura | Breakdown + deps | Por task | `/simplify` → commit |
-| **Complex** | Ambiguidade, domínio novo | Full + Discuss | Research + arquitetura | Breakdown + paralelo | Por task + UAT | `/simplify` → commit |
+| **Small** | ≤3 arquivos, 1 frase | Quick mode | — | — | Direto | `/simplify` → testes → commit |
+| **Medium** | Feature clara, <10 tasks | Spec breve | Inline | Implícito | Por task | `/simplify` → testes → commit |
+| **Large** | Multi-componente | Full spec + IDs | Arquitetura | Breakdown + deps | Por task | `/simplify` → testes → commit |
+| **Complex** | Ambiguidade, domínio novo | Full + Discuss | Research + arquitetura | Breakdown + paralelo | Por task + UAT | `/simplify` → testes → commit |
 
 **Regras rápidas**:
 
@@ -291,8 +292,10 @@ Resumo de onde o processo bloqueia ou exige confirmação:
 | **Brownfield Mapping** | Sem `.specs/codebase/` | Cria 7 docs | Não |
 | **git-flow-next (HARD BLOCK)** | Primeira interação gitflow da sessão | Bloqueia se não instalado | Só via `CLAUDE.md → "Sem gitflow"` |
 | **Branch gitflow** | Antes de Specify/Execute/Commit | Sugere `git flow start` se em branch protegida | Sim, você confirma |
-| **`/simplify`** | Antes do commit | Roda no diff acumulado | Não |
-| **Testes** | Após `/simplify` | Suite completa precisa passar | Não |
+| **Baseline Test Gate** | Após `git pull` da base, antes de criar branch de trabalho | Roda suite na base. Se vermelha, exige PARAR ou OVERRIDE registrado em STATE.md | Override controlado com registro |
+| **`/simplify`** | Antes do commit | Roda no diff acumulado (primeiro) | Não |
+| **Testes** | Após `/simplify` | Suite completa precisa passar (segundo) | Não |
+| **Baseline override reconciled** | Pré-commit, se há override ativo | Suite verde reconcilia override → move p/ "resolvidos" | Não |
 | **Docs** | Antes do commit (Medium+) | `.specs/codebase/` atualizado | Não em Medium+ |
 | **Commit ask** | Após gates | "Quer commitar?" | — |
 | **Branch closing** | Após commit | 4 opções (merge/PR/continuar/discard) | — |

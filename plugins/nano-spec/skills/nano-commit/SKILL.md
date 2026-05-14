@@ -14,7 +14,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 1.0.3
+  version: 1.2.0
 ---
 
 # Nano Commit — Gitflow + Conventional Commits
@@ -126,6 +126,17 @@ Se em branch protegida, executar:
 git pull --ff-only
 ```
 
+### Pré-execute (Step 0): Baseline Test Gate
+
+**Antes** de criar a branch de trabalho, rodar a suite completa de testes na base atualizada (`develop` para feature/bugfix/release, `main` para hotfix). Fluxo detalhado em [../nano-spec/references/baseline-test-gate.md](../nano-spec/references/baseline-test-gate.md).
+
+- **Verde** → seguir para criação da branch.
+- **Vermelho** → exibir alerta de máxima importância (formato em `baseline-test-gate.md`) com 2 opções:
+  - **[1] PARAR** (fortemente recomendado): corrigir baseline antes — git blame nos testes para identificar autor.
+  - **[2] OVERRIDE**: prosseguir registrando snapshot em `.specs/project/STATE.md` (testes falhando, SHA da base, responsável, plano). Sem registro → processo BLOQUEIA. Override aqui NÃO dispensa o gate pré-commit final.
+
+Agente NÃO roda os testes diretamente — pede ao dev e aguarda confirmação do resultado (evita gasto de tokens em output).
+
 ### Pré-execute: criar branch de trabalho
 
 Após Specify (e Design/Tasks se aplicável), tipo já é conhecido. Sugerir:
@@ -179,13 +190,16 @@ Implementação concluída. Quer commitar?
 - **Sim** → seguir
 - **Não** → fim. Mudanças ficam no working tree.
 
-### Step 2: gates pré-commit
+### Step 2: gates pré-commit (ordem obrigatória)
 
-- [ ] `/simplify` passou sobre diff acumulado (obrigatório)
-- [ ] Dev rodou suite completa de testes (obrigatório — ver nota)
-- [ ] Docs atualizado — ver `docs-update.md` no orquestrador
-- [ ] Todos os "Done when" da task verificados
-- [ ] Rastreabilidade verificada (ver nota)
+1. [ ] `/simplify` passou sobre diff acumulado (obrigatório — roda **primeiro**, refatora o diff)
+2. [ ] Dev rodou suite completa de testes **após** o /simplify (obrigatório — valida o diff já refatorado; ver nota)
+3. [ ] Docs atualizado — ver `docs-update.md` no orquestrador
+4. [ ] Todos os "Done when" da task verificados
+5. [ ] Rastreabilidade verificada (ver nota)
+6. [ ] **Baseline overrides reconciliados** — se há entrada ativa em STATE.md (`## Baseline overrides ativos`), suite verde aqui significa que as falhas foram resolvidas: mover entrada para `## Baseline overrides resolvidos` com data. Se a suite ainda mostra alguma das falhas originais → BLOQUEAR commit e exibir: "Override aceito em <data> ainda não foi resolvido. Resolva antes de fechar a branch."
+
+> **Ordem fixa /simplify → testes:** se a suite rodou **antes** do /simplify, NÃO conta. Pedir nova rodada após a refatoração — qualquer regressão introduzida pelo /simplify só é capturada se os testes rodarem depois.
 
 **Integração ativa com superpowers:** quando superpowers detectado, invocar `superpowers:verification-before-completion` como gate obrigatório. Testes DEVEM passar antes de oferecer opções de commit — se falharem, BLOQUEAR o fluxo (não apenas pedir ao dev, mas impedir o avanço).
 

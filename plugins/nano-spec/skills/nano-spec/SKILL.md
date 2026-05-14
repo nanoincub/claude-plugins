@@ -2,14 +2,14 @@
 name: nanoincub-spec-driven
 description: >
   Processo Spec-Driven da Nano Incub. Orquestra fases: Specify → Design → Tasks →
-  Execute → /simplify → Docs → Commit. Verificação executável por task. Auto-sizing por complexidade.
+  Execute → /simplify → Testes → Docs → Commit. Verificação executável por task. Auto-sizing por complexidade.
   Requer superpowers como motor (HARD BLOCK).
   Triggers: "nova feature", "implementar", "quick fix", "review", "commitar",
   "pause work", "resume work". Não use para design UI, docs isoladas, infra pura.
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 3.0.3
+  version: 3.2.0
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -18,11 +18,13 @@ metadata:
 Orquestrador leve. Gates obrigatórios. Zero cerimônia.
 
 ```
-┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐   ┌───────────┐   ┌──────┐   ┌────────┐
-│ SPECIFY  │ → │  DESIGN  │ → │  TASKS  │ → │ EXECUTE │ → │ /SIMPLIFY │ → │ DOCS │ → │ COMMIT │
-└──────────┘   └──────────┘   └─────────┘   └─────────┘   └───────────┘   └──────┘   └────────┘
-   required      optional*      optional*     required       required       req M+     ask-dev
+┌─────────┐   ┌────────┐   ┌───────┐   ┌─────────┐   ┌──────────┐   ┌────────┐   ┌──────┐   ┌────────┐
+│ SPECIFY │ → │ DESIGN │ → │ TASKS │ → │ EXECUTE │ → │/SIMPLIFY │ → │ TESTES │ → │ DOCS │ → │ COMMIT │
+└─────────┘   └────────┘   └───────┘   └─────────┘   └──────────┘   └────────┘   └──────┘   └────────┘
+  required     optional*   optional*    required      required       required     req M+    ask-dev
 ```
+
+**Ordem dos gates pré-commit (não pode inverter):** `/simplify` primeiro (refatora o diff), **depois** a suite completa de testes (valida o diff já refatorado), só então commit. Inverter abre janela para regressão da refatoração entrar sem ser testada.
 
 ## Princípio: nanoincub = trilho, superpowers = motor
 
@@ -36,15 +38,16 @@ O dispatcher do superpowers NÃO orquestra quando este processo está ativo.
 
 | Escopo | Critério | Specify | Design | Tasks | Execute | Ciclo Pós-Execute |
 |--------|----------|---------|--------|-------|---------|--------------------|
-| **Small** | ≤3 files, 1 frase | **Quick mode** | — | — | Implement + verify | /simplify → commit |
-| **Medium** | Feature clara, <10 tasks | Spec breve | Skip — inline | Skip — implícito | Implement + verify | /simplify → commit |
-| **Large** | Multi-componente | Full spec + IDs | Arquitetura + componentes | Breakdown + deps | Implement + verify por task | /simplify → commit |
-| **Complex** | Ambiguidade, domínio novo | Full spec + [discuss](references/discuss.md) | [Research](references/design.md) + arq. | Breakdown + paralelo | Implement + [UAT](references/validate.md) | /simplify → commit |
+| **Small** | ≤3 files, 1 frase | **Quick mode** | — | — | Implement + verify | /simplify → testes → commit |
+| **Medium** | Feature clara, <10 tasks | Spec breve | Skip — inline | Skip — implícito | Implement + verify | /simplify → testes → commit |
+| **Large** | Multi-componente | Full spec + IDs | Arquitetura + componentes | Breakdown + deps | Implement + verify por task | /simplify → testes → commit |
+| **Complex** | Ambiguidade, domínio novo | Full spec + [discuss](references/discuss.md) | [Research](references/design.md) + arq. | Breakdown + paralelo | Implement + [UAT](references/validate.md) | /simplify → testes → commit |
 
 **Regras:**
 - Specify e Execute são sempre obrigatórios
-- /simplify é **obrigatório antes de qualquer commit** — roda sobre o diff acumulado de todas as tasks
-- Suite completa de testes roda após /simplify, antes do commit
+- **Ordem obrigatória pré-commit:** `/simplify` ANTES da suite de testes. /simplify refatora o diff acumulado; a suite roda **depois**, validando exatamente o código que vai ser commitado. Inverter (testes antes do /simplify) deixa regressão da refatoração passar sem gate.
+- /simplify é obrigatório antes de qualquer commit — roda sobre o diff acumulado de todas as tasks
+- Suite completa de testes roda **após** /simplify e **antes** do commit — se falha, bloqueia commit
 - Commit nunca é automático — sempre perguntar ao dev (invocar skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md))
 - Docs é obrigatório para Medium+ ; no Quick Mode é checklist inline
 - Design é pulado quando não há decisões arquiteturais
@@ -202,11 +205,16 @@ Fluxo completo na skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md). **Es
 **Pré-requisito (HARD BLOCK):** Na primeira interação com gitflow na sessão, executar `git flow version`. Se git-flow-next NÃO está instalado → **BLOQUEAR TODO O PROCESSO** até o dev instalar. Sem exceções, sem fallback para git puro. Única exceção: CLAUDE.md define `Sem gitflow` ou `trunk-based`.
 
 1. **Pré-specify (ou pré-describe no Quick Mode):** Se em branch protegida (`main`, `develop`, `master`), executar `git pull` para garantir que o trabalho parte da versão mais recente. Se o CLAUDE.md desativa gitflow, pular.
-2. **Pré-execute (ou pré-implement no Quick Mode):** Sugerir criação da branch de trabalho (`feature/*`, `hotfix/*`, `release/*`) — neste ponto já se sabe o tipo de trabalho. Aguardar decisão do dev antes de implementar.
-3. **Pré-commit (última chance):** Se steps 1-2 foram pulados, verificar branch antes de commitar. Última oportunidade de criar branch de trabalho.
-4. **Pós-commit:** Perguntar ao dev sobre fechamento da branch — merge, PR, continuar trabalhando, ou manter.
+2. **Baseline Test Gate (NOVO, obrigatório antes de criar branch de trabalho):** Rodar a suite completa de testes na base atualizada (`develop` para feature/bugfix, `main` para hotfix). Ver [baseline-test-gate.md](references/baseline-test-gate.md).
+   - **Verde** → seguir para o passo 3.
+   - **Vermelho** → exibir alerta de máxima importância com 2 opções: **PARAR e corrigir baseline** (fortemente recomendado) ou **OVERRIDE** registrando em STATE.md. Sem override registrado, processo BLOQUEIA.
+3. **Pré-execute (ou pré-implement no Quick Mode):** Sugerir criação da branch de trabalho (`feature/*`, `hotfix/*`, `release/*`) — neste ponto já se sabe o tipo de trabalho. Aguardar decisão do dev antes de implementar.
+4. **Pré-commit (última chance):** Se steps 1-3 foram pulados, verificar branch antes de commitar. Última oportunidade de criar branch de trabalho.
+5. **Pós-commit:** Perguntar ao dev sobre fechamento da branch — merge, PR, continuar trabalhando, ou manter.
 
-**Quick Mode simplifica cerimônia de planejamento, não pula safety gates.** Ver seção "Gate: Gitflow" em [quick-mode.md](references/quick-mode.md).
+**Quick Mode simplifica cerimônia de planejamento, não pula safety gates** — Baseline Test Gate e gitflow valem em Quick Mode também. Ver seção "Gate: Gitflow" em [quick-mode.md](references/quick-mode.md).
+
+**Por que Baseline Test Gate:** descobrir que a base estava vermelha *só* no commit final transforma falhas alheias em bloqueio seu. O gate descobre cedo e devolve o problema para quem tem domínio. Override existe mas deixa rastro — STATE.md vira fonte de verdade do que está "herdado" vs. "introduzido".
 
 ## Defaults Opt-Out
 
@@ -229,14 +237,14 @@ no CLAUDE.md do projeto, nunca mais perguntar.
 **Projeto novo:**
 1. Inicializar projeto → `.specs/project/` (PROJECT.md + ROADMAP.md)
 2. Mapear codebase → `.specs/codebase/` (7 docs, mesmo com scaffold mínimo)
-3. Para cada feature → Specify → (Design) → (Tasks) → Execute → /simplify → Suite de testes → Docs → Commit
+3. Para cada feature → Specify → (Design) → (Tasks) → Execute → **/simplify → Suite de testes** → Docs → Commit
 
 **Codebase existente:**
 1. Mapear codebase → `.specs/codebase/` (7 docs brownfield)
 2. Inicializar projeto → PROJECT.md + ROADMAP.md
 3. Para cada feature → mesmo fluxo adaptativo
 
-**Quick mode:** Descrever → **Gitflow gate** → Implementar → Verificar → /simplify → Suite de testes → Docs (inline) → Commit
+**Quick mode:** Descrever → **Gitflow gate** → Implementar → Verificar → **/simplify → Suite de testes** → Docs (inline) → Commit
 
 ## Getting Started
 
@@ -387,6 +395,7 @@ dentro de `.specs/features/YYYY-MM-DD-[feature]/` — **NUNCA** em `docs/superpo
 | Atualizar docs do codebase | [docs-update.md](references/docs-update.md) |
 | Commitar | skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md) |
 | Gitflow / branching | skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md) |
+| Baseline Test Gate | [baseline-test-gate.md](references/baseline-test-gate.md) |
 | Quick fix | [quick-mode.md](references/quick-mode.md) |
 
 ## Comportamento do Agente

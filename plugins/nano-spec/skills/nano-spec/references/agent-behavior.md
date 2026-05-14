@@ -23,6 +23,7 @@ O agente DEVE exibir o progresso ao iniciar cada fase. Formato:
    Tasks
    Execute
    /simplify
+   Testes
    Docs
    Commit
 ```
@@ -33,7 +34,7 @@ O agente DEVE exibir o progresso ao iniciar cada fase. Formato:
 - Fase atual: `→` (seta)
 - Fases futuras: indentadas, sem marcador
 - Fases puladas (por auto-sizing): omitir da lista
-- No Quick Mode, usar o pipeline simplificado: Describe → Gitflow → Implement → Verify → /simplify → Docs → Commit
+- No Quick Mode, usar o pipeline simplificado: Describe → Gitflow → Implement → Verify → /simplify → Testes → Docs → Commit
 - Manter compacto — máximo 10 linhas. Não adicionar explicações ao tracker
 
 ---
@@ -131,8 +132,8 @@ Quando receber feedback de code review (externo ou de subagent), o agente DEVE s
 ### Scope creep durante Execute
 > "Isso parece fora do escopo da task. Anoto em Deferred Ideas?"
 
-### Skip de /simplify ou testes
-> "/simplify é obrigatório e dev deve rodar suite de testes antes do commit. Quer pular?"
+### Skip de /simplify ou testes (ou ordem invertida)
+> "Ordem obrigatória antes do commit: `/simplify` primeiro, suite de testes depois. /simplify é obrigatório, e os testes precisam rodar **após** a refatoração para capturar regressões. Quer pular ou inverter?"
 
 Se dev confirmar skip → aceitar e registrar em STATE.md.
 

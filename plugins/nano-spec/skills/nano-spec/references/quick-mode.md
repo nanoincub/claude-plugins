@@ -46,11 +46,12 @@ Antes de implementar, verificar branch atual conforme [gitflow.md](gitflow.md):
 1. Executar `git branch --show-current`
 2. Se branch protegida (`main`, `develop`, `master`):
    - Executar `git pull` para partir da versão mais recente
+   - **Baseline Test Gate** (obrigatório): rodar suite completa na base — se vermelha, exibir alerta e oferecer PARAR (recomendado) ou OVERRIDE com registro em STATE.md. Ver [baseline-test-gate.md](baseline-test-gate.md).
    - Sugerir criação de branch via `git flow <tipo> start <nome>`
    - Aguardar decisão do dev antes de continuar
 3. Se branch de trabalho (`feature/*`, `hotfix/*`, etc.) → seguir normalmente
 
-**Este gate NÃO é opcional.** Quick Mode simplifica cerimônia, não pula safety gates.
+**Este gate NÃO é opcional.** Quick Mode simplifica cerimônia, não pula safety gates — Baseline Test Gate vale aqui também.
 
 ### 3. Implement
 
@@ -105,9 +106,11 @@ Executar `/simplify` sobre o diff — reuse, qualidade, eficiência.
 1. Se issues encontrados → corrigir → re-executar `/simplify` (max 3x)
 2. Se limpo → continuar
 
-### 7. Testes
+### 7. Testes (após /simplify, antes do commit)
 
 Pedir ao dev para rodar a suite de testes do projeto, informando o comando. Motivo: evitar gasto de tokens em output de testes. Aguardar confirmação do dev.
+
+> **Ordem obrigatória:** testes rodam **após** o /simplify (passo 6). A refatoração do /simplify pode tocar código existente — rodando a suite depois, qualquer regressão é capturada no mesmo ciclo, sem precisar lembrar de re-testar.
 
 ### 8. Docs Check (inline)
 

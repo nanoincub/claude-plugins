@@ -40,14 +40,16 @@ Without superpowers, nano-spec does NOT run — do not offer a standalone altern
 
 | Scope | Criteria | Phases | Post-Execute |
 |-------|----------|--------|--------------|
-| Small | ≤3 files, 1 sentence | Quick Mode | /simplify → commit |
-| Medium | Clear feature, <10 tasks | Specify → Execute → /simplify → commit | /simplify → commit |
-| Large | Multi-component | All phases | /simplify → commit |
-| Complex | Ambiguity, new domain | All + Discuss + Research | /simplify → commit |
+| Small | ≤3 files, 1 sentence | Quick Mode | /simplify → testes → commit |
+| Medium | Clear feature, <10 tasks | Specify → Execute → /simplify → testes → commit | /simplify → testes → commit |
+| Large | Multi-component | All phases | /simplify → testes → commit |
+| Complex | Ambiguity, new domain | All + Discuss + Research | /simplify → testes → commit |
 
 ## Gates
 
-- **/simplify + full test suite** are MANDATORY before any commit.
+- **Baseline Test Gate (entry gate):** Before creating any work branch (feature/bugfix/hotfix/release), run the full test suite on the updated base (`develop` for feature/bugfix, `main` for hotfix). If GREEN, proceed. If RED, show a maximum-priority alert with two options: [1] STOP and fix the baseline first (strongly recommended), or [2] OVERRIDE — proceed only with an entry recorded in `.specs/project/STATE.md` (failing tests snapshot, base SHA, responsible person, plan). Override here does NOT exempt the final pre-commit gate.
+- **Pre-commit order is fixed:** `/simplify` FIRST (refactors the accumulated diff), THEN the full test suite (validates the refactored diff), then commit. Never invert — running tests before /simplify lets refactoring regressions slip through ungated.
+- /simplify and the full test suite are both MANDATORY before any commit.
 - **Commit** is NEVER automatic — always ask the dev first.
 - Specify and Execute are always required.
 

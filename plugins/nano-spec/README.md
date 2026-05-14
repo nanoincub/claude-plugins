@@ -3,11 +3,13 @@
 Processo Spec-Driven da Nano Incub. Orquestra fases de desenvolvimento com verificação executável por task e /simplify obrigatório.
 
 ```
-┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐   ┌───────────┐   ┌──────┐   ┌────────┐
-│ SPECIFY  │ → │  DESIGN  │ → │  TASKS  │ → │ EXECUTE │ → │ /SIMPLIFY │ → │ DOCS │ → │ COMMIT │
-└──────────┘   └──────────┘   └─────────┘   └─────────┘   └───────────┘   └──────┘   └────────┘
-   required      optional*      optional*     required       required       req M+     ask-dev
+┌─────────┐   ┌────────┐   ┌───────┐   ┌─────────┐   ┌──────────┐   ┌────────┐   ┌──────┐   ┌────────┐
+│ SPECIFY │ → │ DESIGN │ → │ TASKS │ → │ EXECUTE │ → │/SIMPLIFY │ → │ TESTES │ → │ DOCS │ → │ COMMIT │
+└─────────┘   └────────┘   └───────┘   └─────────┘   └──────────┘   └────────┘   └──────┘   └────────┘
+  required     optional*   optional*    required      required       required     req M+    ask-dev
 ```
+
+> **Ordem dos gates pré-commit:** `/simplify` **antes** dos testes. A suite roda sobre o diff já refatorado — assim qualquer regressão da refatoração é capturada antes do commit.
 
 ## Instalação
 
@@ -38,16 +40,17 @@ O processo adapta a complexidade automaticamente:
 
 | Escopo | Critério | Fases | Pós-Execute |
 |--------|----------|-------|-------------|
-| **Small** | ≤3 arquivos, 1 frase | Quick Mode | /simplify → commit |
-| **Medium** | Feature clara, <10 tasks | Specify → Execute → /simplify → commit | /simplify → commit |
-| **Large** | Multi-componente | Todas as fases | /simplify → commit |
-| **Complex** | Ambiguidade, domínio novo | Todas + Discuss + Research | /simplify → commit |
+| **Small** | ≤3 arquivos, 1 frase | Quick Mode | /simplify → testes → commit |
+| **Medium** | Feature clara, <10 tasks | Specify → Execute → /simplify → testes → commit | /simplify → testes → commit |
+| **Large** | Multi-componente | Todas as fases | /simplify → testes → commit |
+| **Complex** | Ambiguidade, domínio novo | Todas + Discuss + Research | /simplify → testes → commit |
 
 ## Quality Gates
 
+- **Baseline Test Gate (entrada)** — antes de criar branch de trabalho, suite completa precisa estar verde na base. Se vermelha → PARAR (recomendado) ou OVERRIDE com registro em STATE.md. Evita descobrir falha alheia só no commit final.
 - **Specify + Execute** — sempre obrigatórios
 - **Verificação por task** — após cada task, avaliar se precisa de teste e rodar testes do módulo afetado
-- **/simplify + suite completa** — obrigatórios antes de qualquer commit
+- **Ordem pré-commit fixa: `/simplify` → suite completa → commit** — /simplify refatora o diff acumulado, a suite valida o diff já refatorado. Inverter deixa regressão da refatoração passar sem gate.
 - **Review + Security** — opt-in (ativar via defaults ou quando dev pedir)
 - **Commit** — nunca automático, sempre pergunta ao dev
 
@@ -112,6 +115,10 @@ nano-spec/
 5. **Output:** Artefatos em `.specs/`, código implementado, commit com Conventional Commits
 
 ## Versão
+
+3.2.0 — Feat: **Baseline Test Gate** como gate de entrada antes de criar qualquer branch de trabalho. Após `git pull` na base (develop/main), roda a suite completa; se vermelha, exibe alerta de máxima importância com 2 opções: PARAR (recomendado) ou OVERRIDE controlado com registro em `.specs/project/STATE.md` (testes falhando, SHA da base, responsável, plano). Override é consumido no pré-commit final — suite verde lá reconcilia automaticamente. Resolve o problema de iniciar feature em base quebrada e só descobrir no commit final. Nova reference `baseline-test-gate.md`.
+
+3.1.0 — Feat: ordem pré-commit explícita `/simplify → testes → commit` em todos os artefatos visíveis (SKILL.md, hook, READMEs, GUIA, references). Antes a ordem estava correta no GUIA (Passos 8–9) mas omitida nas tabelas resumo e diagramas, abrindo brecha para rodar testes antes da refatoração — cenário em que regressão do /simplify entra sem ser testada. Agora a regra é regra invariante: /simplify refatora primeiro, suite valida o diff refatorado depois, só então commit.
 
 3.0.3 — Docs: auditoria de ruído na skill `nano-commit`. Remove blocos redundantes (`Configuração por Projeto` duplicada, `Tornar --no-ff permanente`, `Tips`, subseção `Branches protegidas`), encurta o aviso sobre `--fetch` (vira anti-pattern em 1 parágrafo + regra invariante), unifica avisos "Importante" em duas regras invariantes. Skill mais densa, sem perda de conteúdo prescritivo.
 
