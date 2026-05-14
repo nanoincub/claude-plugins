@@ -194,6 +194,9 @@ Documentação estruturada do projeto. Consultar antes de tomar decisões.
 - `.specs/features/YYYY-MM-DD-[feature]/spec.md` — Requisitos e critérios de aceite
 - `.specs/features/YYYY-MM-DD-[feature]/design.md` — Arquitetura e componentes
 - `.specs/features/YYYY-MM-DD-[feature]/tasks.md` — Tasks atômicas de implementação
+
+### Decisões (opcional, criado lazy pelo grill)
+- `.specs/decisions/NNNN-titulo.md` — ADRs (Architecture Decision Records) — criadas via [grill.md](references/grill.md) quando hard-to-reverse + surprising + trade-off real
 ```
 
 Isto garante que qualquer agente que leia o CLAUDE.md saiba exatamente onde buscar cada tipo de informação.
@@ -386,8 +389,9 @@ dentro de `.specs/features/YYYY-MM-DD-[feature]/` — **NUNCA** em `docs/superpo
 |---------|-----------|
 | Especificar feature | [specify.md](references/specify.md) |
 | Discutir áreas cinzas | [discuss.md](references/discuss.md) |
+| Stress-test de spec / glossário | [grill.md](references/grill.md) |
 | Projetar arquitetura | [design.md](references/design.md) |
-| Quebrar em tasks | [tasks.md](references/tasks.md) |
+| Quebrar em tasks (horizontal ou vertical-slice) | [tasks.md](references/tasks.md) |
 | Implementar | [implement.md](references/implement.md) |
 | Validar/UAT | [validate.md](references/validate.md) |
 | Review de código | [review.md](references/review.md) |

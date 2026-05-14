@@ -164,6 +164,78 @@ Quando superpowers ativo, invocar `superpowers:receiving-code-review`. Protocolo
 
 ---
 
+## Protocolo Dois-Eixos (Large/Complex pré-commit)
+
+Adaptado de `review` (matpocock-skills). **Substitui** o `requesting-code-review` da seção 3.1 em features Large/Complex pré-commit — não rodar ambos (o Dois-Eixos é o `requesting-code-review` particionado em dois eixos especializados).
+
+| Eixo | O que verifica | Fonte |
+|------|----------------|-------|
+| **Standards** | Código segue convenções do repo? | `.specs/codebase/CONVENTIONS.md`, `CLAUDE.md`, `react-best-practices` (se aplicável) |
+| **Spec** | Código implementa fielmente o que foi pedido? | `.specs/features/YYYY-MM-DD-[feature]/spec.md` (acceptance criteria + `[FEAT]-XX` IDs), `tasks.md` (tudo marcado?) |
+
+### Quando ativar
+
+- **Complex** — sempre, antes de `nano-commit` (no slot do `requesting-code-review`)
+- **Large** — default; dev pode pular explicitamente
+- **Medium/Small/Quick** — skip (manter `requesting-code-review` padrão se ativo)
+
+### Fluxo
+
+Roda no **step 3.1 do fluxo principal** (substitui `requesting-code-review` em Large/Complex):
+
+1. Capturar fixed point: `git merge-base HEAD main` (sem perguntar ao dev)
+2. Despachar 2 sub-agentes em paralelo via `superpowers:dispatching-parallel-agents`
+3. Aplicar a regra de verificação da **seção 4** abaixo: `Read` da linha citada antes de reportar; descartar achados que não conferem
+4. Apresentar relatório dois-eixos; dev decide endereçar/pular/discutir
+
+### Prompt template — Standards agent
+
+```
+Você é reviewer de Standards. NÃO classifique severidade nem proponha fixes
+(regra geral da seção 4 de review.md).
+
+Inputs:
+- Diff: <output de `git diff <merge-base>...HEAD`>
+- Convenções: .specs/codebase/CONVENTIONS.md
+- Regras gerais: CLAUDE.md (raiz do projeto)
+
+Para cada violação detectada, retorne arquivo + linha + convenção violada
+(cite a regra textualmente) + trecho de código real (não parafraseado).
+NÃO inclua observações pré-existentes (fora do diff).
+```
+
+### Prompt template — Spec agent
+
+```
+Você é reviewer de Spec compliance. NÃO classifique severidade nem proponha fixes
+(regra geral da seção 4 de review.md).
+
+Inputs:
+- Diff: <output de `git diff <merge-base>...HEAD`>
+- Spec: .specs/features/YYYY-MM-DD-[feature]/spec.md
+- Tasks: .specs/features/YYYY-MM-DD-[feature]/tasks.md
+
+Para cada [FEAT]-XX da spec, verifique se o critério QUANDO/ENTÃO está
+implementado no diff e se as tasks marcadas como done realmente entregaram
+o comportamento. Retorne factualmente gaps e contradições com arquivo + linha.
+```
+
+### Formato do relatório
+
+```markdown
+## Review pré-commit — dois eixos
+
+### Eixo Standards
+- [arquivo:linha] — [convenção violada] — [trecho real]
+
+### Eixo Spec
+- [FEAT]-XX — [gap entre acceptance criteria e implementação] — [arquivo:linha]
+
+**Decisão:** endereçar antes do commit? (sim / pular / discutir)
+```
+
+---
+
 ## Limites
 
 | Tool | Max re-runs | Após limite |

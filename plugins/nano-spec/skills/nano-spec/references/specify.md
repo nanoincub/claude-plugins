@@ -4,6 +4,10 @@
 
 If the feature has ambiguous gray areas (multiple valid approaches for user-facing behavior), the agent will automatically trigger the [discuss gray areas](discuss.md) process within this phase. For clear, well-defined features, it goes straight to the next phase.
 
+**Gate de grilling (Large/Complex):** Antes de escrever `spec.md`, se o escopo é **Complex** (sempre) ou **Large** com termos conflitantes com `.specs/codebase/CONVENTIONS.md`, o agente DEVE rodar uma sessão de grilling via [grill.md](grill.md). O grill afia terminologia e atualiza `.specs/codebase/CONVENTIONS.md` + `.specs/decisions/` inline antes da spec.
+
+**Ordem com superpowers ativo:** quando há `CONVENTIONS.md` populado, **grill** roda primeiro (afia vocabulário), depois **`superpowers:brainstorming`** explora abordagens usando termos canônicos. Quando não há `CONVENTIONS.md`, pular grill e ir direto para brainstorming.
+
 ## Process
 
 ### 1. Clarify Requirements
