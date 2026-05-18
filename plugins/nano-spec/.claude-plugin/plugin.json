@@ -1,7 +1,7 @@
 {
   "name": "nano-spec",
-  "version": "4.0.0",
-  "description": "Processo Spec-Driven da Nano Incub para Claude Code (standalone — zero dependências de plugins externos)",
+  "version": "5.0.0",
+  "description": "Processo Spec-Driven da Nano Incub para Claude Code. Orquestra Specify → Design → Tasks → Execute → /simplify → Commit. Delega disciplinas técnicas para o plugin nano-disciplines (HARD BLOCK).",
   "author": {
     "name": "Nano Incub"
   }

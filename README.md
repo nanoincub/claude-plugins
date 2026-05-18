@@ -8,7 +8,8 @@ Centraliza plugins que automatizam e padronizam fluxos de desenvolvimento com IA
 
 | Plugin | Descrição | Versão |
 |--------|-----------|--------|
-| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven standalone com verificação por task e /simplify obrigatório | 4.0.0 |
+| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven — orquestrador puro (Specify → Design → Tasks → Execute → /simplify → Commit). Requer `nano-disciplines`. | 5.0.0 |
+| [**nano-disciplines**](plugins/nano-disciplines/) | Disciplinas técnicas universais: TDD, debug, verification, code review, subagents, parallel dispatch, security, validate, docs-update. Reutilizável fora do Spec-Driven. | 1.0.0 |
 | [**nano-resumo-dia**](plugins/nano-resumo-dia/) | Timeline de trabalho dos históricos de sessão do Claude Code | 1.0.0 |
 
 ## Instalação
@@ -17,7 +18,7 @@ Centraliza plugins que automatizam e padronizam fluxos de desenvolvimento com IA
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) instalado e configurado
 
-> **Standalone:** o nano-spec **não depende** de plugins externos desde a versão 4.0.0. Todas as disciplinas técnicas (TDD, debug, verification, code review, subagents, parallel dispatch) estão internalizadas.
+> **HARD BLOCK:** desde a 5.0.0, o nano-spec depende do plugin `nano-disciplines` (caixa de ferramentas universal). Sem ele, o orquestrador bloqueia. Instale os dois.
 
 ### Via terminal (recomendado)
 
@@ -27,9 +28,10 @@ Registre o marketplace (uma vez):
 claude plugin marketplace add nanoincub/claude-plugins
 ```
 
-Instale o plugin:
+Instale os plugins (ordem: disciplinas primeiro):
 
 ```bash
+claude plugin install nano-disciplines@nano-incub
 claude plugin install nano-spec@nano-incub
 ```
 

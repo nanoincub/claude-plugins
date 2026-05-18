@@ -12,7 +12,7 @@
 >
 > **O que esperar de volta:** ✅ Spec compliant OU ❌ Issues found (lista com file:line).
 >
-> **Após recepção:** ❌ → implementer corrige → re-review. ✅ → despachar [code-quality-reviewer-prompt.md](code-quality-reviewer-prompt.md). Aplicar [receiving-feedback.md](../../review/receiving-feedback.md).
+> **Após recepção:** ❌ → implementer corrige → re-review. ✅ → despachar [code-quality-reviewer-prompt.md](code-quality-reviewer-prompt.md). Aplicar [receiving-feedback.md](../nano-disciplines:review/receiving-feedback.md).
 
 ---
 

@@ -35,7 +35,7 @@ Vem, em ordem:
 3. Inferência da stack (ex: `npm test`, `php artisan test`, `pytest`, `go test ./...`)
 4. Se nada inferível → PERGUNTAR ao dev: "Qual o comando para rodar a suite completa nesta base?"
 
-Agente NÃO roda os testes diretamente — pede ao dev e aguarda confirmação do resultado. Motivo: evita gasto de tokens em output de centenas de testes. [verification.md](meta/verification.md) (Iron Law) valida a confirmação.
+Agente NÃO roda os testes diretamente — pede ao dev e aguarda confirmação do resultado. Motivo: evita gasto de tokens em output de centenas de testes. [verification.md](nano-disciplines:verification.md) (Iron Law) valida a confirmação.
 
 ## Resultado VERMELHO — alerta padrão
 

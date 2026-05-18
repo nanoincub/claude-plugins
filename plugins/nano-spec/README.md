@@ -1,6 +1,6 @@
 # Nano-Spec — Plugin para Claude Code
 
-Processo Spec-Driven da Nano Incub. Orquestra fases de desenvolvimento com verificação executável por task e /simplify obrigatório. **Standalone — zero dependências de plugins externos** desde a versão 4.0.0.
+Processo Spec-Driven da Nano Incub. Orquestra fases de desenvolvimento com verificação executável por task e /simplify obrigatório. **Requer `nano-disciplines`** (HARD BLOCK) — disciplinas técnicas extraídas em plugin separado a partir da versão 5.0.0.
 
 ```
 ┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐   ┌───────────┐   ┌──────┐   ┌────────┐
@@ -19,13 +19,14 @@ Registre o marketplace (uma vez):
 claude plugin marketplace add nanoincub/claude-plugins
 ```
 
-Instale o nano-spec:
+Instale o nano-spec e a dependência obrigatória `nano-disciplines`:
 
 ```bash
+claude plugin install nano-disciplines@nano-incub
 claude plugin install nano-spec@nano-incub
 ```
 
-> **Standalone:** o nano-spec **não depende mais** de plugins externos desde a versão 4.0.0. Todas as disciplinas técnicas (TDD, debug, verification, code review, subagents, parallel dispatch) estão internalizadas nas references.
+> **HARD BLOCK:** desde a versão 5.0.0, o nano-spec **exige** o plugin `nano-disciplines` (disciplinas técnicas universais: TDD, debug, verification, code review, subagents, parallel dispatch, security, validate, etc.). Sem ele, o processo bloqueia na entrada.
 
 ### Via organização (automático)
 
@@ -60,10 +61,10 @@ O nano-spec é **trilho + disciplinas**. Cada fase aciona disciplinas internas (
 | Specify | `specify/specify.md` — discovery (2-3 abordagens) + `spec-document-reviewer-prompt.md` |
 | Design | `design/design.md` — apresentação incremental por seção |
 | Tasks | `tasks/tasks.md` — premissa "zero context" + No Placeholders + TDD inline + `plan-document-reviewer-prompt.md` |
-| Execute | `execute/implement.md` + `execute/tdd/` (Iron Law) + `execute/systematic-debugging/` (4 fases) |
+| Execute | `execute/implement.md` + `nano-disciplines:execute/tdd/` (Iron Law) + `nano-disciplines:execute/systematic-debugging/` (4 fases) |
 | Execute (Large/Complex) | `execute/subagents/` (3 subagents per task: implementer → spec compliance → code quality) |
 | /simplify | (skill própria do Claude Code) |
-| Review | `meta/verification.md` (Iron Law) + `review/code-review.md` ou Protocolo Dois-Eixos |
+| Review | `nano-disciplines:verification.md` (Iron Law) + `nano-disciplines:review/code-review.md` ou Protocolo Dois-Eixos |
 | Commit | Skill `nano-commit` (gitflow + verification + 4 opções de fechamento) |
 
 ## Estrutura
@@ -103,7 +104,9 @@ nano-spec/
 
 ## Versão
 
-**4.0.0 (BREAKING)** — Standalone total: as 10 disciplinas que viviam no plugin `superpowers` (brainstorming, writing-plans, TDD, systematic-debugging, subagent-driven-development, verification-before-completion, requesting-code-review, receiving-code-review, finishing-a-development-branch, dispatching-parallel-agents) foram **internalizadas** em `references/`. HARD BLOCK do superpowers removido do hook e do SKILL.md. Zero dependências de plugins externos. Bump major sinaliza fim da dependência obrigatória. Preserva integralmente as correções da 3.2.0 (Baseline Test Gate + fix `--fetch` no `nano-commit`). nano-commit 1.2.0 → 1.3.0 (Gate Iron Law via `verification.md` interno + Pós-Commit Fechamento de Branch inline — 4 opções).
+**5.0.0 (BREAKING)** — Split arquitetural: as disciplinas técnicas internalizadas na 4.0.0 (verification, TDD, systematic-debugging, subagents, parallel-dispatch, code-review, receiving-feedback, security, validate, docs-update, code-analysis, coding-principles) foram **extraídas** para o plugin `nano-disciplines`. nano-spec volta a ser o que é: orquestrador puro de Spec-Driven Development. Disciplinas são consumidas via convenção `nano-disciplines:<path>`. HARD BLOCK em `nano-disciplines` no hook session-start e no SKILL.md. Motivação: preservar a identidade Spec-Driven (forma do processo) separada das ferramentas técnicas (disciplinas universais reutilizáveis fora do contexto Spec-Driven). Fica em nano-spec: `specify/`, `design/`, `tasks/`, `init/`, `quick-mode/`, `commit/`, `baseline-test-gate.md`, `execute/implement.md`, `meta/{agent-behavior,context-limits,discuss,grill,session-handoff,state-management}.md`, `review/{dois-eixos,review}.md`, e os reviewer prompts para spec/plan/tasks.
+
+**4.0.0 (BREAKING)** — Standalone total: as 10 disciplinas que viviam no plugin `superpowers` foram **internalizadas** em `references/`. HARD BLOCK do superpowers removido. Zero dependências de plugins externos. Bump major sinaliza fim da dependência obrigatória. Preserva integralmente as correções da 3.2.0 (Baseline Test Gate + fix `--fetch` no `nano-commit`). nano-commit 1.2.0 → 1.3.0 (Gate Iron Law via `verification.md` + Pós-Commit Fechamento de Branch inline). *Internalização revertida na 5.0.0 via split em `nano-disciplines`.*
 
 3.2.0 — Feat: Baseline Test Gate antes de criar branch de trabalho (roda suite na base; vermelho → PARAR ou OVERRIDE com registro em STATE.md). Ordem pré-commit fixa `/simplify → testes → commit` tornada explícita em tabelas e diagramas. Fix `--fetch`: substituído por `git checkout <base> && git pull --ff-only` antes de `git flow <type> start` (o `--fetch` do git-flow-next não fast-forwarda a base local). nano-commit 1.0.1 → 1.2.0.
 

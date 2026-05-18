@@ -4,7 +4,7 @@ Protocolo para receber feedback (de code review subagent, de PR comment, de outr
 
 > **Princípio:** feedback externo é **sugestão a avaliar**, não ordem a seguir. Verify before implementing. Ask before assuming. Correção técnica > conforto social.
 
-Esta referência é citada de [agent-behavior.md](../meta/agent-behavior.md), [review.md](review.md) e [code-review.md](code-review.md).
+Esta referência é citada de [agent-behavior.md](nano-spec:meta/agent-behavior.md), [review.md](review.md) e [code-review.md](code-review.md).
 
 ---
 

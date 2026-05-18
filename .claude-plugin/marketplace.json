@@ -9,9 +9,16 @@
   "plugins": [
     {
       "name": "nano-spec",
-      "description": "Processo Spec-Driven com 8 fases: Specify, Design, Tasks, Execute, Review, Security, Docs, Commit. Auto-sizing e quality gates confirmativos.",
+      "description": "Processo Spec-Driven da Nano Incub. Orquestra fases (Specify → Design → Tasks → Execute → /simplify → Commit). Requer nano-disciplines.",
       "category": "development",
       "source": "./plugins/nano-spec",
+      "homepage": "https://github.com/nanoincub/claude-plugins"
+    },
+    {
+      "name": "nano-disciplines",
+      "description": "Disciplinas técnicas universais (TDD, debug, verification, code review, subagents, parallel dispatch, security, validate, docs-update). Caixa de ferramentas reutilizável.",
+      "category": "development",
+      "source": "./plugins/nano-disciplines",
       "homepage": "https://github.com/nanoincub/claude-plugins"
     },
     {

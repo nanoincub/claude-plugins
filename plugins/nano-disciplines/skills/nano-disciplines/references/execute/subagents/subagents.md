@@ -50,7 +50,7 @@ PARA CADA TASK:
 
 APÓS TODAS AS TASKS:
    Dispatch final code reviewer para revisão da implementação inteira
-   → seguir para fluxo de commit ([commit](../../commit/commit.md))
+   → seguir para fluxo de commit ([commit](nano-spec:commit/commit.md))
 ```
 
 **Spec compliance ANTES de code quality. Sem exceção.**
@@ -138,7 +138,7 @@ Não consegue completar. Diagnostique:
 | `.specs/features/[feature]/` | Contexto passado aos subagents inclui paths para spec.md, design.md, tasks.md, context.md (se existirem) |
 | TDD interno | Implementer segue [tdd.md](../tdd/tdd.md) — Iron Law continua valendo dentro do subagent |
 | Debug interno | Bug encontrado pelo implementer → seguir [debug.md](../systematic-debugging/debug.md), não chutar |
-| Commit | Pós-tudo, o controller invoca skill [`nano-commit`](../../../../nano-commit/SKILL.md) — não o subagent |
+| Commit | Pós-tudo, o controller invoca skill [`nano-commit`](../nano-spec:nano-commit:SKILL.md) — não o subagent |
 
 ---
 

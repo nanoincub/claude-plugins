@@ -4,7 +4,7 @@ Padrão de dispatch para **2+ problemas independentes** — um subagent por dom�
 
 > **Princípio:** 1 agent por problema independente. Trabalham em paralelo. Você (controller) integra os resultados.
 
-Usado pelo Protocolo Dois-Eixos (Standards + Spec) em [review.md](../../review/review.md) e por sessões de debug com múltiplas falhas em domínios separados.
+Usado pelo Protocolo Dois-Eixos (Standards + Spec) em [review.md](../nano-spec:review/review.md) e por sessões de debug com múltiplas falhas em domínios separados.
 
 ---
 
@@ -127,7 +127,7 @@ Agent({description: "Fix file-C.test.ts", subagent_type: "general-purpose", prom
 
 Despachar em mensagens separadas serializa o trabalho — anula o ganho.
 
-**Para o Protocolo Dois-Eixos** (review pre-commit Large/Complex): 2 agents (Standards reviewer + Spec reviewer), prompts em [review.md > Dois-Eixos](../../review/review.md#protocolo-dois-eixos-largecomplex-pré-commit).
+**Para o Protocolo Dois-Eixos** (review pre-commit Large/Complex): 2 agents (Standards reviewer + Spec reviewer), prompts em [review.md > Dois-Eixos](../nano-spec:review/review.md#protocolo-dois-eixos-largecomplex-pré-commit).
 
 ---
 

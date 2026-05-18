@@ -428,5 +428,5 @@ Após `tasks.md` aprovado (self-review concluído sem pendências), oferecer ao 
 
 > **Como deseja executar?**
 >
-> 1. **Subagent-Driven** _(recomendado para Large/Complex)_ — fresh subagent por task + two-stage review (spec compliance → code quality). Melhor isolamento de contexto e qualidade. Ver [`../execute/subagents/subagents.md`](../execute/subagents/subagents.md).
+> 1. **Subagent-Driven** _(recomendado para Large/Complex)_ — fresh subagent por task + two-stage review (spec compliance → code quality). Melhor isolamento de contexto e qualidade. Ver [`nano-disciplines:execute/subagents/subagents.md`](nano-disciplines:execute/subagents/subagents.md).
 > 2. **Execução Inline** — mesmo contexto, sequencial. Mais rápido para features pequenas. Ver [`../execute/implement.md`](../execute/implement.md).

@@ -14,7 +14,7 @@ Adaptado de `review` (matpocock-skills).
 |---|---|---|
 | Foco | Disperso entre 5 categorias | Cada agent tem 1 critério |
 | Severidade | Subjetiva (Critical/Important/Minor) | Sem classificação — só factual (violação ou gap) |
-| Velocidade | Sequencial, lento | Paralelo (via [parallel-dispatch.md](../execute/subagents/parallel-dispatch.md)) |
+| Velocidade | Sequencial, lento | Paralelo (via [parallel-dispatch.md](nano-disciplines:execute/subagents/parallel-dispatch.md)) |
 | Verdict | "Ready to merge: Yes/No/With fixes" — opina | Dev decide: endereçar / pular / discutir |
 | Auditabilidade | Verdict subjetivo, difícil revisar depois | Cada achado tem fonte textual (regra cited + arquivo:linha) |
 | Architecture / testing depth | ✅ Cobre | ❌ NÃO cobre (use code-review.md em outros slots) |

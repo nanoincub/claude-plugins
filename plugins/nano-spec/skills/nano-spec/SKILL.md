@@ -3,13 +3,15 @@ name: nanoincub-spec-driven
 description: >
   Processo Spec-Driven da Nano Incub. Orquestra fases: Specify → Design → Tasks →
   Execute → /simplify → Docs → Commit. Verificação executável por task. Auto-sizing por complexidade.
-  Standalone — disciplinas técnicas (TDD, debug, verification, code review, subagents) internalizadas.
+  Delega disciplinas técnicas (TDD, debug, verification, code review, subagents) para o plugin
+  `nano-disciplines` (HARD BLOCK).
   Triggers: "nova feature", "implementar", "quick fix", "review", "commitar",
   "pause work", "resume work". Não use para design UI, docs isoladas, infra pura.
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 4.0.0
+  version: 5.0.0
+  requires: nano-disciplines >= 1.0.0
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -24,18 +26,30 @@ Orquestrador leve. Gates obrigatórios. Zero cerimônia.
    required      optional*      optional*     required       required       req M+     ask-dev
 ```
 
-## Princípio: trilho + disciplinas internas
+## HARD BLOCK: nano-disciplines obrigatório
 
-Este processo define **O QUE fazer e EM QUE ORDEM** (o trilho: Specify → Design → Tasks → Execute → /simplify → Docs → Commit) e também **O COMO** (as disciplinas técnicas: TDD, debugging, verification, code review, subagents, parallel dispatch). Tudo internalizado em `references/`, sem dependências de plugins externos.
+Esta skill **orquestra o processo** (trilho Spec-Driven + artefatos `.specs/`). As disciplinas técnicas (TDD, debug, verification, code review, subagents, parallel dispatch, security, validate, docs-update, coding principles, code analysis, receiving feedback) vivem no plugin `nano-disciplines` e são referenciadas via `nano-disciplines:<path>`.
+
+**Antes de qualquer fase**, verificar que `nano-disciplines` está instalado. Se NÃO encontrado → BLOQUEAR o processo e pedir ao dev:
+
+```
+nano-disciplines NÃO está instalado. Dependência obrigatória do nano-spec 5.0.0.
+Instale: claude plugin install nano-disciplines@nano-incub
+Depois recarregue a sessão.
+```
+
+## Princípio: trilho aqui, disciplinas no nano-disciplines
+
+Este processo define **O QUE fazer e EM QUE ORDEM** (o trilho: Specify → Design → Tasks → Execute → /simplify → Docs → Commit). **O COMO de cada disciplina técnica** vive em `nano-disciplines`. A separação preserva spec-driven como forma reutilizável independente de qual conjunto de disciplinas se aplica.
 
 **Disciplinas técnicas** (workers invocados pelas fases):
-- [execute/tdd/](references/execute/tdd/tdd.md) — TDD com Iron Law
-- [execute/systematic-debugging/](references/execute/systematic-debugging/debug.md) — debug em 4 fases
-- [execute/subagents/](references/execute/subagents/subagents.md) — fresh subagent per task + two-stage review
-- [execute/subagents/parallel-dispatch.md](references/execute/subagents/parallel-dispatch.md) — múltiplos subagents em paralelo
-- [meta/verification.md](references/meta/verification.md) — Iron Law "evidência antes de claim"
-- [review/code-review.md](references/review/code-review.md) — code reviewer subagent (5 eixos) + Protocolo Dois-Eixos
-- [review/receiving-feedback.md](references/review/receiving-feedback.md) — protocolo de recepção (zero performative agreement)
+- [execute/tdd/](nano-disciplines:execute/tdd/tdd.md) — TDD com Iron Law
+- [execute/systematic-debugging/](nano-disciplines:execute/systematic-debugging/debug.md) — debug em 4 fases
+- [execute/subagents/](nano-disciplines:execute/subagents/subagents.md) — fresh subagent per task + two-stage review
+- [execute/subagents/parallel-dispatch.md](nano-disciplines:execute/subagents/parallel-dispatch.md) — múltiplos subagents em paralelo
+- [meta/verification.md](nano-disciplines:verification.md) — Iron Law "evidência antes de claim"
+- [review/code-review.md](nano-disciplines:review/code-review.md) — code reviewer subagent (5 eixos) + Protocolo Dois-Eixos
+- [review/receiving-feedback.md](nano-disciplines:review/receiving-feedback.md) — protocolo de recepção (zero performative agreement)
 
 ## Auto-Sizing
 
@@ -44,7 +58,7 @@ Este processo define **O QUE fazer e EM QUE ORDEM** (o trilho: Specify → Desig
 | **Small** | ≤3 files, 1 frase | **Quick mode** | — | — | Implement + verify | /simplify → commit |
 | **Medium** | Feature clara, <10 tasks | Spec breve | Skip — inline | Skip — implícito | Implement + verify | /simplify → commit |
 | **Large** | Multi-componente | Full spec + IDs | Arquitetura + componentes | Breakdown + deps | Implement + verify por task | /simplify → commit |
-| **Complex** | Ambiguidade, domínio novo | Full spec + [discuss](references/meta/discuss.md) | [Research](references/design/design.md) + arq. | Breakdown + paralelo | Implement + [UAT](references/review/validate.md) | /simplify → commit |
+| **Complex** | Ambiguidade, domínio novo | Full spec + [discuss](references/meta/discuss.md) | [Research](references/design/design.md) + arq. | Breakdown + paralelo | Implement + [UAT](nano-disciplines:review/validate.md) | /simplify → commit |
 
 **Regras:**
 - Specify e Execute são sempre obrigatórios
@@ -56,7 +70,7 @@ Este processo define **O QUE fazer e EM QUE ORDEM** (o trilho: Specify → Desig
 - Tasks é pulado quando há ≤3 passos óbvios
 - Discuss é triggered *dentro* do Specify apenas quando o agente detecta áreas ambíguas que precisam de input do usuário (apenas Complex)
 - UAT interativo é triggered *dentro* do Execute apenas para features user-facing com comportamento complexo (apenas Complex)
-- Review e Security estão **desativados por padrão** — ativar via defaults opt-out se dev pedir (ver [review.md](references/review/review.md) e [security.md](references/review/security.md))
+- Review e Security estão **desativados por padrão** — ativar via defaults opt-out se dev pedir (ver [review.md](references/review/review.md) e [security.md](nano-disciplines:review/security.md))
 
 **Safety valve:** Se inline steps revelarem >5 steps → PARAR e criar tasks.md formal.
 
@@ -352,10 +366,10 @@ Artefatos de feature **SEMPRE** vão para `.specs/features/YYYY-MM-DD-[feature]/
 | Projetar arquitetura | [design.md](references/design/design.md) |
 | Quebrar em tasks (horizontal ou vertical-slice) | [tasks.md](references/tasks/tasks.md) |
 | Implementar | [implement.md](references/execute/implement.md) |
-| Validar/UAT | [validate.md](references/review/validate.md) |
+| Validar/UAT | [validate.md](nano-disciplines:review/validate.md) |
 | Review de código | [review.md](references/review/review.md) |
-| Auditoria de segurança | [security.md](references/review/security.md) |
-| Atualizar docs do codebase | [docs-update.md](references/docs/docs-update.md) |
+| Auditoria de segurança | [security.md](nano-disciplines:review/security.md) |
+| Atualizar docs do codebase | [docs-update.md](nano-disciplines:docs/docs-update.md) |
 | Commitar | skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md) |
 | Gitflow / branching | skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md) |
 | Quick fix | [quick-mode.md](references/quick-mode/quick-mode.md) |
@@ -377,12 +391,12 @@ Cada fase aplica disciplinas internas **automaticamente**. Dev pode desativar vi
 | **Specify** | [specify/specify.md](references/specify/specify.md) — discovery (2-3 abordagens, perguntas one-at-a-time) → spec self-review (5 critérios) → [spec-document-reviewer](references/specify/spec-document-reviewer-prompt.md) para Large/Complex → outputs em `context.md` + `spec.md` |
 | **Design** | [design/design.md](references/design/design.md) — apresentar design incremental por seção com aprovação do dev → output para `design.md` |
 | **Tasks** | [tasks/tasks.md](references/tasks/tasks.md) — premissa "zero context" + No Placeholders + TDD steps inline → plan self-review → [plan-document-reviewer](references/tasks/plan-document-reviewer-prompt.md) para Large/Complex → output para `tasks.md` |
-| **Execute** | [execute/implement.md](references/execute/implement.md) com [tdd.md](references/execute/tdd/tdd.md) para tasks com lógica, [debug.md](references/execute/systematic-debugging/debug.md) quando encontrar bug, [subagents.md](references/execute/subagents/subagents.md) (two-stage review) para Large/Complex. Baseline test antes de começar. Sem worktree — trabalho na branch. |
-| **Execute (bug)** | [debug.md](references/execute/systematic-debugging/debug.md) → Iron Law + 4 fases (Root Cause → Pattern → Hypothesis → Fix) → failing test antes de corrigir |
+| **Execute** | [execute/implement.md](references/execute/implement.md) com [tdd.md](nano-disciplines:execute/tdd/tdd.md) para tasks com lógica, [debug.md](nano-disciplines:execute/systematic-debugging/debug.md) quando encontrar bug, [subagents.md](nano-disciplines:execute/subagents/subagents.md) (two-stage review) para Large/Complex. Baseline test antes de começar. Sem worktree — trabalho na branch. |
+| **Execute (bug)** | [debug.md](nano-disciplines:execute/systematic-debugging/debug.md) → Iron Law + 4 fases (Root Cause → Pattern → Hypothesis → Fix) → failing test antes de corrigir |
 | **/simplify** | /simplify sobre diff acumulado (skill própria) |
-| **Review** | [verification.md](references/meta/verification.md) (Iron Law: evidência antes de claims) + [code-review.md](references/review/code-review.md) (subagent reviewer com BASE_SHA/HEAD_SHA) ou Protocolo Dois-Eixos para Large/Complex pre-commit |
+| **Review** | [verification.md](nano-disciplines:verification.md) (Iron Law: evidência antes de claims) + [code-review.md](nano-disciplines:review/code-review.md) (subagent reviewer com BASE_SHA/HEAD_SHA) ou Protocolo Dois-Eixos para Large/Complex pre-commit |
 | **Docs** | Checklist contra `.specs/codebase/` — [brownfield-mapping](references/init/brownfield-mapping.md) se docs muito defasados |
-| **Commit** | Skill `nano-spec:nano-commit` aplica [verification.md](references/meta/verification.md) (Iron Law) + fechamento estruturado (4 opções: merge/PR/manter/discard) → testes bloqueiam opções |
+| **Commit** | Skill `nano-spec:nano-commit` aplica [verification.md](nano-disciplines:verification.md) (Iron Law) + fechamento estruturado (4 opções: merge/PR/manter/discard) → testes bloqueiam opções |
 
 **Regras:**
 - Aplicação automática — não perguntar antes de cada disciplina.
@@ -396,8 +410,8 @@ A rastreabilidade é reforçada em 4 pontos do trilho:
 
 1. **Spec → Tasks:** Após gerar `tasks.md`, o [plan-document-reviewer](references/tasks/plan-document-reviewer-prompt.md) DEVE verificar que TODOS os critérios QUANDO/ENTÃO da spec.md estão cobertos por pelo menos uma task.
 2. **Spec → Testes:** Cada critério de aceite QUANDO/ENTÃO DEVE gerar um teste nomeado com o ID do requisito (ex: `test_AUTH01_invalid_email_returns_422`).
-3. **Tasks → Commit:** Antes de commitar, aplicar [verification.md](references/meta/verification.md) (Iron Law) para verificar que todos os requisitos mapeados na spec.md foram implementados e têm testes passando.
-4. **Execute → STATE.md:** Quando [debug.md](references/execute/systematic-debugging/debug.md) é acionado (bug encontrado), lessons learned DEVEM ser registradas em STATE.md com contexto estruturado.
+3. **Tasks → Commit:** Antes de commitar, aplicar [verification.md](nano-disciplines:verification.md) (Iron Law) para verificar que todos os requisitos mapeados na spec.md foram implementados e têm testes passando.
+4. **Execute → STATE.md:** Quando [debug.md](nano-disciplines:execute/systematic-debugging/debug.md) é acionado (bug encontrado), lessons learned DEVEM ser registradas em STATE.md com contexto estruturado.
 
 ## Context Loading
 
@@ -451,7 +465,7 @@ está instalado. Se sim, delegar. Se não, usar blocos mermaid inline e recomend
 
 Sempre que o workflow precisar explorar código existente (brownfield mapping, análise de reuso,
 identificação de padrões), verificar se `codenavi` está instalado. Se sim, delegar.
-Se não, usar ferramentas built-in (ver [code-analysis.md](references/execute/code-analysis.md))
+Se não, usar ferramentas built-in (ver [code-analysis.md](nano-disciplines:execute/code-analysis.md))
 e recomendar instalação (uma vez por sessão).
 
 ## Output Behavior
@@ -468,4 +482,4 @@ natural ao final. Pular se dev parece experiente ou já reconheceu a dica.
 
 ## Code Analysis
 
-Ferramentas com graceful degradation. Ver [code-analysis.md](references/execute/code-analysis.md).
+Ferramentas com graceful degradation. Ver [code-analysis.md](nano-disciplines:execute/code-analysis.md).

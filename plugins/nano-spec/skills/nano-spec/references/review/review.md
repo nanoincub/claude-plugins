@@ -65,7 +65,7 @@ Execute concluído
     │
     ▼
 2. Suite completa de testes + Iron Law verification   ← OBRIGATÓRIO
-    └── Aplicar ../meta/verification.md
+    └── Aplicar nano-disciplines:verification.md
         └── Evidência FRESH antes de qualquer claim de "pronto"
         └── Testes DEVEM passar — Iron Law bloqueia commit se falharem
     │
@@ -118,7 +118,7 @@ Analisa reuse, quality, efficiency em paralelo.
 
 **Iron Law: "NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE"**
 
-O agente DEVE aplicar a [Gate Function da Iron Law](../meta/verification.md#gate-function-5-passos-obrigatórios). Resumo dos 5 passos:
+O agente DEVE aplicar a [Gate Function da Iron Law](nano-disciplines:verification.md#gate-function-5-passos-obrigatórios). Resumo dos 5 passos:
 
 1. **IDENTIFY** — Que comando prova o claim?
 2. **RUN** — Executar o comando FULL, fresh, **nesta mensagem**
@@ -126,9 +126,9 @@ O agente DEVE aplicar a [Gate Function da Iron Law](../meta/verification.md#gate
 4. **VERIFY** — Output confirma o claim?
 5. **ONLY THEN** — Fazer a claim COM evidência
 
-Ver [verification.md](../meta/verification.md) para a referência completa: tabela de Common Failures, Red Flags de linguagem, prevenção de racionalizações, e patterns por tipo de claim (tests / regression / build / requirements / agent delegation).
+Ver [verification.md](nano-disciplines:verification.md) para a referência completa: tabela de Common Failures, Red Flags de linguagem, prevenção de racionalizações, e patterns por tipo de claim (tests / regression / build / requirements / agent delegation).
 
-**Red flags que PARAM o agente** (resumo — ver lista completa em [verification.md > Red Flags](../meta/verification.md#red-flags--palavras-proibidas-até-verificar)):
+**Red flags que PARAM o agente** (resumo — ver lista completa em [verification.md > Red Flags](nano-disciplines:verification.md#red-flags--palavras-proibidas-até-verificar)):
 - Usar "should", "probably", "seems to" em claims de completude
 - Expressar satisfação antes de verificar ("Great!", "Done!", "Pronto!")
 - Referenciar output de execuções anteriores como prova

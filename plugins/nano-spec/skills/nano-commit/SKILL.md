@@ -201,9 +201,9 @@ Implementação concluída. Quer commitar?
 
 > **Ordem fixa /simplify → testes:** se a suite rodou **antes** do /simplify, NÃO conta. Pedir nova rodada após a refatoração — qualquer regressão introduzida pelo /simplify só é capturada se os testes rodarem depois.
 
-**Gate Iron Law (obrigatório):** aplicar [verification.md](../nano-spec/references/meta/verification.md) como gate bloqueante. Testes DEVEM passar (com evidência fresca, **nesta mensagem**) antes de oferecer opções de commit — se falharam ou se a verificação não foi rodada nesta interação, BLOQUEAR o fluxo (não apenas pedir ao dev, mas impedir o avanço).
+**Gate Iron Law (obrigatório):** aplicar [verification.md](nano-disciplines:verification.md) como gate bloqueante. Testes DEVEM passar (com evidência fresca, **nesta mensagem**) antes de oferecer opções de commit — se falharam ou se a verificação não foi rodada nesta interação, BLOQUEAR o fluxo (não apenas pedir ao dev, mas impedir o avanço).
 
-**Suite de testes:** agente NÃO roda — pede ao dev e aguarda confirmação (evita gasto de tokens em output de centenas de testes). A confirmação do dev é o que dispara a Iron Law (ver [verification.md > Suite de testes](../nano-spec/references/meta/verification.md#suite-de-testes--política-do-nano-spec)).
+**Suite de testes:** agente NÃO roda — pede ao dev e aguarda confirmação (evita gasto de tokens em output de centenas de testes). A confirmação do dev é o que dispara a Iron Law (ver [verification.md > Suite de testes](nano-disciplines:verification.md#suite-de-testes--política-do-nano-spec)).
 
 **Rastreabilidade:** verificar que todos os IDs de requisito (`[FEAT]-XX`) da spec.md mapeados para esta task estão com status "Verified" na tabela de rastreabilidade. Se algum está "Pending" ou "Implementing", ALERTAR o dev com a lista de IDs pendentes e perguntar se deseja prosseguir.
 
@@ -421,7 +421,7 @@ Após commitar em `feature/*`, `bugfix/*`, `hotfix/*` ou `release/*`, conduzir o
 
 ### Step 1 — Iron Law (gate obrigatório)
 
-Aplicar [verification.md](../nano-spec/references/meta/verification.md) — confirmar **com evidência fresca nesta mensagem** que a suite de testes passa. Se não foi verificado nesta interação, BLOQUEAR o fluxo e voltar ao gate de pre-commit.
+Aplicar [verification.md](nano-disciplines:verification.md) — confirmar **com evidência fresca nesta mensagem** que a suite de testes passa. Se não foi verificado nesta interação, BLOQUEAR o fluxo e voltar ao gate de pre-commit.
 
 > Se os testes falharam, **não** apresentar as 4 opções. Reportar falhas e parar até serem corrigidas.
 

@@ -17,21 +17,37 @@ escape_for_json() {
 # Lightweight context — awareness + rules + trigger to load full skill on-demand
 read -r -d '' CONTEXT << 'CONTEXT_EOF' || true
 <IMPORTANT>
-You have the nano-spec plugin installed (v4.0.0 — standalone, zero external plugin dependencies).
+You have the nano-spec plugin installed (v5.0.0).
+
+## HARD BLOCK: nano-disciplines required
+
+nano-spec orchestrates Spec-Driven Development but delegates technical disciplines (TDD, debug, verification, code review, subagents, parallel dispatch, receiving feedback, security, validate, code analysis, coding principles, docs update) to the `nano-disciplines` plugin.
+
+Before any nano-spec phase, verify that `nano-disciplines` is installed. If NOT found → BLOCK the entire process and instruct:
+
+  nano-disciplines is NOT installed. This is a required dependency of nano-spec 5.0.0.
+  Install: claude plugin install nano-disciplines@nano-incub
+  Then reload the session.
+
+Without nano-disciplines, nano-spec does NOT run — do not offer a standalone alternative.
 
 ## What nano-spec is
 
-A Spec-Driven Development process for Nano Incub. It orchestrates phases (Specify → Design → Tasks → Execute → /simplify → Docs → Commit) AND provides the technical disciplines internally:
+A Spec-Driven Development process for Nano Incub. It orchestrates phases (Specify → Design → Tasks → Execute → /simplify → Docs → Commit) and invokes technical disciplines from `nano-disciplines` at each phase:
 
-- TDD with Iron Law (RED → Verify RED → GREEN → Verify GREEN → REFACTOR)
-- Systematic debugging in 4 phases (root cause investigation before any fix)
-- Verification before completion (evidence before claims, always)
-- Subagent-driven execution with two-stage review (spec compliance → code quality)
-- Parallel subagent dispatch with conflict checking
-- Code review (single reviewer or Protocolo Dois-Eixos for Large/Complex pre-commit)
-- Receiving feedback protocol (zero performative agreement)
+| Phase | Discipline (from nano-disciplines) |
+|---|---|
+| Execute (logic tasks) | `nano-disciplines:execute/tdd/tdd.md` (Iron Law TDD) |
+| Execute (bugs) | `nano-disciplines:execute/systematic-debugging/debug.md` (4 phases) |
+| Execute (Large+) | `nano-disciplines:execute/subagents/subagents.md` (two-stage review) |
+| Execute (parallel tasks) | `nano-disciplines:execute/subagents/parallel-dispatch.md` |
+| Review | `nano-disciplines:review/code-review.md` or `nano-spec:review/dois-eixos.md` (Standards + Spec) |
+| Pre-commit / pre-claim | `nano-disciplines:verification.md` (Iron Law: evidence before claims) |
+| Security review | `nano-disciplines:review/security.md` |
+| UAT / validate | `nano-disciplines:review/validate.md` |
+| Docs sync | `nano-disciplines:docs/docs-update.md` |
 
-All disciplines live in `references/` under the skill — no external plugin required.
+Spec-Driven artifacts (specify, design, tasks, init, baseline-test-gate, dois-eixos protocol, agent-behavior, state-management) live in `nano-spec` itself.
 
 ## Auto-Sizing (apply to EVERY development task)
 

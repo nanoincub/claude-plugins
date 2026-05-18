@@ -232,7 +232,7 @@ O Execute aplica estas disciplinas **automaticamente** conforme decidido pela á
 | [debug.md](systematic-debugging/debug.md) (4 fases) | Bug encontrado | Iron Law: NO FIXES WITHOUT ROOT CAUSE FIRST. Phase 1 → 2 → 3 → 4. Após 3 fixes falharem (Phase 4.5) → escalar ao dev, questionar arquitetura |
 | [subagents.md](subagents/subagents.md) (3 subagents por task) | Large/Complex | Implementer → **Spec Compliance Review → Code Quality Review** por task. Ordem obrigatória. Continuous execution entre tasks. |
 | [parallel-dispatch.md](subagents/parallel-dispatch.md) | Tasks independentes (`[P]` em tasks.md, sem dependências cruzadas) | 1 agent por domínio disjunto. Após retorno: verification 4 passos (incluindo check de conflitos) + suite completa |
-| [code-review.md](../review/code-review.md) | Após todas as tasks (Large/Complex) | Code-reviewer subagent para revisão da implementação completa. Para pre-commit: Protocolo Dois-Eixos (ver [review.md](../review/review.md)) |
+| [code-review.md](nano-disciplines:review/code-review.md) | Após todas as tasks (Large/Complex) | Code-reviewer subagent para revisão da implementação completa. Para pre-commit: Protocolo Dois-Eixos (ver [review.md](../review/review.md)) |
 
 **Regra:** Essas disciplinas são workers. O ciclo do Execute (pick → implement → verify) continua sendo o trilho.
 

@@ -10,7 +10,7 @@
 >
 > **O que esperar de volta:** Status (Approved | Issues Found) + Issues + Recommendations.
 >
-> **Após recepção:** aplicar [receiving-feedback.md](../review/receiving-feedback.md).
+> **Após recepção:** aplicar [receiving-feedback.md](nano-disciplines:review/receiving-feedback.md).
 
 ---
 

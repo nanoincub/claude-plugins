@@ -114,7 +114,7 @@ Quando subagentes (Agent tool) ou skills externas retornam findings de seguranç
 - **Vulnerabilidades confirmadas da branch** — escopo da review, bloqueantes
 - **Observações pré-existentes** (opcional) — seção separada, fora do escopo
 
-Ver [agent-behavior.md](../meta/agent-behavior.md) para regras gerais de confiabilidade e padrões de falso positivo.
+Ver [agent-behavior.md](nano-spec:meta/agent-behavior.md) para regras gerais de confiabilidade e padrões de falso positivo.
 
 ---
 
