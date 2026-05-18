@@ -1,7 +1,7 @@
 {
   "name": "nano-spec",
-  "version": "3.2.0",
-  "description": "Processo Spec-Driven da Nano Incub para Claude Code",
+  "version": "4.0.0",
+  "description": "Processo Spec-Driven da Nano Incub para Claude Code (standalone — zero dependências de plugins externos)",
   "author": {
     "name": "Nano Incub"
   }

@@ -76,17 +76,34 @@ Capture in-progress thoughts and action items that don't fit in active tasks.
 - [ ] [TODO: action item]
 ```
 
-## When to Update
+## When to Update — Triggers automáticos
 
-| Event                            | Action                                 |
-| -------------------------------- | -------------------------------------- |
-| Significant architectural choice | Add AD-[NNN]                           |
-| Implementation blocked           | Add B-[NNN]                            |
-| Important discovery/learning     | Add L-[NNN]                            |
-| Quick task completed             | Add row to Quick Tasks table           |
-| Scope creep captured             | Add to Deferred Ideas                  |
-| In-progress thought              | Add to Todos                           |
-| Session end                      | Update "Last Updated" + "Current Work" |
+Eventos que **DISPARAM** atualização do STATE.md automaticamente (não confiar na memória do agente — escrever no momento do evento):
+
+| Evento (trigger) | Origem | Ação |
+|---|---|---|
+| Override do Baseline Test Gate aceito | [execute/implement.md](../execute/implement.md#baseline-test-gate-entry-gate) | Add entrada estruturada com base SHA + falhas + responsável + plano |
+| `debug.md` Fase 4 fechou com fix | [execute/systematic-debugging/debug.md](../execute/systematic-debugging/debug.md) | Add L-[NNN] (lesson learned com root cause + fix) |
+| `debug.md` Fase 4.5 disparou (3 fixes falharam) | [execute/systematic-debugging/debug.md](../execute/systematic-debugging/debug.md) | Add B-[NNN] + nota arquitetural |
+| Scope guardrail no Execute disparou (ideia descartada) | [execute/implement.md](../execute/implement.md) step 8 | Add a Deferred Ideas |
+| Bug encontrado durante outra task (não relacionado) | [execute/implement.md](../execute/implement.md) árvore de decisão | Add B-[NNN] + retomar task original |
+| Decisão arquitetural sem ADR formal mas relevante | Design ou Execute | Add AD-[NNN] |
+| Quick task completou | [quick-mode/quick-mode.md](../quick-mode/quick-mode.md) | Add row em Quick Tasks |
+| Migração de pastas legadas recusada pelo dev | SKILL.md migração | Add nota "migração recusada nesta sessão" |
+| Override de qualquer HARD BLOCK | [meta/agent-behavior.md](agent-behavior.md) | Add entrada documentando override + razão |
+| Pausar sessão (handoff) | [meta/session-handoff.md](session-handoff.md) | Update "Last Updated" + "Current Work" + checkpoint detalhado |
+| Sessão terminou | Sessão | Update "Last Updated" + "Current Work" |
+
+### Eventos manuais (dev pede explicitamente)
+
+| Evento | Ação |
+|---|---|
+| Dev diz "registra essa decisão" | Add AD-[NNN] |
+| Dev diz "fica como deferred" | Add a Deferred Ideas |
+| Dev diz "anote como lição" | Add L-[NNN] |
+| Dev diz "isso é um blocker" | Add B-[NNN] |
+
+**Regra de ouro:** se o agente está prestes a continuar para a próxima ação mas o evento merece persistência, **escrever no STATE.md ANTES** de prosseguir. Não acumular vários eventos para "atualizar no final" — risco de esquecer.
 
 ## Size Management (Hybrid Strategy)
 

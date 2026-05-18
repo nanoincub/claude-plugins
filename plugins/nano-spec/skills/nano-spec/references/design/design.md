@@ -6,9 +6,20 @@
 
 ## Process
 
-### 1. Load Context
+### 1. Load Context (OBRIGATÓRIO)
 
-Read `.specs/features/YYYY-MM-DD-[feature]/spec.md` before designing. If `.specs/features/YYYY-MM-DD-[feature]/context.md` exists, load it too — it contains implementation decisions that constrain the design (layout choices, behavior preferences, interaction patterns). Decisions marked as "Agent's Discretion" are yours to decide.
+Antes de projetar, **carregar nesta ordem**:
+
+1. `.specs/features/YYYY-MM-DD-[feature]/spec.md` — sempre
+2. `.specs/features/YYYY-MM-DD-[feature]/context.md` — **OBRIGATÓRIO se existir**
+
+**`context.md` contém as decisões aprovadas no discovery do Specify** (abordagem escolhida entre as 2-3 propostas, trade-offs aceitos, restrições do dev). Essas decisões são **constraints do design** — não reoptar, não propor padrão contrário ao que já foi travado.
+
+Se uma decisão em `context.md` parece arquiteturalmente incorreta agora que você está projetando, **escalar ao dev** com proposta de revisão — nunca ignorar silenciosamente.
+
+Decisões marcadas como "Agent's Discretion" em `context.md` são suas para decidir.
+
+⚠️ **Pular esta seção = projetar contra constraint aprovado = retrabalho garantido na fase Tasks.**
 
 ### 1.5. Research (Optional but Recommended)
 
@@ -28,13 +39,44 @@ Good triggers for research: new libraries, unfamiliar APIs, performance-sensitiv
 
 Overview of how components interact. Use mermaid diagrams when helpful. Before creating any diagrams, check if the `mermaid-studio` skill is available (see Skill Integrations in SKILL.md).
 
-Usar `superpowers:brainstorming` (steps 5-8) para propor 2-3 abordagens arquiteturais com trade-offs claros e recomendação. Apresentar o design incrementalmente por seção, com aprovação do dev entre seções. Só avançar para a próxima seção após confirmação.
+Propor 2-3 abordagens arquiteturais com trade-offs claros e recomendação (mesmo processo de discovery do [specify.md](../specify/specify.md)). Apresentar o design incrementalmente por seção, com aprovação do dev entre seções. Só avançar para a próxima seção após confirmação.
 
 ### 3. Identify Code Reuse
 
 **CRITICAL**: What existing code can we leverage? This saves tokens and reduces errors.
 
 If `.specs/codebase/CONCERNS.md` exists, check it before designing. Any component flagged as fragile, carrying tech debt, or having test coverage gaps requires extra care in the design — document how the design mitigates those concerns.
+
+#### Reuse Validation Checklist (OBRIGATÓRIO antes de avançar)
+
+Antes de fechar o `design.md`, percorrer o checklist e **registrar o resultado no próprio doc** como bloco auditável:
+
+```markdown
+## Reuse Validation
+
+**Componentes reusáveis identificados:**
+- `src/path/X` — papel: Y — usado em: T1, T2
+- `src/path/A` — papel: B — usado em: T3
+- (...)
+
+**Padrões reusáveis identificados:**
+- Padrão `ResultObject` (de `src/shared/`) — aplicado em: response do novo endpoint
+- (...)
+
+**Áreas exploradas SEM reuso (justificativa):**
+- Auth flow custom — incompatível com `src/auth/legacy` (depende de session estática)
+- (...)
+
+**Áreas NÃO exploradas** (riscam reuso posterior na fase Tasks):
+- [marcar como vazio se nada falta, OU listar] 
+```
+
+**Por que isso fica no `design.md`:** Tasks vai descobrir reusos "esquecidos" e retroceder ao Design. O checklist fecha o loop — se "áreas não exploradas" estiver vazio, Tasks tem licença para prosseguir; se tiver itens, são red flags conhecidas.
+
+**Sinais de "explorei o suficiente":**
+- Você procurou em `src/shared/`, `src/utils/`, `src/components/common/` (ou equivalente da stack)
+- Você verificou se `CONVENTIONS.md` documenta padrões aplicáveis
+- Você consultou pelo menos 1 feature similar prévia em `.specs/features/`
 
 ### 4. Define Components and Interfaces
 

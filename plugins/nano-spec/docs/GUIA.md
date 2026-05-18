@@ -15,7 +15,7 @@
 - [Parte 6 — Os gates inegociáveis](#parte-6--os-gates-inegociáveis)
 - [Parte 7 — Exemplos prontos](#parte-7--exemplos-prontos)
 - [Parte 8 — Personalizar pelo CLAUDE.md](#parte-8--personalizar-pelo-claudemd)
-- [Parte 9 — Superpowers como motor](#parte-9--superpowers-como-motor)
+- [Parte 9 — Disciplinas internas](#parte-9--disciplinas-internas)
 - [Parte 10 — Estrutura `.specs/`](#parte-10--estrutura-specs)
 - [Parte 11 — Troubleshooting](#parte-11--troubleshooting)
 - [Glossário](#glossário)
@@ -27,16 +27,15 @@
 **Nano-Spec é um trilho.** Você descreve o que quer; o agente conduz por um caminho com paradas obrigatórias até o commit:
 
 ```
-[BASELINE TEST GATE] → SPECIFY → DESIGN → TASKS → EXECUTE → /simplify → TESTES → DOCS → COMMIT
-   entrada obrig.     required  opcional  opcional required  obrigatório obrigatório M+   pergunta
+SPECIFY → DESIGN → TASKS → EXECUTE → /simplify → DOCS → COMMIT
+required  opcional  opcional required  obrigatório  M+    pergunta
 ```
 
-Quatro regras que nunca mudam:
+Três regras que nunca mudam:
 
-1. **Baseline Test Gate (entrada)** — antes de criar branch de trabalho, rodar suite na base (`develop`/`main`). Se vermelha → PARAR (recomendado) ou OVERRIDE com registro em STATE.md.
-2. **`/simplify`** roda **primeiro** no fim, sobre o diff acumulado.
-3. **Suite de testes** roda **depois** do /simplify (sobre o diff já refatorado) e precisa passar — inverter deixa regressão da refatoração escapar.
-4. **Commit nunca é automático** — o agente sempre pergunta.
+1. **`/simplify`** roda antes de qualquer commit.
+2. **Suite de testes** roda depois e precisa passar.
+3. **Commit nunca é automático** — o agente sempre pergunta.
 
 Tudo o mais (Design, Tasks, etc.) é pulado conforme o tamanho da tarefa.
 
@@ -45,7 +44,7 @@ Tudo o mais (Design, Tasks, etc.) é pulado conforme o tamanho da tarefa.
 ```
 1. CLAUDE.md / instruções diretas do dev   ← maior prioridade
 2. Nano-spec (este processo)
-3. Superpowers (motor)
+3. Disciplinas internas (TDD, debug, verification, subagents — em references/)
 4. System prompt padrão                    ← menor prioridade
 ```
 
@@ -53,17 +52,11 @@ Tudo o mais (Design, Tasks, etc.) é pulado conforme o tamanho da tarefa.
 
 ## Parte 2 — Pré-requisitos (instalar antes de usar)
 
-Sem isso, o nano-spec **bloqueia o processo no SessionStart**.
+Desde a versão **4.0.0**, o nano-spec é **standalone** — as disciplinas técnicas (TDD, debug, verification, code review, subagents, parallel dispatch) estão internalizadas. Não há dependência de plugins externos.
 
-### 1. Superpowers (motor obrigatório desde 3.0)
+O único pré-requisito de ferramenta externa é o `git-flow-next`.
 
-```bash
-claude plugin install superpowers@claude-plugins-official
-```
-
-Fornece o motor técnico (TDD, debugging, brainstorming, writing-plans) que o nano-spec orquestra. **Não há modo standalone.**
-
-### 2. git-flow-next (gerenciamento de branches)
+### git-flow-next (gerenciamento de branches)
 
 ```bash
 # macOS / Linux
@@ -124,7 +117,7 @@ Quando você diz **"implementar X"**, **"nova feature: X"**, **"fix bug: X"** ou
 
 Ao abrir a sessão, o plugin injeta ~3 KB no contexto: hierarquia, auto-sizing resumido, gates e triggers. **Não** carrega o processo inteiro — só ensina o agente quando deve carregar.
 
-E faz dois HARD BLOCKs: **superpowers instalado?** e (na primeira interação git) **git-flow-next instalado?** Se algum falhar, o processo para.
+Faz um HARD BLOCK na primeira interação git: **git-flow-next instalado?** Se não, o processo para (a menos que `CLAUDE.md` defina "Sem gitflow").
 
 ### Passo 1 — Detecção de contexto (automático, ~3s)
 
@@ -152,9 +145,9 @@ Cria a pasta `.specs/features/YYYY-MM-DD-[feature]/` (prefixo de data **obrigat�
 - Constraints (performance, segurança, compatibilidade)
 - **Out of scope** explícito
 
-**Skills do superpowers usadas**:
-- 🧠 **`brainstorming`** — explora intenção do usuário, requisitos e design antes de implementar; propõe 2-3 abordagens com tradeoffs.
-- 📝 **`spec-document-reviewer`** — revisa a spec gerada procurando ambiguidades, critérios não testáveis e gaps.
+**Disciplinas aplicadas** (em `references/specify/`):
+- 🧠 **discovery** — explora intenção do usuário, requisitos e design antes de implementar; propõe 2-3 abordagens com tradeoffs; perguntas one-at-a-time; HARD-GATE: sem código antes da spec aprovada.
+- 📝 **`spec-document-reviewer-prompt.md`** — subagent revisor para Large/Complex que audita a spec procurando ambiguidades, critérios não testáveis e gaps.
 
 > **Gate de saída**: você confirma "spec ok".
 > **Quick Mode (Small)**: vira só uma frase descrevendo o que vai ser feito.
@@ -172,8 +165,8 @@ Produz `design.md`:
 - Decisões com **tradeoffs**
 - Diagramas (mermaid inline)
 
-**Skills do superpowers usadas**:
-- 🧠 **`brainstorming` (steps 5-8)** — aprofunda design incremental, levantando alternativas arquiteturais e seus tradeoffs.
+**Disciplina aplicada** (em `references/design/`):
+- 🧠 **discovery arquitetural** — aprofunda design incremental, levantando alternativas arquiteturais e seus tradeoffs. Apresentação por seção com aprovação do dev entre seções.
 
 **Pula quando** não há decisão arquitetural a tomar.
 
@@ -187,9 +180,9 @@ Produz `tasks.md` no formato **TLC**. Cada task tem:
 - **Done when** — critério objetivo de pronto
 - **Verify** — como provar (teste, comando, observação)
 
-**Skills do superpowers usadas**:
-- 📋 **`writing-plans`** — converte spec em plano executável; quebra em tasks atômicas com TDD steps explícitos.
-- 🔍 **`plan-document-reviewer`** — revisa o plano gerado checando atomicidade, dependências corretas e critérios verificáveis.
+**Disciplinas aplicadas** (em `references/tasks/`):
+- 📋 **TDD inline** — converte spec em plano executável; quebra em tasks atômicas com TDD steps explícitos. Premissa "zero context, questionable taste" + No Placeholders.
+- 🔍 **`plan-document-reviewer-prompt.md`** — subagent revisor para Large/Complex que audita o plano checando atomicidade, dependências corretas e critérios verificáveis.
 
 **Pula quando** há ≤3 passos óbvios.
 
@@ -202,10 +195,11 @@ Para cada task:
 3. Rodar testes do módulo afetado
 4. Atualizar rastreabilidade na `spec.md` (`Pending → Implementing → Verified`)
 
-**Skills do superpowers usadas**:
-- 🧪 **`test-driven-development`** — disciplina Red → Green → Refactor; escreve teste falhando antes do código.
-- 🤖 **`subagent-driven-development`** — dispara subagentes em paralelo para tasks independentes (Large/Complex), com two-stage review.
-- 🐛 **`systematic-debugging`** — 4 fases (Root Cause → Pattern → Hypothesis → Fix); usado quando aparece bug.
+**Disciplinas aplicadas** (em `references/execute/`):
+- 🧪 **`tdd/tdd.md`** — Iron Law "NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST". Ciclo Red → Verify Red → Green → Verify Green → Refactor.
+- 🤖 **`subagents/subagents.md`** — 3 subagents per task (implementer → spec compliance review → code quality review) para Large/Complex. Continuous execution entre tasks.
+- 🤖 **`subagents/parallel-dispatch.md`** — múltiplos subagents em paralelo para tasks independentes, com check de conflitos pós-retorno.
+- 🐛 **`systematic-debugging/debug.md`** — Iron Law "NO FIXES WITHOUT ROOT CAUSE FIRST" + 4 fases (Root Cause → Pattern → Hypothesis → Fix) + Fase 4.5 (questionar arquitetura após 3 fixes falharem).
 
 ### Passo 8 — `/simplify` *(gate obrigatório)*
 
@@ -224,8 +218,8 @@ O agente **não roda os testes diretamente** — informa o comando e aguarda voc
 
 O comando vem do `CLAUDE.md` ou é inferido da stack.
 
-**Skills do superpowers usadas**:
-- ✅ **`verification-before-completion`** — exige evidência (output do teste) antes de declarar pronto; bloqueia avanço se falhar.
+**Disciplina aplicada** (em `references/meta/verification.md`):
+- ✅ **Iron Law** — "NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE". Exige evidência (output do teste, **nesta mensagem**) antes de declarar pronto; bloqueia avanço se falhar.
 
 > Se algum teste falha → **bloqueia o commit**. Sem exceção.
 
@@ -252,9 +246,9 @@ Delegado para a skill **`nano-spec:nano-commit`**, que executa em ordem:
 6. Commit atômico em **Conventional Commits 1.0.0**
 7. Pós-commit: 4 opções — `merge local · PR · continuar · discard (com confirmação tipada)`
 
-**Skills do superpowers usadas (Large+)**:
-- 👀 **`requesting-code-review`** — pede revisão automatizada do diff (BASE_SHA → HEAD_SHA) antes de fechar.
-- 🎯 **`finishing-a-development-branch`** — apresenta 4 opções estruturadas de encerramento (merge/PR/continuar/discard).
+**Disciplinas aplicadas (Large+)**:
+- 👀 **`review/code-review.md`** + **`code-reviewer-prompt.md`** — subagent revisor (5 eixos) do diff (BASE_SHA → HEAD_SHA) antes de fechar. Pre-commit Large/Complex: Protocolo Dois-Eixos em paralelo (Standards + Spec).
+- 🎯 **`nano-commit` (seção "Pós-Commit: Fechamento de Branch")** — 4 opções estruturadas de encerramento (merge local / PR / continuar / discard com confirmação tipada).
 
 ---
 
@@ -264,10 +258,10 @@ O agente classifica automaticamente. Você pode forçar dizendo "trate como Quic
 
 | Escopo | Quando | Specify | Design | Tasks | Execute | Pós |
 |--------|--------|---------|--------|-------|---------|-----|
-| **Small** | ≤3 arquivos, 1 frase | Quick mode | — | — | Direto | `/simplify` → testes → commit |
-| **Medium** | Feature clara, <10 tasks | Spec breve | Inline | Implícito | Por task | `/simplify` → testes → commit |
-| **Large** | Multi-componente | Full spec + IDs | Arquitetura | Breakdown + deps | Por task | `/simplify` → testes → commit |
-| **Complex** | Ambiguidade, domínio novo | Full + Discuss | Research + arquitetura | Breakdown + paralelo | Por task + UAT | `/simplify` → testes → commit |
+| **Small** | ≤3 arquivos, 1 frase | Quick mode | — | — | Direto | `/simplify` → commit |
+| **Medium** | Feature clara, <10 tasks | Spec breve | Inline | Implícito | Por task | `/simplify` → commit |
+| **Large** | Multi-componente | Full spec + IDs | Arquitetura | Breakdown + deps | Por task | `/simplify` → commit |
+| **Complex** | Ambiguidade, domínio novo | Full + Discuss | Research + arquitetura | Breakdown + paralelo | Por task + UAT | `/simplify` → commit |
 
 **Regras rápidas**:
 
@@ -287,15 +281,12 @@ Resumo de onde o processo bloqueia ou exige confirmação:
 
 | Gate | Quando | O que faz | Pode pular? |
 |------|--------|-----------|-------------|
-| **Superpowers (HARD BLOCK)** | SessionStart | Bloqueia se superpowers não está instalado | Não |
 | **Project Init** | Sem `.specs/project/` | Cria PROJECT + ROADMAP | Não |
 | **Brownfield Mapping** | Sem `.specs/codebase/` | Cria 7 docs | Não |
 | **git-flow-next (HARD BLOCK)** | Primeira interação gitflow da sessão | Bloqueia se não instalado | Só via `CLAUDE.md → "Sem gitflow"` |
 | **Branch gitflow** | Antes de Specify/Execute/Commit | Sugere `git flow start` se em branch protegida | Sim, você confirma |
-| **Baseline Test Gate** | Após `git pull` da base, antes de criar branch de trabalho | Roda suite na base. Se vermelha, exige PARAR ou OVERRIDE registrado em STATE.md | Override controlado com registro |
-| **`/simplify`** | Antes do commit | Roda no diff acumulado (primeiro) | Não |
-| **Testes** | Após `/simplify` | Suite completa precisa passar (segundo) | Não |
-| **Baseline override reconciled** | Pré-commit, se há override ativo | Suite verde reconcilia override → move p/ "resolvidos" | Não |
+| **`/simplify`** | Antes do commit | Roda no diff acumulado | Não |
+| **Testes** | Após `/simplify` | Suite completa precisa passar | Não |
 | **Docs** | Antes do commit (Medium+) | `.specs/codebase/` atualizado | Não em Medium+ |
 | **Commit ask** | Após gates | "Quer commitar?" | — |
 | **Branch closing** | Após commit | 4 opções (merge/PR/continuar/discard) | — |
@@ -387,30 +378,29 @@ O agente lê o `CLAUDE.md` do projeto na primeira fase da sessão e adapta tudo.
 
 ---
 
-## Parte 9 — Superpowers como motor
+## Parte 9 — Disciplinas internas
 
-Superpowers é **obrigatório** desde nano-spec 3.0 (HARD BLOCK no SessionStart). O nano-spec invoca as skills dele **automaticamente** em cada fase:
+Desde a versão **4.0.0** o nano-spec é **standalone**: as 10 disciplinas técnicas que originalmente vinham do plugin `superpowers` foram **internalizadas** em `references/`. Sem dependência de plugins externos.
 
-| Fase | Skill do superpowers |
-|------|----------------------|
-| Specify | `brainstorming` → 2-3 abordagens → `spec-document-reviewer` |
-| Design | `brainstorming` steps 5-8 → design incremental |
-| Tasks | `writing-plans` → tasks com TDD steps → `plan-document-reviewer` |
-| Execute (Large+) | `subagent-driven-development` com two-stage review |
-| Execute (qualquer) | `test-driven-development` em tasks com lógica |
-| Execute (bug) | `systematic-debugging` — 4 fases |
-| Commit gate | `verification-before-completion` — testes bloqueiam commit |
-| Code review (Large+) | `requesting-code-review` |
-| Branch closing | `finishing-a-development-branch` |
+O nano-spec aplica essas disciplinas **automaticamente** em cada fase:
 
-**Output sempre em `.specs/`.** Skills do superpowers escrevem por padrão em `.superpowers/` ou `docs/`. O nano-spec **redireciona** para `.specs/features/YYYY-MM-DD-[feature]/`:
+| Fase | Disciplina aplicada |
+|---|---|
+| Specify | `specify/specify.md` — discovery (2-3 abordagens) + `spec-document-reviewer-prompt.md` para Large/Complex |
+| Design | `design/design.md` — apresentação incremental por seção |
+| Tasks | `tasks/tasks.md` — premissa "zero context" + No Placeholders + TDD inline + `plan-document-reviewer-prompt.md` |
+| Execute (qualquer) | `execute/tdd/tdd.md` — Iron Law TDD em tasks com lógica |
+| Execute (Large+) | `execute/subagents/subagents.md` — 3 subagents per task (two-stage review) |
+| Execute (tasks `[P]`) | `execute/subagents/parallel-dispatch.md` — múltiplos subagents em paralelo |
+| Execute (bug) | `execute/systematic-debugging/debug.md` — 4 fases + Fase 4.5 |
+| Commit gate | `meta/verification.md` — Iron Law "evidência fresh antes de claim" |
+| Code review (Large+) | `review/code-review.md` + `code-reviewer-prompt.md`; pre-commit Large/Complex: Protocolo Dois-Eixos |
+| Recepção de feedback | `review/receiving-feedback.md` — zero performative agreement |
+| Branch closing | `nano-commit` seção "Pós-Commit: Fechamento de Branch" |
 
-| Output do superpowers | Destino correto |
-|----------------------|-----------------|
-| `brainstorming` artefacts | `.specs/features/YYYY-MM-DD-[feature]/context.md` |
-| `writing-plans` (plan) | `.specs/features/YYYY-MM-DD-[feature]/tasks.md` |
-| `writing-plans` (design) | `.specs/features/YYYY-MM-DD-[feature]/design.md` |
-| HTML interativos | `.specs/features/YYYY-MM-DD-[feature]/assets/` |
+**Output sempre em `.specs/`** — todas as disciplinas escrevem artefatos de feature em `.specs/features/YYYY-MM-DD-[feature]/`. Nunca espalhar em outros diretórios.
+
+> **Histórico:** Versões 3.x do nano-spec dependiam do plugin `superpowers` (HARD BLOCK no SessionStart). A 4.0.0 internalizou tudo. As disciplinas internas têm paridade funcional com as originais — em alguns pontos são mais rigorosas (vertical-slice em tasks, naming por ID de requisito em testes, Protocolo Dois-Eixos em review, `git flow --no-ff` inline em branch closing).
 
 ---
 
@@ -457,16 +447,6 @@ Superpowers é **obrigatório** desde nano-spec 3.0 (HARD BLOCK no SessionStart)
 - SessionStart hook pode ter falhado — reinicie a sessão.
 - Cheque `claude plugin list` — o `nano-spec` está ativo?
 
-### "Superpowers não está instalado, processo bloqueado"
-
-Desde nano-spec 3.0, superpowers é obrigatório. Instale:
-
-```bash
-claude plugin install superpowers@claude-plugins-official
-```
-
-Depois recarregue a sessão. Não há modo standalone.
-
 ### "git-flow-next não está instalado, processo bloqueado"
 
 É intencional. Veja [Parte 2](#parte-2--pré-requisitos-instalar-antes-de-usar). Para desativar gitflow num projeto, `CLAUDE.md → "Sem gitflow"`.
@@ -482,9 +462,9 @@ Ele lê uma vez por sessão. Atualizou agora? Peça: *"recarregue o contexto do 
 - Specify/Design/Tasks: peça **Quick Mode** explicitamente.
 - Commit: você pode dizer *"commitar mesmo assim"* — o agente cede, mas avisa.
 
-### "Superpowers e nano-spec entraram em conflito"
+### "Vejo referências a superpowers no projeto"
 
-Nano-spec tem prioridade. Pergunte: *"qual processo está ativo?"* — a resposta esperada é `nano-spec orquestrando, superpowers como motor`.
+Versões anteriores (3.x) do nano-spec dependiam do plugin externo `superpowers`. Desde a 4.0.0 tudo está internalizado em `references/`. Se você está vendo menções a `superpowers:X` em outros lugares, são resíduos — o agente deve usar os arquivos internos correspondentes.
 
 ---
 
@@ -497,7 +477,7 @@ Nano-spec tem prioridade. Pergunte: *"qual processo está ativo?"* — a respost
 | **Skill filha** | Skill autônoma do plugin (ex: `nano-spec:nano-commit`) |
 | **Reference** | Arquivo `.md` em `skills/nano-spec/references/`, carregado on-demand |
 | **Trilho** | Processo (o que / em que ordem) |
-| **Motor** | Disciplina técnica (como fazer — superpowers) |
+| **Disciplinas internas** | Métodos técnicos (TDD, debug, verification, subagents, etc.) internalizados em `references/` |
 | **Gate** | Ponto onde o processo bloqueia ou exige confirmação |
 | **HARD BLOCK** | Gate que para tudo até resolver |
 | **Auto-Sizing** | Detecção automática do escopo (Small/Medium/Large/Complex) |
@@ -520,6 +500,6 @@ Nano-spec tem prioridade. Pergunte: *"qual processo está ativo?"* — a respost
 
 ---
 
-**Versão deste guia**: aplica a nano-spec 3.0+.
+**Versão deste guia**: aplica a nano-spec 4.0+.
 **Licença**: CC-BY-4.0.
 **Baseado em**: [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues.

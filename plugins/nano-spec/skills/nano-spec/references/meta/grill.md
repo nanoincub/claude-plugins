@@ -17,7 +17,7 @@ Gate automático (sincronizado com tabela canônica em [agent-behavior.md](agent
 - **Medium** — opt-in quando há ambiguidade de domínio
 - **Small/Quick** — nunca
 
-**Ordem com superpowers ativo:** grill roda **antes** de `superpowers:brainstorming` quando há `CONVENTIONS.md` populado — afia vocabulário primeiro, brainstorming explora abordagens depois usando os termos canônicos. Quando não há `CONVENTIONS.md` (projeto novo), pular direto para brainstorming.
+**Ordem:** grill roda **antes** do discovery do [specify.md](../specify/specify.md) quando há `CONVENTIONS.md` populado — afia vocabulário primeiro, discovery explora abordagens depois usando os termos canônicos. Quando não há `CONVENTIONS.md` (projeto novo), pular direto para o discovery do Specify.
 
 ---
 
@@ -161,9 +161,23 @@ Gate de grilling dispara? (Complex sempre / Large condicional)
         ▼
     Escrever spec.md com vocabulário canônico
         │
+        ├─ Alimentar a seção "## Glossário" do spec.md
+        │  com TODOS os termos consolidados + sinônimos descartados
+        │
+        ├─ Se decisões consolidadas vão além da feature → atualizar
+        │  .specs/codebase/CONVENTIONS.md (seção do domínio relevante)
+        │
         ▼
     Spec self-review (ver specify.md)
 ```
+
+**Output do grill alimenta dois lugares:**
+
+| Destino | O que vai | Quando |
+|---|---|---|
+| `spec.md` seção `## Glossário` | Termos canônicos da feature + sinônimos descartados | Sempre que grill rodou |
+| `.specs/codebase/CONVENTIONS.md` | Termos que valem para o domínio inteiro do projeto (não só esta feature) | Quando consolidação tem alcance > feature atual |
+| `.specs/decisions/NNNN-titulo.md` (ADR) | Decisão hard-to-reverse + surprising + trade-off real | Quando os 3 critérios estão presentes |
 
 ---
 
@@ -174,7 +188,7 @@ O agente pode entrar no grill de duas formas:
 1. **Automaticamente** quando o gate dispara no Specify
 2. **Sob pedido** quando o dev diz "grill", "entreviste", "stress-test minha spec"
 
-Quando `superpowers:brainstorming` está disponível, este grill **complementa** (não substitui) — brainstorming explora abordagens; grill afia terminologia e atualiza docs. Rodar grill **antes** de brainstorming quando há `.specs/codebase/CONVENTIONS.md` populado.
+Grill **complementa** (não substitui) o discovery do Specify — discovery explora abordagens; grill afia terminologia e atualiza docs. Rodar grill **antes** do discovery quando há `.specs/codebase/CONVENTIONS.md` populado.
 
 ---
 

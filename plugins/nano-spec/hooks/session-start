@@ -17,45 +17,51 @@ escape_for_json() {
 # Lightweight context — awareness + rules + trigger to load full skill on-demand
 read -r -d '' CONTEXT << 'CONTEXT_EOF' || true
 <IMPORTANT>
-You have the nano-spec plugin installed.
+You have the nano-spec plugin installed (v4.0.0 — standalone, zero external plugin dependencies).
 
-## Hierarchy
+## What nano-spec is
 
-nano-spec > using-superpowers > default system prompt.
-When this process is active, superpowers does NOT orchestrate — it provides tools (TDD, debug, code review, etc.) that nano-spec delegates to.
+A Spec-Driven Development process for Nano Incub. It orchestrates phases (Specify → Design → Tasks → Execute → /simplify → Docs → Commit) AND provides the technical disciplines internally:
 
-## HARD BLOCK: Superpowers Required
+- TDD with Iron Law (RED → Verify RED → GREEN → Verify GREEN → REFACTOR)
+- Systematic debugging in 4 phases (root cause investigation before any fix)
+- Verification before completion (evidence before claims, always)
+- Subagent-driven execution with two-stage review (spec compliance → code quality)
+- Parallel subagent dispatch with conflict checking
+- Code review (single reviewer or Protocolo Dois-Eixos for Large/Complex pre-commit)
+- Receiving feedback protocol (zero performative agreement)
 
-Before any nano-spec phase, verify that `superpowers` is installed (skills like `superpowers:brainstorming`, `superpowers:writing-plans`, `superpowers:test-driven-development`).
-
-If NO superpowers skill is found → BLOCK the entire process and instruct:
-
-  Superpowers is NOT installed. This is a required dependency of nano-spec.
-  Install: claude plugin install superpowers@claude-plugins-official
-  Then reload the session.
-
-Without superpowers, nano-spec does NOT run — do not offer a standalone alternative.
+All disciplines live in `references/` under the skill — no external plugin required.
 
 ## Auto-Sizing (apply to EVERY development task)
 
 | Scope | Criteria | Phases | Post-Execute |
 |-------|----------|--------|--------------|
-| Small | ≤3 files, 1 sentence | Quick Mode | /simplify → testes → commit |
-| Medium | Clear feature, <10 tasks | Specify → Execute → /simplify → testes → commit | /simplify → testes → commit |
-| Large | Multi-component | All phases | /simplify → testes → commit |
-| Complex | Ambiguity, new domain | All + Discuss + Research | /simplify → testes → commit |
+| Small | ≤3 files, 1 sentence | Quick Mode | /simplify → tests → commit |
+| Medium | Clear feature, <10 tasks | Specify → Execute → /simplify → commit | /simplify → tests → commit |
+| Large | Multi-component | All phases | /simplify → tests → commit |
+| Complex | Ambiguity, new domain | All + Discuss + Research | /simplify → tests → commit |
 
 ## Gates
 
-- **Baseline Test Gate (entry gate):** Before creating any work branch (feature/bugfix/hotfix/release), run the full test suite on the updated base (`develop` for feature/bugfix, `main` for hotfix). If GREEN, proceed. If RED, show a maximum-priority alert with two options: [1] STOP and fix the baseline first (strongly recommended), or [2] OVERRIDE — proceed only with an entry recorded in `.specs/project/STATE.md` (failing tests snapshot, base SHA, responsible person, plan). Override here does NOT exempt the final pre-commit gate.
-- **Pre-commit order is fixed:** `/simplify` FIRST (refactors the accumulated diff), THEN the full test suite (validates the refactored diff), then commit. Never invert — running tests before /simplify lets refactoring regressions slip through ungated.
-- /simplify and the full test suite are both MANDATORY before any commit.
+- **Baseline Test Gate (entry):** Before creating any work branch (feature/bugfix/hotfix/release), run the full test suite on the updated base. If GREEN, proceed. If RED, alert the dev with two options: [1] STOP and fix baseline, [2] OVERRIDE with entry recorded in `.specs/project/STATE.md`.
+- **Pre-commit order is fixed:** `/simplify` FIRST (refactors the diff), THEN full test suite (validates refactored diff), then commit. Never invert.
+- `/simplify` + full test suite are both MANDATORY before any commit.
 - **Commit** is NEVER automatic — always ask the dev first.
 - Specify and Execute are always required.
 
+## Skills disponíveis neste plugin
+
+| Skill | Quando invocar | Triggers principais |
+|---|---|---|
+| `nano-spec:nano-spec` | Tarefa de dev (orquestra todas as fases) | "nova feature", "implementar", "quick fix", "review", "fix bug", "refactor", "pause work", "resume work" |
+| `nano-spec:nano-commit` | Commit/branch/PR direto (standalone, sem entrar no fluxo completo de spec) | "commitar", "criar commit", "criar branch", "criar PR", "abrir PR", "finalizar branch", "fechar feature", "merge", "gitflow" |
+
 ## Activation
 
-When the user requests ANY development work ("nova feature", "implementar", "quick fix", "review", "commitar", "fix bug", "refactor", or similar), you MUST invoke the Skill tool with 'nano-spec:nano-spec' to load the full process BEFORE starting work.
+- Tarefa de **dev complexa** (feature, refactor, bug fix com investigação) → invocar `nano-spec:nano-spec`
+- Pedido **direto de commit/branch/PR/gitflow** (sem fluxo de spec) → invocar `nano-spec:nano-commit` standalone
+- `nano-spec:nano-spec` invoca `nano-spec:nano-commit` automaticamente na fase Commit — não é necessário invocar manualmente quando já está no fluxo completo
 
 Do NOT use for: UI design only, isolated docs, pure infra.
 </IMPORTANT>

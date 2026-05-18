@@ -14,7 +14,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 1.2.0
+  version: 1.3.0
 ---
 
 # Nano Commit — Gitflow + Conventional Commits
@@ -201,9 +201,9 @@ Implementação concluída. Quer commitar?
 
 > **Ordem fixa /simplify → testes:** se a suite rodou **antes** do /simplify, NÃO conta. Pedir nova rodada após a refatoração — qualquer regressão introduzida pelo /simplify só é capturada se os testes rodarem depois.
 
-**Integração ativa com superpowers:** quando superpowers detectado, invocar `superpowers:verification-before-completion` como gate obrigatório. Testes DEVEM passar antes de oferecer opções de commit — se falharem, BLOQUEAR o fluxo (não apenas pedir ao dev, mas impedir o avanço).
+**Gate Iron Law (obrigatório):** aplicar [verification.md](../nano-spec/references/meta/verification.md) como gate bloqueante. Testes DEVEM passar (com evidência fresca, **nesta mensagem**) antes de oferecer opções de commit — se falharam ou se a verificação não foi rodada nesta interação, BLOQUEAR o fluxo (não apenas pedir ao dev, mas impedir o avanço).
 
-**Suite de testes:** agente NÃO roda — pede ao dev e aguarda confirmação (evita gasto de tokens em output de centenas de testes). `superpowers:verification-before-completion` valida que os testes passaram antes de liberar o commit.
+**Suite de testes:** agente NÃO roda — pede ao dev e aguarda confirmação (evita gasto de tokens em output de centenas de testes). A confirmação do dev é o que dispara a Iron Law (ver [verification.md > Suite de testes](../nano-spec/references/meta/verification.md#suite-de-testes--política-do-nano-spec)).
 
 **Rastreabilidade:** verificar que todos os IDs de requisito (`[FEAT]-XX`) da spec.md mapeados para esta task estão com status "Verified" na tabela de rastreabilidade. Se algum está "Pending" ou "Implementing", ALERTAR o dev com a lista de IDs pendentes e perguntar se deseja prosseguir.
 
@@ -417,18 +417,123 @@ Flags podem ser combinadas: `git flow feature finish --no-ff --push`.
 
 ## Pós-Commit: Fechamento de Branch
 
-Após commitar em `feature/*`, `bugfix/*`, `hotfix/*` ou `release/*`, DEVE invocar `superpowers:finishing-a-development-branch` — verifica testes, apresenta 4 opções estruturadas (merge/PR/manter/discard) e exige confirmação tipada (`discard`) para descarte.
+Após commitar em `feature/*`, `bugfix/*`, `hotfix/*` ou `release/*`, conduzir o fechamento estruturado: verificar testes → apresentar 4 opções → executar escolha do dev.
 
-**Branch destino:**
-- `feature/*` / `bugfix/*` → `develop`
-- `hotfix/*` → `main` + `develop`
-- `release/*` → `main` + `develop`
+### Step 1 — Iron Law (gate obrigatório)
 
-**Regras (aplicadas pela skill do superpowers):**
-- Sempre perguntar — nunca fazer merge ou push automaticamente
-- Opção 1 (merge local): review do diff da branch contra destino, depois `git flow finish --no-ff` (sempre inline)
-- Opção 2 (PR): push da branch e criar PR via `gh pr create`
-- Opção 4 (discard): exigir dev digitar `discard` para confirmar — protege contra descarte acidental
+Aplicar [verification.md](../nano-spec/references/meta/verification.md) — confirmar **com evidência fresca nesta mensagem** que a suite de testes passa. Se não foi verificado nesta interação, BLOQUEAR o fluxo e voltar ao gate de pre-commit.
+
+> Se os testes falharam, **não** apresentar as 4 opções. Reportar falhas e parar até serem corrigidas.
+
+### Step 2 — Branch destino (por tipo)
+
+| Tipo de branch | Destino |
+|---|---|
+| `feature/*` / `bugfix/*` | `develop` |
+| `hotfix/*` | `main` + `develop` |
+| `release/*` | `main` + `develop` |
+
+### Step 3 — Apresentar 4 opções (texto exato)
+
+```
+Implementação concluída. O que fazer?
+
+1. Merge local em <destino> (git flow finish --no-ff)
+2. Push e criar Pull Request
+3. Manter a branch como está (cuido depois)
+4. Descartar este trabalho
+
+Qual opção?
+```
+
+Sem explicação extra. **Sempre perguntar** — nunca executar merge/push automaticamente.
+
+### Step 4 — Executar escolha
+
+#### Opção 1 — Merge local
+
+1. Review do diff da branch contra o destino (mostrar ao dev antes de mergear)
+2. Executar:
+   ```bash
+   git flow <tipo> finish --no-ff <nome>
+   ```
+   `--no-ff` é **sempre inline**. Preserva a bolha de merge mesmo em fast-forward.
+3. Branch local é deletada automaticamente pelo `git flow finish` (passar `--keep` se quiser preservar)
+4. Para `hotfix/release` com tag: nome da branch vira nome da tag por default; usar `--tagname <tag>` para customizar
+
+#### Opção 2 — Push + PR
+
+```bash
+git push -u origin <feature-branch>
+
+gh pr create --title "<title>" --body "$(cat <<'EOF'
+## Sumário
+- <bullet do que mudou>
+- <bullet do que mudou>
+
+## Test Plan
+- [ ] <passo de verificação>
+- [ ] <passo de verificação>
+
+Refs: [FEAT]-XX (se aplicável)
+EOF
+)"
+```
+
+A branch fica viva para iterações do PR — **não** deletar.
+
+#### Opção 3 — Manter
+
+Reportar: `Mantendo branch <nome>. Sem ação de merge/push.` Fim.
+
+#### Opção 4 — Descartar
+
+**Exigir confirmação tipada antes de qualquer ação destrutiva:**
+
+```
+Isto vai apagar PERMANENTEMENTE:
+- Branch <nome>
+- Commits: <lista de SHAs>
+
+Digite 'discard' para confirmar.
+```
+
+Esperar a string exata `discard`. Qualquer outra resposta cancela a operação.
+
+Se confirmado:
+```bash
+git checkout <destino>
+git branch -D <feature-branch>
+```
+
+### Quick Reference
+
+| Opção | Merge | Push | Keep branch | Delete branch |
+|---|---|---|---|---|
+| 1. Merge local | ✅ via `git flow finish --no-ff` | — | — | ✅ automático |
+| 2. Push + PR | — | ✅ | ✅ (para iterar PR) | — |
+| 3. Manter | — | — | ✅ | — |
+| 4. Descartar | — | — | — | ✅ force (após `discard` tipado) |
+
+### Red Flags
+
+- Apresentar opções **sem** ter verificado testes nesta mensagem (Iron Law)
+- Pular `--no-ff` no `git flow finish` (perde bolha de merge)
+- Fazer merge ou push **automaticamente** sem perguntar ao dev
+- Descartar branch sem confirmação tipada `discard`
+- Deletar a branch antes do merge ter sido confirmado bem-sucedido
+- `git push --force` em branch protegida sem pedido explícito do dev
+- Fazer perguntas open-ended ("o que fazer agora?") em vez das 4 opções estruturadas
+
+### Common Mistakes
+
+| Erro | Correção |
+|---|---|
+| Pular verificação de testes antes das opções | Iron Law primeiro, sempre |
+| Aceitar `Discard` / `DESCARTAR` / variações | Exigir a string exata `discard` (lowercase) |
+| Esquecer `--no-ff` em fast-forward merge | Sempre passar inline |
+| Cleanup de branch antes do merge concluído | Merge primeiro, depois delete |
+| Criar PR sem test plan no body | Template tem `## Test Plan` obrigatório |
 
 ---
 
@@ -447,7 +552,7 @@ Se usando `tasks.md`, marcar a task como completa e atualizar rastreabilidade em
 | **Pré-specify** | `git pull` se em branch protegida |
 | **Pré-execute** | `git checkout <base> && git pull --ff-only && git flow <tipo> start` — base atualizada via pull explícito |
 | **Commit** | Esta skill é invocada — gates + commit + fechamento |
-| **Pós-commit** | `superpowers:finishing-a-development-branch` (4 opções estruturadas) |
+| **Pós-commit** | Fechamento estruturado (4 opções: merge/PR/manter/discard) — ver seção "Pós-Commit: Fechamento de Branch" desta skill |
 
 Quando invocada **diretamente** (sem o orquestrador `nano-spec` rodando — ex: dev pediu "commitar" sem ter entrado no fluxo de spec), aplicar o fluxo completo do HARD BLOCK ao fechamento de branch.
 

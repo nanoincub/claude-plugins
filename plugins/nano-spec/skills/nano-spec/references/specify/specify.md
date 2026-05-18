@@ -2,11 +2,11 @@
 
 **Goal**: Capture WHAT to build with testable, traceable requirements.
 
-If the feature has ambiguous gray areas (multiple valid approaches for user-facing behavior), the agent will automatically trigger the [discuss gray areas](discuss.md) process within this phase. For clear, well-defined features, it goes straight to the next phase.
+If the feature has ambiguous gray areas (multiple valid approaches for user-facing behavior), the agent will automatically trigger the [discuss gray areas](../meta/discuss.md) process within this phase. For clear, well-defined features, it goes straight to the next phase.
 
-**Gate de grilling (Large/Complex):** Antes de escrever `spec.md`, se o escopo é **Complex** (sempre) ou **Large** com termos conflitantes com `.specs/codebase/CONVENTIONS.md`, o agente DEVE rodar uma sessão de grilling via [grill.md](grill.md). O grill afia terminologia e atualiza `.specs/codebase/CONVENTIONS.md` + `.specs/decisions/` inline antes da spec.
+**Gate de grilling (Large/Complex):** Antes de escrever `spec.md`, se o escopo é **Complex** (sempre) ou **Large** com termos conflitantes com `.specs/codebase/CONVENTIONS.md`, o agente DEVE rodar uma sessão de grilling via [grill.md](../meta/grill.md). O grill afia terminologia e atualiza `.specs/codebase/CONVENTIONS.md` + `.specs/decisions/` inline antes da spec.
 
-**Ordem com superpowers ativo:** quando há `CONVENTIONS.md` populado, **grill** roda primeiro (afia vocabulário), depois **`superpowers:brainstorming`** explora abordagens usando termos canônicos. Quando não há `CONVENTIONS.md`, pular grill e ir direto para brainstorming.
+**Ordem quando há `CONVENTIONS.md` populado:** **grill** roda primeiro (afia vocabulário), depois o **discovery** (perguntas one-at-a-time + 2-3 abordagens) explora usando os termos canônicos. Quando não há `CONVENTIONS.md`, pular grill e ir direto para o discovery.
 
 ## Process
 
@@ -29,15 +29,17 @@ If needed:
 
 **Know when to stop.** When you understand what they're building, why, who it's for, and what done looks like — offer to proceed.
 
-#### Integração com superpowers
+#### Processo de discovery
 
-O agente **DEVE** invocar `superpowers:brainstorming` para conduzir o Specify. O brainstorming:
+O Specify conduz a feature usando **discovery estruturado**:
 
-- Explora contexto e faz perguntas **uma a uma**
-- Propõe **2-3 abordagens** com trade-offs claros
+- **HARD-GATE:** sem código antes da spec aprovada pelo dev — mesmo features "triviais" passam por discovery (1-2 perguntas + design curto, mas existem)
+- Explora contexto e faz perguntas **uma a uma** (preferência por multiple choice)
+- Propõe **2-3 abordagens** com trade-offs claros e recomendação primeira
 - Apresenta o design **por seções** com aprovação incremental do dev
+- Detecta features multi-subsistema cedo e quebra em sub-projetos antes de refinar detalhes
 
-Output do brainstorming vai para `.specs/features/YYYY-MM-DD-[feature]/context.md`.
+Output (decisões + abordagem aprovada) vai para `.specs/features/YYYY-MM-DD-[feature]/context.md`.
 
 #### Naming da pasta
 
@@ -49,7 +51,7 @@ Antes de escrever `spec.md`, crie a pasta `.specs/features/YYYY-MM-DD-[slug]/` u
 
 Each story MUST be **independently testable** - you can implement and demo just that story.
 
-> **Nota (superpowers ativo):** Quando o brainstorming propôs 2-3 abordagens, as user stories devem refletir **apenas a abordagem APROVADA** pelo dev, não todas as abordagens exploradas.
+> **Nota:** Quando o discovery propôs 2-3 abordagens, as user stories devem refletir **apenas a abordagem APROVADA** pelo dev, não todas as abordagens exploradas.
 
 ### 3. Write Acceptance Criteria
 
@@ -85,6 +87,21 @@ Excluído explicitamente. Documentado para prevenir scope creep.
 | Item        | Motivo         |
 | ----------- | -------------- |
 | [Feature X] | [Por que excluído] |
+
+---
+
+## Glossário
+
+> Termos canônicos desta feature. Preencher quando o grill rodou (ver [grill.md](../meta/grill.md)) OU quando há ambiguidade de domínio. Para features Small sem termos novos, deixar `(sem termos novos)`.
+
+| Termo | Definição canônica | Fonte |
+|---|---|---|
+| [Termo] | [Definição precisa, 1 frase, sem rodeio] | grill desta sessão / CONVENTIONS.md / decisão do dev |
+| [Sinônimo descartado] | NÃO usar — usar `[Termo canônico]` | grill desta sessão |
+
+**Regra:** os termos aqui DEVEM ser usados consistentemente em `spec.md`, `design.md`, `tasks.md` e nos commits. Sinônimos descartados também ficam registrados para impedir reintrodução acidental.
+
+Se o grill atualizou `.specs/codebase/CONVENTIONS.md`, citar: `> Termos canônicos consolidados em .specs/codebase/CONVENTIONS.md seção "[Domínio]"`.
 
 ---
 
@@ -184,7 +201,7 @@ Incluir quando a feature tem constraints técnicas que o time de design/tasks pr
 
 ### Spec Self-Review (obrigatório)
 
-Quando o plugin **superpowers** estiver detectado, após gerar `spec.md`, o agente **DEVE** realizar spec self-review com os seguintes critérios:
+Após gerar `spec.md`, o agente **DEVE** realizar spec self-review com os seguintes critérios:
 
 1. **Placeholder scan** — buscar "TBD", "TODO", seções vazias ou incompletas
 2. **Consistência interna** — seções se contradizem entre si?
@@ -194,9 +211,31 @@ Quando o plugin **superpowers** estiver detectado, após gerar `spec.md`, o agen
 
 Corrigir problemas encontrados **inline** na própria spec. Sem ciclo de re-review.
 
-Para escopo **Large/Complex**: despachar subagent via **Agent tool** com o prompt template de `spec-document-reviewer` do superpowers (localizado em `skills/brainstorming/spec-document-reviewer-prompt.md`). Passar o path do `spec.md` como input. O reviewer valida: completude, consistência, clareza, escopo e YAGNI.
+Para escopo **Large/Complex**: despachar subagent via **Agent tool** usando o prompt template em [`spec-document-reviewer-prompt.md`](spec-document-reviewer-prompt.md). Passar o path do `spec.md` como input. O reviewer valida: completude, consistência, clareza, escopo e YAGNI.
 
-Se superpowers **não** estiver detectado: o agente faz self-review manual contra os mesmos 5 critérios acima.
+Para escopo **Small/Medium**: o agente faz self-review manual contra os 5 critérios acima.
+
+#### Checklist persistente no `spec.md` (OBRIGATÓRIO)
+
+Após corrigir os achados inline, registrar o resultado da self-review **no próprio `spec.md`** como rodapé auditável:
+
+```markdown
+---
+
+## Self-Review
+
+- [x] Placeholder scan — sem TBD/TODO/seções vazias
+- [x] Consistência interna — sem contradições entre seções
+- [x] Scope check — focada em um plano único
+- [x] Ambiguity check — todos os requisitos têm uma única interpretação
+- [x] YAGNI — só features solicitadas pelo dev
+
+**Reviewer:** self-review manual (Small/Medium) OU `spec-document-reviewer` subagent (Large/Complex — SHA do subagent run: `<opcional>`)
+**Status:** Approved
+**Data:** YYYY-MM-DD
+```
+
+Se algum critério falhar e for **conscientemente aceito** (ex: ambiguidade real que o dev decidiu deixar para o design), registrar como `- [ ]` com justificativa inline. Auditável depois.
 
 ---
 

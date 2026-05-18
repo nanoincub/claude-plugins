@@ -8,7 +8,7 @@ Centraliza plugins que automatizam e padronizam fluxos de desenvolvimento com IA
 
 | Plugin | Descrição | Versão |
 |--------|-----------|--------|
-| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven com verificação por task e /simplify obrigatório | 3.2.0 |
+| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven standalone com verificação por task e /simplify obrigatório | 4.0.0 |
 | [**nano-resumo-dia**](plugins/nano-resumo-dia/) | Timeline de trabalho dos históricos de sessão do Claude Code | 1.0.0 |
 
 ## Instalação
@@ -16,7 +16,8 @@ Centraliza plugins que automatizam e padronizam fluxos de desenvolvimento com IA
 ### Pré-requisitos
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) instalado e configurado
-- [Superpowers](https://github.com/anthropics/claude-code-plugins-official) (**obrigatório** para nano-spec 3.0+) — motor de TDD, debugging, code review, brainstorming, writing-plans
+
+> **Standalone:** o nano-spec **não depende** de plugins externos desde a versão 4.0.0. Todas as disciplinas técnicas (TDD, debug, verification, code review, subagents, parallel dispatch) estão internalizadas.
 
 ### Via terminal (recomendado)
 
@@ -26,10 +27,9 @@ Registre o marketplace (uma vez):
 claude plugin marketplace add nanoincub/claude-plugins
 ```
 
-Instale o superpowers (dependência **obrigatória**) e o plugin:
+Instale o plugin:
 
 ```bash
-claude plugin install superpowers@claude-plugins-official
 claude plugin install nano-spec@nano-incub
 ```
 

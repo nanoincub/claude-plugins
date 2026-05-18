@@ -38,34 +38,42 @@ O agente avalia o diff real após cada ajuste. Se ALGUM sinal é detectado, avis
 
 ## Fluxo
 
+**Ordem pre-commit canônica (sempre):** `/simplify` → suite completa de testes (Iron Law) → commit.
+
+**Quando Review e/ou Code reviewer subagent estão ativados** (opt-in via defaults ou pedido do dev), eles entram **antes** do `/simplify` — corrigir bugs/lógica antes do refactor evita re-trabalho no simplify.
+
 ```
 Execute concluído
     │
     ▼
-1. /review (bugs, lógica, edge cases)
+[OPT-IN] /review (bugs, lógica, edge cases)   ← skill built-in do Claude Code
     │
     ├── Critical/Important → Corrigir → /review novamente (max 3x)
     ├── Suggestions → Registrar em STATE.md → Continuar
     └── Limpo → Continuar
     │
     ▼
-2. /simplify (reuse, quality, efficiency)
+[OPT-IN, Large/Complex] Code reviewer subagent
+    └── Despachar via code-review.md (template em code-reviewer-prompt.md) com BASE_SHA e HEAD_SHA
+    └── Para pre-commit Large/Complex: usar Protocolo Dois-Eixos (mais abaixo) NO LUGAR deste step
+    │
+    ▼
+1. /simplify (reuse, quality, efficiency)   ← OBRIGATÓRIO
     │
     ├── Issues → Corrigir → /simplify novamente (max 3x)
     └── Limpo → Avançar
     │
     ▼
-3. verification-before-completion (obrigatório)
-    └── Invocar superpowers:verification-before-completion
+2. Suite completa de testes + Iron Law verification   ← OBRIGATÓRIO
+    └── Aplicar ../meta/verification.md
         └── Evidência FRESH antes de qualquer claim de "pronto"
+        └── Testes DEVEM passar — Iron Law bloqueia commit se falharem
     │
     ▼
-4. [Large/Complex] requesting-code-review (subagent reviewer)
-    └── Despachar superpowers:requesting-code-review com BASE_SHA e HEAD_SHA
-    │
-    ▼
-Commit
+Commit (skill nano-commit aplica gates próprios)
 ```
+
+**Por que essa ordem:** `/simplify` antes dos testes valida que o refactor não introduziu regressões (testes correm sobre o diff já simplificado). Inverter (testes → simplify) deixa janela para regressões silenciosas — o simplify altera código e ninguém valida depois.
 
 ---
 
@@ -110,26 +118,26 @@ Analisa reuse, quality, efficiency em paralelo.
 
 **Iron Law: "NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE"**
 
-O agente DEVE invocar `superpowers:verification-before-completion`. Antes de qualquer claim de "pronto", o agente DEVE:
+O agente DEVE aplicar a [Gate Function da Iron Law](../meta/verification.md#gate-function-5-passos-obrigatórios). Resumo dos 5 passos:
 
-1. Identificar o comando que prova o claim (testes, build, lint, etc.)
-2. Executar o comando FRESH — nunca reusar output anterior
-3. Ler o output completo — não assumir sucesso
-4. Verificar se o output confirma o claim — evidência concreta
+1. **IDENTIFY** — Que comando prova o claim?
+2. **RUN** — Executar o comando FULL, fresh, **nesta mensagem**
+3. **READ** — Output completo, exit code, contar falhas
+4. **VERIFY** — Output confirma o claim?
+5. **ONLY THEN** — Fazer a claim COM evidência
 
-**Red flags que PARAM o agente** (não prosseguir sem corrigir):
+Ver [verification.md](../meta/verification.md) para a referência completa: tabela de Common Failures, Red Flags de linguagem, prevenção de racionalizações, e patterns por tipo de claim (tests / regression / build / requirements / agent delegation).
+
+**Red flags que PARAM o agente** (resumo — ver lista completa em [verification.md > Red Flags](../meta/verification.md#red-flags--palavras-proibidas-até-verificar)):
 - Usar "should", "probably", "seems to" em claims de completude
-- Expressar satisfação antes de verificar
+- Expressar satisfação antes de verificar ("Great!", "Done!", "Pronto!")
 - Referenciar output de execuções anteriores como prova
 
-**Quando superpowers NÃO detectado** — self-check manual:
-- Rodar testes relevantes e verificar output antes de claims
-- Confirmar que build/lint passam sem erros
-- O agente NÃO pode declarar "pronto" sem ter executado e verificado
+### 3.1. Code Review por Subagente (obrigatório para Large/Complex)
 
-### 3.1. Code Review por Subagente (obrigatório para Large/Complex com superpowers)
+Quando escopo é Large/Complex, o agente DEVE despachar um subagent code-reviewer fresh que avalia o código sem contexto da sessão, trazendo perspectiva independente. Template em [code-reviewer-prompt.md](code-reviewer-prompt.md), guia operacional em [code-review.md](code-review.md).
 
-Quando superpowers ativo E escopo é Large/Complex, o agente DEVE despachar `superpowers:requesting-code-review` — um subagent code-reviewer fresh que avalia o código sem contexto da sessão, trazendo perspectiva independente.
+**Para pre-commit Large/Complex:** usar o **Protocolo Dois-Eixos** mais abaixo NO LUGAR deste step. Os dois eixos especializados (Standards + Spec) cobrem o mesmo terreno com mais rigor.
 
 Parâmetros obrigatórios:
 - **BASE_SHA** — commit base antes das mudanças
@@ -156,83 +164,45 @@ Quando subagentes (Agent tool) ou skills externas retornam findings de review, o
 - **Issues introduzidos pela branch** — escopo do review, ação requerida
 - **Observações pré-existentes** (opcional) — seção separada, fora do escopo da branch
 
-Ver [agent-behavior.md](agent-behavior.md) para regras gerais de confiabilidade e padrões de falso positivo.
+Ver [agent-behavior.md](../meta/agent-behavior.md) para regras gerais de confiabilidade e padrões de falso positivo.
 
 ### 5. Recepção de Feedback
 
-Quando superpowers ativo, invocar `superpowers:receiving-code-review`. Protocolo: READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT. NUNCA implementar feedback cegamente — verificar tecnicamente primeiro. Push back com raciocínio técnico se errado.
+**Triggers automáticos** — aplicar [receiving-feedback.md](receiving-feedback.md) sempre que UM dos eventos abaixo ocorrer:
+
+| Evento | Trigger |
+|---|---|
+| Subagent revisor retornou (spec-reviewer, code-quality-reviewer, code-reviewer geral, plan-document-reviewer, spec-document-reviewer) | Antes de tocar em qualquer fix sugerido |
+| Dev dá feedback inline na sessão sobre código que você acabou de escrever | Antes de aplicar a mudança pedida |
+| Comentário em PR no GitHub respondido por você | Antes de redigir a resposta ou aplicar fix |
+| Protocolo Dois-Eixos retornou achados (Standards/Spec) | Antes de endereçar |
+
+**Protocolo de 6 passos:** READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT.
+
+**Não-negociáveis:**
+- NUNCA implementar feedback cegamente — verificar tecnicamente primeiro
+- Push back com raciocínio técnico se o feedback estiver errado
+- Zero performative agreement ("você está totalmente certo!", "great point!", "thanks for catching that!")
+- Itens unclear → STOP, perguntar antes de implementar QUALQUER item
+
+Se você se pegar prestes a escrever "Thanks" ou variação: apague. Estado a correção em vez disso.
 
 ---
 
 ## Protocolo Dois-Eixos (Large/Complex pré-commit)
 
-Adaptado de `review` (matpocock-skills). **Substitui** o `requesting-code-review` da seção 3.1 em features Large/Complex pré-commit — não rodar ambos (o Dois-Eixos é o `requesting-code-review` particionado em dois eixos especializados).
+Code review pré-commit particionado em dois subagents paralelos (Standards + Spec). **Substitui** o code reviewer geral da seção 3.1 em features Large/Complex.
+
+**Doc dedicado:** [dois-eixos.md](dois-eixos.md) — princípio, quando ativar, fluxo completo, prompts dos 2 agents, formato de relatório, como reconciliar discordâncias.
+
+**Resumo:**
 
 | Eixo | O que verifica | Fonte |
-|------|----------------|-------|
-| **Standards** | Código segue convenções do repo? | `.specs/codebase/CONVENTIONS.md`, `CLAUDE.md`, `react-best-practices` (se aplicável) |
-| **Spec** | Código implementa fielmente o que foi pedido? | `.specs/features/YYYY-MM-DD-[feature]/spec.md` (acceptance criteria + `[FEAT]-XX` IDs), `tasks.md` (tudo marcado?) |
+|---|---|---|
+| **Standards** | Código segue convenções do repo? | `.specs/codebase/CONVENTIONS.md`, `CLAUDE.md` |
+| **Spec** | Código implementa fielmente o que foi pedido? | `spec.md` (acceptance criteria + `[FEAT]-XX`), `tasks.md` |
 
-### Quando ativar
-
-- **Complex** — sempre, antes de `nano-commit` (no slot do `requesting-code-review`)
-- **Large** — default; dev pode pular explicitamente
-- **Medium/Small/Quick** — skip (manter `requesting-code-review` padrão se ativo)
-
-### Fluxo
-
-Roda no **step 3.1 do fluxo principal** (substitui `requesting-code-review` em Large/Complex):
-
-1. Capturar fixed point: `git merge-base HEAD main` (sem perguntar ao dev)
-2. Despachar 2 sub-agentes em paralelo via `superpowers:dispatching-parallel-agents`
-3. Aplicar a regra de verificação da **seção 4** abaixo: `Read` da linha citada antes de reportar; descartar achados que não conferem
-4. Apresentar relatório dois-eixos; dev decide endereçar/pular/discutir
-
-### Prompt template — Standards agent
-
-```
-Você é reviewer de Standards. NÃO classifique severidade nem proponha fixes
-(regra geral da seção 4 de review.md).
-
-Inputs:
-- Diff: <output de `git diff <merge-base>...HEAD`>
-- Convenções: .specs/codebase/CONVENTIONS.md
-- Regras gerais: CLAUDE.md (raiz do projeto)
-
-Para cada violação detectada, retorne arquivo + linha + convenção violada
-(cite a regra textualmente) + trecho de código real (não parafraseado).
-NÃO inclua observações pré-existentes (fora do diff).
-```
-
-### Prompt template — Spec agent
-
-```
-Você é reviewer de Spec compliance. NÃO classifique severidade nem proponha fixes
-(regra geral da seção 4 de review.md).
-
-Inputs:
-- Diff: <output de `git diff <merge-base>...HEAD`>
-- Spec: .specs/features/YYYY-MM-DD-[feature]/spec.md
-- Tasks: .specs/features/YYYY-MM-DD-[feature]/tasks.md
-
-Para cada [FEAT]-XX da spec, verifique se o critério QUANDO/ENTÃO está
-implementado no diff e se as tasks marcadas como done realmente entregaram
-o comportamento. Retorne factualmente gaps e contradições com arquivo + linha.
-```
-
-### Formato do relatório
-
-```markdown
-## Review pré-commit — dois eixos
-
-### Eixo Standards
-- [arquivo:linha] — [convenção violada] — [trecho real]
-
-### Eixo Spec
-- [FEAT]-XX — [gap entre acceptance criteria e implementação] — [arquivo:linha]
-
-**Decisão:** endereçar antes do commit? (sim / pular / discutir)
-```
+Quando ativar: **Complex** sempre, **Large** default, Medium/Small/Quick skip (usar [code-review.md](code-review.md) se o dev pedir review).
 
 ---
 

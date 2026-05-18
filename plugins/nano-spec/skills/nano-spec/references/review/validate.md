@@ -51,7 +51,7 @@ From spec.md edge cases:
 
 ### 5. Code Quality Check (MANDATORY)
 
-For each changed file, verify against [coding-principles.md](coding-principles.md):
+For each changed file, verify against [coding-principles.md](../execute/coding-principles.md):
 
 | Check                                | Pass? |
 | ------------------------------------ | ----- |

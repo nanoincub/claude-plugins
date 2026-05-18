@@ -41,34 +41,33 @@ Get user approval before proceeding. If the pre-implementation check reveals the
 
 ### 2.5. Gate: Gitflow (obrigatório)
 
-Antes de implementar, verificar branch atual conforme [gitflow.md](gitflow.md):
+Antes de implementar, verificar branch atual conforme [gitflow.md](../commit/gitflow.md):
 
 1. Executar `git branch --show-current`
 2. Se branch protegida (`main`, `develop`, `master`):
    - Executar `git pull` para partir da versão mais recente
-   - **Baseline Test Gate** (obrigatório): rodar suite completa na base — se vermelha, exibir alerta e oferecer PARAR (recomendado) ou OVERRIDE com registro em STATE.md. Ver [baseline-test-gate.md](baseline-test-gate.md).
    - Sugerir criação de branch via `git flow <tipo> start <nome>`
    - Aguardar decisão do dev antes de continuar
 3. Se branch de trabalho (`feature/*`, `hotfix/*`, etc.) → seguir normalmente
 
-**Este gate NÃO é opcional.** Quick Mode simplifica cerimônia, não pula safety gates — Baseline Test Gate vale aqui também.
+**Este gate NÃO é opcional.** Quick Mode simplifica cerimônia, não pula safety gates.
 
 ### 3. Implement
 
-Follow [coding-principles.md](coding-principles.md):
+Follow [coding-principles.md](../execute/coding-principles.md):
 
 - Simplest code that works
 - Touch ONLY listed files
 - No scope creep — fix the thing, nothing else
 
-**Bug fixes com superpowers ativo:**
+**Bug fixes:**
 
 Quando a task é um bug fix:
 
 1. DEVE criar failing test que reproduz o bug ANTES de corrigir
-2. Ciclo: RED (test que falha reproduzindo o bug) → GREEN (fix minimal) → verify
-3. Invocar `superpowers:test-driven-development` para o ciclo
-4. Se o bug é difícil de reproduzir, invocar `superpowers:systematic-debugging` (Root Cause → Pattern → Hypothesis → Fix)
+2. Ciclo completo em [tdd.md](../execute/tdd/tdd.md): RED → Verify RED → GREEN → Verify GREEN → REFACTOR
+3. Aplicar a [verificação red-green completa](../execute/tdd/tdd.md#verificação-red-green-completa-bug-fixes) (reverter fix, rodar teste MUST FAIL, restaurar, rodar PASS) — prova que o teste captura o bug
+4. Se o bug é difícil de reproduzir, seguir [debug.md](../execute/systematic-debugging/debug.md) — 4 fases (Root Cause → Pattern → Hypothesis → Fix) com Iron Law "NO FIXES WITHOUT ROOT CAUSE FIRST"
 
 ### 4. Verify
 
@@ -106,11 +105,18 @@ Executar `/simplify` sobre o diff — reuse, qualidade, eficiência.
 1. Se issues encontrados → corrigir → re-executar `/simplify` (max 3x)
 2. Se limpo → continuar
 
-### 7. Testes (após /simplify, antes do commit)
+### 7. Testes + Iron Law (OBRIGATÓRIO)
 
 Pedir ao dev para rodar a suite de testes do projeto, informando o comando. Motivo: evitar gasto de tokens em output de testes. Aguardar confirmação do dev.
 
-> **Ordem obrigatória:** testes rodam **após** o /simplify (passo 6). A refatoração do /simplify pode tocar código existente — rodando a suite depois, qualquer regressão é capturada no mesmo ciclo, sem precisar lembrar de re-testar.
+**A Iron Law aplica integralmente em Quick Mode** — sem exceção:
+
+- Não declarar "pronto" / "passou" / "funcionou" sem evidência fresca **nesta mensagem**
+- Confirmação do dev em mensagens anteriores não conta se houve mudança de código desde então
+- Se a confirmação for "passou" sem output, OK — a palavra do dev é a evidência
+- Se faltar confirmação, bloquear o commit
+
+Ver [verification.md](../meta/verification.md) — a Iron Law e os red flags valem 100% em Quick Mode (não é por ser "quick" que pode pular evidência).
 
 ### 8. Docs Check (inline)
 
@@ -121,11 +127,11 @@ Docs check: [sem impacto] ou [atualizou STACK.md — nova dependência X]
 ```
 
 Se impactou → atualizar o doc relevante. Se `.specs/codebase/` não existe → pular.
-Ver [docs-update.md](docs-update.md) para detalhes.
+Ver [docs-update.md](../docs/docs-update.md) para detalhes.
 
 ### 9. Commit
 
-Seguir [commit.md](commit.md) **incluindo validação de branch (seção 0)**. Se o gate de gitflow foi pulado ou o dev escolheu ficar na branch protegida, esta é a última chance de criar branch antes de commitar.
+Seguir [commit.md](../commit/commit.md) **incluindo validação de branch (seção 0)**. Se o gate de gitflow foi pulado ou o dev escolheu ficar na branch protegida, esta é a última chance de criar branch antes de commitar.
 
 ```
 <type>(<scope>): <description>

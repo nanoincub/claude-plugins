@@ -4,6 +4,29 @@
 
 **Skip this phase when:** There are ≤3 obvious steps. In that case, tasks are implicit — go straight to Execute and list them inline in your implementation plan.
 
+## Premissa de escrita
+
+Escreva o `tasks.md` assumindo que **o executor tem zero contexto do codebase e gosto questionável**. Isso significa:
+
+- **Código real inline em cada step** — não "implemente a função X", mas o corpo da função no markdown.
+- **Comandos exatos com output esperado** — não "rode os testes", mas `pytest path/test.py::name -v` → `PASS`.
+- **Paths de arquivo completos** — não "no service de usuário", mas `src/services/user_service.py:123-145`.
+
+Se um engenheiro precisa **interpretar** o que está escrito para executar, o plano falhou.
+
+## No Placeholders (plan failures)
+
+Os padrões abaixo são **falhas de plano** — nunca apareçam no `tasks.md` final:
+
+- `TBD`, `TODO`, `implement later`, `fill in details`
+- `Add appropriate error handling` / `add validation` / `handle edge cases` (sem detalhar quais erros, quais validações)
+- `Write tests for the above` (sem o código real dos testes)
+- `Similar to Task N` (repita o código — o executor pode ler tasks fora de ordem)
+- Steps que descrevem **o que** fazer sem mostrar **como** (code blocks são obrigatórios em steps de código)
+- Referências a tipos, funções ou métodos não definidos em nenhuma task
+
+Se o self-review encontrar qualquer um desses, **corrigir inline antes de avançar**.
+
 ## Why Granular Tasks?
 
 | Vague Task (BAD) | Granular Tasks (GOOD)             |
@@ -48,15 +71,15 @@ Em features multi-camada, o modo vertical-slice produz incrementos demoáveis is
 
 Adaptado de `to-issues` (matpocock-skills). Diferença: no Nano, slices viram tasks no `tasks.md` local — não publicamos automaticamente em issue tracker externo (publicação no ClickUp fica opcional via skill `ticket`).
 
-### Interação com `superpowers:writing-plans`
+### Vertical-slice + TDD inline (duas camadas)
 
-Vertical-slice define a **fronteira** de cada task (end-to-end através de camadas); `writing-plans` define o **interior** de cada task (TDD step-by-step com código inline). Não são incompatíveis — são camadas diferentes:
+Vertical-slice define a **fronteira** de cada task (end-to-end através de camadas); a "Premissa de escrita" + "No Placeholders" no topo deste arquivo definem o **interior** de cada task (TDD step-by-step com código inline). Não são incompatíveis — são camadas diferentes:
 
 1. Primeiro desenhar slices (HITL/AFK + dependências + acceptance criteria)
-2. Depois, para cada slice aprovado, invocar `superpowers:writing-plans` passando o slice como input — ele expande os TDD steps internos
-3. Resultado em `tasks.md`: cada task é um slice com steps TDD inline gerados pelo writing-plans
+2. Depois, para cada slice aprovado, expandir os steps TDD internos com código real inline (premissa "zero context, questionable taste")
+3. Resultado em `tasks.md`: cada task é um slice com steps TDD inline
 
-Quando vertical-slice está ativo, o `DEVE invocar writing-plans` da seção abaixo aplica-se **dentro de cada slice**, não para gerar o breakdown inteiro de uma vez.
+Quando vertical-slice está ativo, a expansão de steps TDD aplica-se **dentro de cada slice**, não para gerar o breakdown inteiro de uma vez.
 
 ### Regras de vertical slice
 
@@ -95,7 +118,7 @@ Preferir AFK quando possível.
 **O que entrega**: [Descrição concisa do comportamento end-to-end. NÃO listar camada-por-camada.]
 **Camadas tocadas**: [schema, API, UI, testes — quais entram no slice]
 **Depends on**: None | T0
-**Cobre**: [FEAT]-01, [FEAT]-02
+**Refs**: `[FEAT]-01, [FEAT]-02` _(IDs rastreáveis da spec.md — OBRIGATÓRIO)_
 
 **Critérios de aceite**:
 - [ ] [Critério 1 — demoável]
@@ -105,31 +128,21 @@ Preferir AFK quando possível.
 **Verify**: [Comando ou cenário manual que prova o slice]
 ```
 
-Evitar paths de arquivo específicos e snippets de código no campo "O que entrega" — eles ficam stale rápido. Exceção: se um protótipo (ver [discuss.md](discuss.md)) produziu um snippet que codifica uma decisão de forma mais precisa que prosa (state machine, schema, type shape), inlinar e marcar como vindo de protótipo.
+Evitar paths de arquivo específicos e snippets de código no campo "O que entrega" — eles ficam stale rápido. Exceção: se um protótipo (ver [discuss.md](../meta/discuss.md)) produziu um snippet que codifica uma decisão de forma mais precisa que prosa (state machine, schema, type shape), inlinar e marcar como vindo de protótipo.
 
 ---
 
 ## Process
 
-### Geração via superpowers (quando disponível)
+### 1. Load Context (OBRIGATÓRIO)
 
-Quando `superpowers` estiver instalado, o agente **DEVE** invocar `superpowers:writing-plans` para gerar as tasks antes de qualquer breakdown manual.
+Antes de quebrar em tasks, carregar nesta ordem:
 
-**Por quê:** o `writing-plans` assume um engineer com zero contexto do projeto — cada step inclui código real inline, segue TDD rigoroso (write failing test → run → implement → run → commit), e executa self-review automático ao final.
+1. `.specs/features/YYYY-MM-DD-[feature]/spec.md` — requisitos + IDs `[FEAT]-XX`
+2. `.specs/features/YYYY-MM-DD-[feature]/context.md` — **OBRIGATÓRIO se existir** — decisões aprovadas no discovery (abordagem escolhida, trade-offs, restrições) são constraints; tasks não devem contradizer
+3. `.specs/features/YYYY-MM-DD-[feature]/design.md` — arquitetura aprovada (se a fase Design rodou)
 
-**Fluxo:**
-
-1. Invocar `superpowers:writing-plans` passando como input a spec (`spec.md`) e o design (`design.md`) da feature
-2. O output gerado vai para `.specs/features/YYYY-MM-DD-[feature]/tasks.md`
-3. Seguir com o Plan Self-Review (seção abaixo) antes de aprovar
-
-**Se superpowers NÃO estiver disponível:** usar o breakdown manual descrito nas seções seguintes.
-
----
-
-### 1. Review Design
-
-Read `.specs/features/YYYY-MM-DD-[feature]/design.md` before creating tasks.
+Se `context.md` registra decisão que conflita com o design proposto, escalar ao dev antes de gerar tasks. Não inventar reconciliação silenciosa.
 
 ### 2. Break Into Atomic Tasks
 
@@ -208,7 +221,7 @@ T8 → T9
 **Where**: `src/path/to/file.ts`
 **Depends on**: None
 **Reuses**: `src/existing/BaseInterface.ts`
-**Requirement**: [FEAT]-01 _(ID rastreável da spec.md — OBRIGATÓRIO)_
+**Refs**: `[FEAT]-01` _(IDs rastreáveis da spec.md — OBRIGATÓRIO; múltiplos separados por vírgula)_
 **Verify**: `npm test -- --grep "X Interface"` → espera "✓ all methods defined"
 
 **Tools**:
@@ -242,6 +255,7 @@ T8 → T9
 **Where**: `src/services/YService.ts`
 **Depends on**: T1
 **Reuses**: `src/services/BaseService.ts` patterns
+**Refs**: `[FEAT]-02, [FEAT]-03`
 
 **Tools**:
 
@@ -402,9 +416,9 @@ Após gerar `tasks.md`, o agente **DEVE** executar self-review antes de consider
 2. **Placeholder scan**: buscar "TBD", "TODO", "...", ou steps sem código real inline. Nenhum placeholder é aceitável no plano final.
 3. **Type consistency**: nomes de funções, métodos, interfaces e tipos são consistentes entre todas as tasks? (ex.: se T1 cria `UserService`, T3 não pode referenciar `UsersService`).
 
-**Para features Large/Complex:** despachar subagent via **Agent tool** com o prompt template de `plan-document-reviewer` do superpowers (localizado em `skills/writing-plans/plan-document-reviewer-prompt.md`). Passar os paths de `tasks.md` e `spec.md` como input. O reviewer valida: completude, alinhamento com spec, decomposição e buildability.
+**Para features Large/Complex:** despachar subagent via **Agent tool** usando o prompt template em [`plan-document-reviewer-prompt.md`](plan-document-reviewer-prompt.md). Passar os paths de `tasks.md` e `spec.md` como input. O reviewer valida: completude, alinhamento com spec, decomposição e buildability.
 
-**Se superpowers NÃO estiver disponível:** executar self-review manual contra os mesmos três critérios acima.
+**Para features Small/Medium:** executar self-review manual contra os três critérios acima.
 
 ---
 
@@ -414,7 +428,5 @@ Após `tasks.md` aprovado (self-review concluído sem pendências), oferecer ao 
 
 > **Como deseja executar?**
 >
-> 1. **Subagent-Driven** _(recomendado)_ — fresh subagent por task + two-stage review (code review + verification). Melhor isolamento de contexto e qualidade.
-> 2. **Execução Inline** — mesmo contexto, sequencial. Mais rápido para features pequenas.
-
-**Se superpowers NÃO estiver disponível:** execução inline é o único caminho — não oferecer opção de subagent.
+> 1. **Subagent-Driven** _(recomendado para Large/Complex)_ — fresh subagent por task + two-stage review (spec compliance → code quality). Melhor isolamento de contexto e qualidade. Ver [`../execute/subagents/subagents.md`](../execute/subagents/subagents.md).
+> 2. **Execução Inline** — mesmo contexto, sequencial. Mais rápido para features pequenas. Ver [`../execute/implement.md`](../execute/implement.md).
