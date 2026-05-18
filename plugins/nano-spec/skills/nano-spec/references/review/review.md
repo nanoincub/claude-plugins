@@ -135,7 +135,7 @@ Ver [verification.md](nano-disciplines:verification.md) para a referência compl
 
 ### 3.1. Code Review por Subagente (obrigatório para Large/Complex)
 
-Quando escopo é Large/Complex, o agente DEVE despachar um subagent code-reviewer fresh que avalia o código sem contexto da sessão, trazendo perspectiva independente. Template em [code-reviewer-prompt.md](code-reviewer-prompt.md), guia operacional em [code-review.md](code-review.md).
+Quando escopo é Large/Complex, o agente DEVE despachar um subagent code-reviewer fresh que avalia o código sem contexto da sessão, trazendo perspectiva independente. Template em [code-reviewer-prompt.md](nano-disciplines:review/code-reviewer-prompt.md), guia operacional em [code-review.md](nano-disciplines:review/code-review.md).
 
 **Para pre-commit Large/Complex:** usar o **Protocolo Dois-Eixos** mais abaixo NO LUGAR deste step. Os dois eixos especializados (Standards + Spec) cobrem o mesmo terreno com mais rigor.
 
@@ -168,7 +168,7 @@ Ver [agent-behavior.md](../meta/agent-behavior.md) para regras gerais de confiab
 
 ### 5. Recepção de Feedback
 
-**Triggers automáticos** — aplicar [receiving-feedback.md](receiving-feedback.md) sempre que UM dos eventos abaixo ocorrer:
+**Triggers automáticos** — aplicar [receiving-feedback.md](nano-disciplines:review/receiving-feedback.md) sempre que UM dos eventos abaixo ocorrer:
 
 | Evento | Trigger |
 |---|---|
@@ -202,7 +202,7 @@ Code review pré-commit particionado em dois subagents paralelos (Standards + Sp
 | **Standards** | Código segue convenções do repo? | `.specs/codebase/CONVENTIONS.md`, `CLAUDE.md` |
 | **Spec** | Código implementa fielmente o que foi pedido? | `spec.md` (acceptance criteria + `[FEAT]-XX`), `tasks.md` |
 
-Quando ativar: **Complex** sempre, **Large** default, Medium/Small/Quick skip (usar [code-review.md](code-review.md) se o dev pedir review).
+Quando ativar: **Complex** sempre, **Large** default, Medium/Small/Quick skip (usar [code-review.md](nano-disciplines:review/code-review.md) se o dev pedir review).
 
 ---
 

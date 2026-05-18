@@ -167,7 +167,7 @@ Superpowers é obrigatório (HARD BLOCK no SessionStart). Todas as skills abaixo
 | Debug | [execute/systematic-debugging/debug.md](nano-disciplines:execute/systematic-debugging/debug.md) — Iron Law "no fix without root cause" + 4 fases + 4.5 (questionar arquitetura) |
 | Subagent por task | [execute/subagents/subagents.md](nano-disciplines:execute/subagents/subagents.md) — implementer → spec compliance review → code quality review (ordem obrigatória) |
 | Dispatch paralelo | [execute/subagents/parallel-dispatch.md](nano-disciplines:execute/subagents/parallel-dispatch.md) — múltiplos subagents em uma mensagem + check de conflitos pós-retorno |
-| Verificação formal | [verification.md](verification.md) — Iron Law: evidência fresh antes de qualquer claim |
+| Verificação formal | [verification.md](nano-disciplines:verification.md) — Iron Law: evidência fresh antes de qualquer claim |
 | Code review | [review/code-review.md](nano-disciplines:review/code-review.md) — template em [code-reviewer-prompt.md](nano-disciplines:review/code-reviewer-prompt.md); Protocolo Dois-Eixos para pre-commit Large/Complex |
 | Recepção de feedback | [review/receiving-feedback.md](nano-disciplines:review/receiving-feedback.md) — READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT |
 | Finish branch | Skill [`nano-commit`](../../../nano-commit/SKILL.md) — seção "Pós-Commit: Fechamento de Branch" (4 opções estruturadas) |
