@@ -61,10 +61,10 @@ O nano-spec é **trilho + disciplinas**. Cada fase aciona disciplinas internas (
 | Specify | `specify/specify.md` — discovery (2-3 abordagens) + `spec-document-reviewer-prompt.md` |
 | Design | `design/design.md` — apresentação incremental por seção |
 | Tasks | `tasks/tasks.md` — premissa "zero context" + No Placeholders + TDD inline + `plan-document-reviewer-prompt.md` |
-| Execute | `execute/implement.md` + `nano-disciplines:execute/tdd/` (Iron Law) + `nano-disciplines:execute/systematic-debugging/` (4 fases) |
+| Execute | `execute/implement.md` + `nano-disciplines:tdd` (Iron Law) + `nano-disciplines:debug` (4 fases) |
 | Execute (Large/Complex) | `execute/subagents/` (3 subagents per task: implementer → spec compliance → code quality) |
 | /simplify | (skill própria do Claude Code) |
-| Review | `nano-disciplines:verification.md` (Iron Law) + `nano-disciplines:review/code-review.md` ou Protocolo Dois-Eixos |
+| Review | `nano-disciplines:verification` (Iron Law) + `nano-disciplines:code-review` ou Protocolo Dois-Eixos |
 | Commit | Skill `nano-commit` (gitflow + verification + 4 opções de fechamento) |
 
 ## Estrutura

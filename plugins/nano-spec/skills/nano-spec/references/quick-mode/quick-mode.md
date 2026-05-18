@@ -54,7 +54,7 @@ Antes de implementar, verificar branch atual conforme [gitflow.md](../commit/git
 
 ### 3. Implement
 
-Follow [coding-principles.md](nano-disciplines:execute/coding-principles.md):
+Follow [coding-principles.md](nano-disciplines:skills/nano-disciplines/references/coding-principles.md):
 
 - Simplest code that works
 - Touch ONLY listed files
@@ -65,9 +65,9 @@ Follow [coding-principles.md](nano-disciplines:execute/coding-principles.md):
 Quando a task é um bug fix:
 
 1. DEVE criar failing test que reproduz o bug ANTES de corrigir
-2. Ciclo completo em [tdd.md](nano-disciplines:execute/tdd/tdd.md): RED → Verify RED → GREEN → Verify GREEN → REFACTOR
-3. Aplicar a [verificação red-green completa](nano-disciplines:execute/tdd/tdd.md#verificação-red-green-completa-bug-fixes) (reverter fix, rodar teste MUST FAIL, restaurar, rodar PASS) — prova que o teste captura o bug
-4. Se o bug é difícil de reproduzir, seguir [debug.md](nano-disciplines:execute/systematic-debugging/debug.md) — 4 fases (Root Cause → Pattern → Hypothesis → Fix) com Iron Law "NO FIXES WITHOUT ROOT CAUSE FIRST"
+2. Ciclo completo em [tdd.md](nano-disciplines:tdd): RED → Verify RED → GREEN → Verify GREEN → REFACTOR
+3. Aplicar a [verificação red-green completa](nano-disciplines:tdd#verificação-red-green-completa-bug-fixes) (reverter fix, rodar teste MUST FAIL, restaurar, rodar PASS) — prova que o teste captura o bug
+4. Se o bug é difícil de reproduzir, seguir [debug.md](nano-disciplines:debug) — 4 fases (Root Cause → Pattern → Hypothesis → Fix) com Iron Law "NO FIXES WITHOUT ROOT CAUSE FIRST"
 
 ### 4. Verify
 
@@ -116,7 +116,7 @@ Pedir ao dev para rodar a suite de testes do projeto, informando o comando. Moti
 - Se a confirmação for "passou" sem output, OK — a palavra do dev é a evidência
 - Se faltar confirmação, bloquear o commit
 
-Ver [verification.md](nano-disciplines:verification.md) — a Iron Law e os red flags valem 100% em Quick Mode (não é por ser "quick" que pode pular evidência).
+Ver [verification.md](nano-disciplines:verification) — a Iron Law e os red flags valem 100% em Quick Mode (não é por ser "quick" que pode pular evidência).
 
 ### 8. Docs Check (inline)
 
@@ -127,7 +127,7 @@ Docs check: [sem impacto] ou [atualizou STACK.md — nova dependência X]
 ```
 
 Se impactou → atualizar o doc relevante. Se `.specs/codebase/` não existe → pular.
-Ver [docs-update.md](nano-disciplines:docs/docs-update.md) para detalhes.
+Ver [docs-update.md](nano-disciplines:skills/nano-disciplines/references/docs-update.md) para detalhes.
 
 ### 9. Commit
 

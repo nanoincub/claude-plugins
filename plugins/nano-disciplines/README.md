@@ -29,8 +29,8 @@ claude plugin install nano-disciplines@nano-incub
 Plugins consumidores (como `nano-spec`) referenciam disciplinas via:
 
 ```
-[verification.md](nano-disciplines:verification.md)
-[tdd.md](nano-disciplines:execute/tdd/tdd.md)
+[verification.md](nano-disciplines:verification)
+[tdd.md](nano-disciplines:tdd)
 ```
 
 Diretamente pelo dev: invocar a skill `nano-disciplines` e pedir a disciplina específica.

@@ -1,84 +1,68 @@
 ---
 name: nano-disciplines
 description: >
-  Disciplinas técnicas universais da Nano Incub — TDD (Iron Law), systematic debugging,
-  verification before completion, code review (5 eixos), subagent dispatch, parallel dispatch,
-  receiving feedback, security review, validation, code analysis, coding principles.
-  Reutilizáveis por qualquer plugin ou processo. Não é orquestrador — é caixa de ferramentas.
-  Triggers: "aplicar TDD", "rodar debug sistemático", "review desse PR", "verificar antes
-  de marcar como pronto", "code review", "Iron Law", "subagent review".
-  Não use para: orquestração de processo (use nano-spec), commits/gitflow (use nano-commit),
-  artefatos de spec (use nano-spec).
+  Índice + internals da caixa de ferramentas técnicas da Nano Incub. As 4 disciplinas
+  user-facing principais (tdd, debug, verification, code-review) são skills promovidas
+  no mesmo plugin — invoque-as diretamente. Este umbrella hospeda os internals
+  (subagent dispatch, parallel dispatch, code analysis, coding principles, validate/UAT,
+  docs-update) que são chamados POR outras skills, não pelo dev diretamente.
+  Triggers: "ver disciplinas nano", "índice de disciplinas", "lista das skills nano-disciplines",
+  "qual disciplina aplicar". Para invocação direta de TDD/debug/verification/code-review,
+  use as skills promovidas (tdd, debug, verification, code-review).
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 1.0.0
+  version: 1.1.0
 ---
 
-# Nano Disciplines — Caixa de Ferramentas Técnicas
+# Nano Disciplines — Caixa de Ferramentas
 
-**Goal**: Fornecer as disciplinas técnicas universais adotadas pela Nano Incub em formato reutilizável. Cada disciplina é independente, invocável por qualquer plugin ou diretamente.
+Disciplinas técnicas universais da Nano Incub. Não orquestra processo — é toolbox.
 
-Esta skill **não orquestra processo**. Quando chamada, o agente carrega a disciplina específica solicitada e aplica suas regras. Para processo orquestrado de Spec-Driven Development, ver `nano-spec`.
+## Skills promovidas (invocação direta)
 
----
+As 4 disciplinas mais usadas estão como **skills separadas** no mesmo plugin:
 
-## Índice de Disciplinas
-
-| Categoria | Referência | Quando aplicar |
+| Skill | Quando invocar | Triggers principais |
 |---|---|---|
-| **Verification** | [verification.md](references/verification.md) | Iron Law — antes de qualquer claim "feito/passou/funciona". Evidência fresh nesta mensagem |
-| **TDD** | [execute/tdd/tdd.md](references/execute/tdd/tdd.md) | Tasks com lógica de negócio, mutação de estado, API, fluxo condicional. RED→GREEN→REFACTOR |
-| **TDD — anti-patterns** | [execute/tdd/testing-anti-patterns.md](references/execute/tdd/testing-anti-patterns.md) | Antes de escrever mocks ou testes async — 5 anti-padrões com Gate Functions |
-| **Debug** | [execute/systematic-debugging/debug.md](references/execute/systematic-debugging/debug.md) | Bug encontrado. 4 fases (Root Cause → Pattern → Hypothesis → Fix) + Fase 4.5 (defense-in-depth) |
-| **Debug — defense-in-depth** | [execute/systematic-debugging/defense-in-depth.md](references/execute/systematic-debugging/defense-in-depth.md) | Após fix, prevenir reincidência |
-| **Debug — root cause tracing** | [execute/systematic-debugging/root-cause-tracing.md](references/execute/systematic-debugging/root-cause-tracing.md) | Cadeia causal além do sintoma imediato |
-| **Subagents** | [execute/subagents/subagents.md](references/execute/subagents/subagents.md) | Large/Complex — fresh subagent per task + two-stage review (spec compliance → code quality) |
-| **Parallel dispatch** | [execute/subagents/parallel-dispatch.md](references/execute/subagents/parallel-dispatch.md) | Tasks `[P]` independentes — múltiplos subagents em paralelo. Inclui Protocolo Dois-Eixos |
-| **Implementer prompt** | [execute/subagents/implementer-prompt.md](references/execute/subagents/implementer-prompt.md) | Template do subagent implementador |
-| **Code quality reviewer** | [execute/subagents/code-quality-reviewer-prompt.md](references/execute/subagents/code-quality-reviewer-prompt.md) | Template do subagent revisor de qualidade |
-| **Code analysis** | [execute/code-analysis.md](references/execute/code-analysis.md) | Análise de código existente — graceful degradation |
-| **Coding principles** | [execute/coding-principles.md](references/execute/coding-principles.md) | Princípios aplicados antes do `/simplify` — simplicidade, escopo, intent |
-| **Code review** | [review/code-review.md](references/review/code-review.md) | Review de PR/diff — 5 eixos (Correctness, Performance, Maintainability, Security, Testing) |
-| **Code reviewer prompt** | [review/code-reviewer-prompt.md](references/review/code-reviewer-prompt.md) | Template do subagent revisor de código |
-| **Receiving feedback** | [review/receiving-feedback.md](references/review/receiving-feedback.md) | Recebendo feedback de review — zero performative agreement, verificar antes de implementar |
-| **Security review** | [review/security.md](references/review/security.md) | Auditoria de segurança — OWASP, secrets, injection, authZ |
-| **Validate (UAT)** | [review/validate.md](references/review/validate.md) | Validação contra critérios de aceite — User Acceptance Testing |
-| **Docs update** | [docs/docs-update.md](references/docs/docs-update.md) | Sincronizar `.specs/codebase/` após mudança arquitetural ou de convenção |
+| [`nano-disciplines:tdd`](../tdd/SKILL.md) | Task com lógica — escrever teste antes do código | "aplicar TDD", "test-driven", "RED-GREEN-REFACTOR" |
+| [`nano-disciplines:debug`](../debug/SKILL.md) | Bug encontrado — 4 fases + defense-in-depth | "debug isso", "bug", "root cause", "por que quebrou" |
+| [`nano-disciplines:verification`](../verification/SKILL.md) | Antes de qualquer claim "feito/passou" — Iron Law | "verificar", "iron law", "antes de marcar pronto" |
+| [`nano-disciplines:code-review`](../code-review/SKILL.md) | Review de PR/diff — 5 eixos + security + receiving-feedback | "code review", "revise PR", "audite segurança" |
 
----
+## Internals (referências consumidas por outras skills)
+
+Estas disciplinas não têm skill promovida — são invocadas POR outras skills (geralmente `nano-spec` ou as 4 acima):
+
+| Referência | Usado por | Propósito |
+|---|---|---|
+| [subagents/subagents.md](references/subagents/subagents.md) | `nano-spec` Execute Large/Complex | Fresh subagent per task + two-stage review (spec compliance → code quality) |
+| [subagents/parallel-dispatch.md](references/subagents/parallel-dispatch.md) | `nano-spec` Execute (tasks `[P]`) + Protocolo Dois-Eixos | Múltiplos subagents em paralelo + verificação de conflitos |
+| [subagents/implementer-prompt.md](references/subagents/implementer-prompt.md) | `subagents.md` | Template do subagent implementador |
+| [subagents/code-quality-reviewer-prompt.md](references/subagents/code-quality-reviewer-prompt.md) | `subagents.md`, `code-review` | Template do subagent revisor de qualidade (wrapper de `code-reviewer-prompt`) |
+| [code-analysis.md](references/code-analysis.md) | `/simplify`, `nano-spec` Execute | Análise de código existente — graceful degradation |
+| [coding-principles.md](references/coding-principles.md) | `/simplify`, `nano-spec` Execute | Princípios pré-`/simplify` — simplicidade, escopo, intent |
+| [validate.md](references/validate.md) | `nano-spec` Review (Complex), UAT | Validação contra critérios de aceite — User Acceptance Testing |
+| [docs-update.md](references/docs-update.md) | `nano-spec` Docs phase | Sincronizar `.specs/codebase/` após mudança arquitetural |
 
 ## Convenção de referência cross-plugin
 
-Quando outra skill (ex: `nano-spec`, `nano-commit`) precisa referenciar uma disciplina desta plugin, usar a notação:
+Quando outra skill referencia conteúdo deste plugin:
 
-```
-[disciplina](nano-disciplines:<caminho-em-references>)
-```
+- **Invocar skill promovida**: `nano-disciplines:tdd`, `nano-disciplines:debug`, `nano-disciplines:verification`, `nano-disciplines:code-review`
+- **Arquivo específico em skill promovida**: `nano-disciplines:skills/tdd/references/testing-anti-patterns.md`
+- **Internal do umbrella**: `nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md`
 
-Exemplos:
-- `nano-disciplines:verification.md`
-- `nano-disciplines:execute/tdd/tdd.md`
-- `nano-disciplines:review/code-review.md`
+## Quando NÃO usar este plugin
 
-A skill consumidora resolve o caminho real ao instalar/invocar.
-
----
-
-## Quando NÃO usar
-
-- Você precisa de **orquestração de processo** (specify → design → tasks → execute → commit) → use `nano-spec`
-- Você precisa de **fluxo de commit/branch/PR** → use `nano-commit`
-- Você precisa de **artefatos de spec** (`spec.md`, `design.md`, `tasks.md`) → use `nano-spec`
-
-Nano-disciplines é **caixa de ferramentas**. Para o *método* que usa essas ferramentas em sequência, instale `nano-spec` por cima.
-
----
+- Orquestração de processo Spec-Driven → use `nano-spec`
+- Commits / branches / PRs → use `nano-spec:nano-commit`
+- Artefatos de spec (`spec.md`, `design.md`, `tasks.md`) → use `nano-spec`
 
 ## Versão
 
-**1.0.0** — Extração das 10 disciplinas técnicas que estavam internalizadas em `nano-spec` 4.0.0. Disponibilizadas como plugin standalone para reuso fora do contexto Spec-Driven. `nano-spec` 5.0.0 passa a depender deste plugin via HARD BLOCK.
+**1.1.0** — Split em 4 skills promovidas (tdd, debug, verification, code-review) + umbrella com internals. Estrutura anterior (1.0.0) era 1 skill umbrella com todas as 20 references — substituída pela hierarquia atual para tornar as disciplinas user-facing mais assertivas no índice global.
 
-Disciplinas adaptadas do [superpowers](https://github.com/obra/superpowers) por Jesse Vincent (Anthropic), conforme estavam internalizadas no `nano-spec` 4.0.0. Mantém integralmente as adaptações Nano (PT-BR, naming por ID de requisito em testes, two-stage review por task, Protocolo Dois-Eixos).
+1.0.0 — Extração inicial das disciplinas internalizadas no `nano-spec` 4.0.0.
 
-Licença CC-BY-4.0.
+Disciplinas adaptadas do [superpowers](https://github.com/obra/superpowers) por Jesse Vincent (Anthropic). Licença CC-BY-4.0.

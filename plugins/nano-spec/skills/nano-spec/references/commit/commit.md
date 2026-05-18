@@ -13,7 +13,7 @@
 | HARD BLOCK | Onde dispara | Como desativar |
 |---|---|---|
 | **`git-flow-next` instalado** | Primeira interação git da sessão | `CLAUDE.md` define `## Branching` → `Sem gitflow` ou `trunk-based` |
-| **Iron Law: testes passando** | Antes de oferecer opções de commit | Não desativável — ver [verification.md](nano-disciplines:verification.md) |
+| **Iron Law: testes passando** | Antes de oferecer opções de commit | Não desativável — ver [verification.md](nano-disciplines:verification) |
 | **`/simplify` rodou no diff acumulado** | Antes do commit | Não desativável |
 | **Confirmação tipada `discard`** | Antes de descartar branch (opção 4) | Não desativável — proteção contra perda de trabalho |
 

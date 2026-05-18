@@ -83,8 +83,8 @@ Eventos que **DISPARAM** atualização do STATE.md automaticamente (não confiar
 | Evento (trigger) | Origem | Ação |
 |---|---|---|
 | Override do Baseline Test Gate aceito | [execute/implement.md](../execute/implement.md#baseline-test-gate-entry-gate) | Add entrada estruturada com base SHA + falhas + responsável + plano |
-| `debug.md` Fase 4 fechou com fix | [execute/systematic-debugging/debug.md](nano-disciplines:execute/systematic-debugging/debug.md) | Add L-[NNN] (lesson learned com root cause + fix) |
-| `debug.md` Fase 4.5 disparou (3 fixes falharam) | [execute/systematic-debugging/debug.md](nano-disciplines:execute/systematic-debugging/debug.md) | Add B-[NNN] + nota arquitetural |
+| `debug.md` Fase 4 fechou com fix | [execute/systematic-debugging/debug.md](nano-disciplines:debug) | Add L-[NNN] (lesson learned com root cause + fix) |
+| `debug.md` Fase 4.5 disparou (3 fixes falharam) | [execute/systematic-debugging/debug.md](nano-disciplines:debug) | Add B-[NNN] + nota arquitetural |
 | Scope guardrail no Execute disparou (ideia descartada) | [execute/implement.md](../execute/implement.md) step 8 | Add a Deferred Ideas |
 | Bug encontrado durante outra task (não relacionado) | [execute/implement.md](../execute/implement.md) árvore de decisão | Add B-[NNN] + retomar task original |
 | Decisão arquitetural sem ADR formal mas relevante | Design ou Execute | Add AD-[NNN] |

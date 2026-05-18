@@ -47,7 +47,7 @@ Aplicar **antes** de qualquer outro comportamento. Sem exceção, sem skip silen
 | **Project Init Gate** | Primeira ação da sessão, antes de qualquer feature | Se `.specs/project/` ou `.specs/codebase/` faltar → rodar [project-init.md](../init/project-init.md) + [roadmap.md](../init/roadmap.md) + [brownfield-mapping.md](../init/brownfield-mapping.md). NUNCA pular. |
 | **git-flow-next instalado** | Primeira interação git da sessão | Ver [commit/gitflow.md](../commit/gitflow.md). Desativar só via `CLAUDE.md → Branching: Sem gitflow`. |
 | **Baseline Test Gate** | Antes de criar branch de trabalho | Ver [execute/implement.md](../execute/implement.md#baseline-test-gate-entry-gate). RED → alerta P0 com [1] stop / [2] override + STATE.md entry. |
-| **Iron Law (verification)** | Antes de qualquer claim "pronto/passou/feito" e antes do commit | Ver [verification.md](nano-disciplines:verification.md). Evidência fresh **nesta mensagem**, sem exceção. |
+| **Iron Law (verification)** | Antes de qualquer claim "pronto/passou/feito" e antes do commit | Ver [verification.md](nano-disciplines:verification). Evidência fresh **nesta mensagem**, sem exceção. |
 | **`/simplify` antes dos testes finais** | Pre-commit | Ordem fixa: `/simplify` → testes → commit. Inverter deixa janela para regressões silenciosas. |
 | **Confirmação tipada `discard`** | Antes de descartar branch (opção 4 do nano-commit) | String exata `discard` (lowercase). Variações não contam. |
 
@@ -114,7 +114,7 @@ A qualidade é garantida incrementalmente durante o Execute:
 Review e Security estão **desativados por padrão**. Ativar via defaults opt-out no início da feature ou quando o dev pedir.
 
 - Review: ver [review.md](../review/review.md)
-- Security: ver [security.md](nano-disciplines:review/security.md) — recomendado usar skill de segurança específica da stack do projeto
+- Security: ver [security.md](nano-disciplines:skills/code-review/references/security.md) — recomendado usar skill de segurança específica da stack do projeto
 
 ### Subagentes (quando usados)
 
@@ -122,7 +122,7 @@ Se subagentes forem usados (ex: /simplify, subagent-driven-development), lembrar
 
 > **Regra de ouro:** Se o agente principal não fez `Read` da linha de código citada, o achado **NÃO** entra no relatório.
 
-Quando receber feedback de code review (externo ou de subagent), o agente DEVE seguir o protocolo em [receiving-feedback.md](nano-disciplines:review/receiving-feedback.md): READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT. NUNCA implementar feedback cegamente — verificar tecnicamente primeiro. Push back com raciocínio técnico se errado. Zero performative agreement ("você está totalmente certo!", "great point!", "thanks for...").
+Quando receber feedback de code review (externo ou de subagent), o agente DEVE seguir o protocolo em [receiving-feedback.md](nano-disciplines:skills/code-review/references/receiving-feedback.md): READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT. NUNCA implementar feedback cegamente — verificar tecnicamente primeiro. Push back com raciocínio técnico se errado. Zero performative agreement ("você está totalmente certo!", "great point!", "thanks for...").
 
 ---
 
@@ -163,13 +163,13 @@ Superpowers é obrigatório (HARD BLOCK no SessionStart). Todas as skills abaixo
 |--------|----------------|
 | Specify | [specify/specify.md](../specify/specify.md) — discovery (2-3 abordagens) + [spec-document-reviewer](../specify/spec-document-reviewer-prompt.md) para Large/Complex |
 | Tasks | [tasks/tasks.md](../tasks/tasks.md) — TDD steps inline + [plan-document-reviewer](../tasks/plan-document-reviewer-prompt.md) para Large/Complex |
-| TDD | [execute/tdd/tdd.md](nano-disciplines:execute/tdd/tdd.md) — Iron Law + RED→Verify RED→GREEN→Verify GREEN→REFACTOR |
-| Debug | [execute/systematic-debugging/debug.md](nano-disciplines:execute/systematic-debugging/debug.md) — Iron Law "no fix without root cause" + 4 fases + 4.5 (questionar arquitetura) |
-| Subagent por task | [execute/subagents/subagents.md](nano-disciplines:execute/subagents/subagents.md) — implementer → spec compliance review → code quality review (ordem obrigatória) |
-| Dispatch paralelo | [execute/subagents/parallel-dispatch.md](nano-disciplines:execute/subagents/parallel-dispatch.md) — múltiplos subagents em uma mensagem + check de conflitos pós-retorno |
-| Verificação formal | [verification.md](nano-disciplines:verification.md) — Iron Law: evidência fresh antes de qualquer claim |
-| Code review | [review/code-review.md](nano-disciplines:review/code-review.md) — template em [code-reviewer-prompt.md](nano-disciplines:review/code-reviewer-prompt.md); Protocolo Dois-Eixos para pre-commit Large/Complex |
-| Recepção de feedback | [review/receiving-feedback.md](nano-disciplines:review/receiving-feedback.md) — READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT |
+| TDD | [execute/tdd/tdd.md](nano-disciplines:tdd) — Iron Law + RED→Verify RED→GREEN→Verify GREEN→REFACTOR |
+| Debug | [execute/systematic-debugging/debug.md](nano-disciplines:debug) — Iron Law "no fix without root cause" + 4 fases + 4.5 (questionar arquitetura) |
+| Subagent por task | [execute/subagents/subagents.md](nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md) — implementer → spec compliance review → code quality review (ordem obrigatória) |
+| Dispatch paralelo | [execute/subagents/parallel-dispatch.md](nano-disciplines:skills/nano-disciplines/references/subagents/parallel-dispatch.md) — múltiplos subagents em uma mensagem + check de conflitos pós-retorno |
+| Verificação formal | [verification.md](nano-disciplines:verification) — Iron Law: evidência fresh antes de qualquer claim |
+| Code review | [review/code-review.md](nano-disciplines:code-review) — template em [code-reviewer-prompt.md](nano-disciplines:skills/code-review/references/code-reviewer-prompt.md); Protocolo Dois-Eixos para pre-commit Large/Complex |
+| Recepção de feedback | [review/receiving-feedback.md](nano-disciplines:skills/code-review/references/receiving-feedback.md) — READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT |
 | Finish branch | Skill [`nano-commit`](../../../nano-commit/SKILL.md) — seção "Pós-Commit: Fechamento de Branch" (4 opções estruturadas) |
 | /simplify | Skill tool: `simplify` |
 | Diagramas | mermaid-studio (se instalado, opcional) |

@@ -218,7 +218,7 @@ O agente **não roda os testes diretamente** — informa o comando e aguarda voc
 
 O comando vem do `CLAUDE.md` ou é inferido da stack.
 
-**Disciplina aplicada** (em `nano-disciplines:verification.md`):
+**Disciplina aplicada** (em `nano-disciplines:verification`):
 - ✅ **Iron Law** — "NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE". Exige evidência (output do teste, **nesta mensagem**) antes de declarar pronto; bloqueia avanço se falhar.
 
 > Se algum teste falha → **bloqueia o commit**. Sem exceção.
@@ -247,7 +247,7 @@ Delegado para a skill **`nano-spec:nano-commit`**, que executa em ordem:
 7. Pós-commit: 4 opções — `merge local · PR · continuar · discard (com confirmação tipada)`
 
 **Disciplinas aplicadas (Large+)**:
-- 👀 **`nano-disciplines:review/code-review.md`** + **`code-reviewer-prompt.md`** — subagent revisor (5 eixos) do diff (BASE_SHA → HEAD_SHA) antes de fechar. Pre-commit Large/Complex: Protocolo Dois-Eixos em paralelo (Standards + Spec).
+- 👀 **`nano-disciplines:code-review`** + **`code-reviewer-prompt.md`** — subagent revisor (5 eixos) do diff (BASE_SHA → HEAD_SHA) antes de fechar. Pre-commit Large/Complex: Protocolo Dois-Eixos em paralelo (Standards + Spec).
 - 🎯 **`nano-commit` (seção "Pós-Commit: Fechamento de Branch")** — 4 opções estruturadas de encerramento (merge local / PR / continuar / discard com confirmação tipada).
 
 ---
@@ -389,13 +389,13 @@ O nano-spec aplica essas disciplinas **automaticamente** em cada fase:
 | Specify | `specify/specify.md` — discovery (2-3 abordagens) + `spec-document-reviewer-prompt.md` para Large/Complex |
 | Design | `design/design.md` — apresentação incremental por seção |
 | Tasks | `tasks/tasks.md` — premissa "zero context" + No Placeholders + TDD inline + `plan-document-reviewer-prompt.md` |
-| Execute (qualquer) | `nano-disciplines:execute/tdd/tdd.md` — Iron Law TDD em tasks com lógica |
-| Execute (Large+) | `nano-disciplines:execute/subagents/subagents.md` — 3 subagents per task (two-stage review) |
-| Execute (tasks `[P]`) | `nano-disciplines:execute/subagents/parallel-dispatch.md` — múltiplos subagents em paralelo |
-| Execute (bug) | `nano-disciplines:execute/systematic-debugging/debug.md` — 4 fases + Fase 4.5 |
-| Commit gate | `nano-disciplines:verification.md` — Iron Law "evidência fresh antes de claim" |
-| Code review (Large+) | `nano-disciplines:review/code-review.md` + `code-reviewer-prompt.md`; pre-commit Large/Complex: Protocolo Dois-Eixos |
-| Recepção de feedback | `nano-disciplines:review/receiving-feedback.md` — zero performative agreement |
+| Execute (qualquer) | `nano-disciplines:tdd` — Iron Law TDD em tasks com lógica |
+| Execute (Large+) | `nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md` — 3 subagents per task (two-stage review) |
+| Execute (tasks `[P]`) | `nano-disciplines:skills/nano-disciplines/references/subagents/parallel-dispatch.md` — múltiplos subagents em paralelo |
+| Execute (bug) | `nano-disciplines:debug` — 4 fases + Fase 4.5 |
+| Commit gate | `nano-disciplines:verification` — Iron Law "evidência fresh antes de claim" |
+| Code review (Large+) | `nano-disciplines:code-review` + `code-reviewer-prompt.md`; pre-commit Large/Complex: Protocolo Dois-Eixos |
+| Recepção de feedback | `nano-disciplines:skills/code-review/references/receiving-feedback.md` — zero performative agreement |
 | Branch closing | `nano-commit` seção "Pós-Commit: Fechamento de Branch" |
 
 **Output sempre em `.specs/`** — todas as disciplinas escrevem artefatos de feature em `.specs/features/YYYY-MM-DD-[feature]/`. Nunca espalhar em outros diretórios.

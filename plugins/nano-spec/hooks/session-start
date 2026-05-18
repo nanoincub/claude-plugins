@@ -37,15 +37,15 @@ A Spec-Driven Development process for Nano Incub. It orchestrates phases (Specif
 
 | Phase | Discipline (from nano-disciplines) |
 |---|---|
-| Execute (logic tasks) | `nano-disciplines:execute/tdd/tdd.md` (Iron Law TDD) |
-| Execute (bugs) | `nano-disciplines:execute/systematic-debugging/debug.md` (4 phases) |
-| Execute (Large+) | `nano-disciplines:execute/subagents/subagents.md` (two-stage review) |
-| Execute (parallel tasks) | `nano-disciplines:execute/subagents/parallel-dispatch.md` |
-| Review | `nano-disciplines:review/code-review.md` or `nano-spec:review/dois-eixos.md` (Standards + Spec) |
-| Pre-commit / pre-claim | `nano-disciplines:verification.md` (Iron Law: evidence before claims) |
-| Security review | `nano-disciplines:review/security.md` |
-| UAT / validate | `nano-disciplines:review/validate.md` |
-| Docs sync | `nano-disciplines:docs/docs-update.md` |
+| Execute (logic tasks) | `nano-disciplines:tdd` (Iron Law TDD) |
+| Execute (bugs) | `nano-disciplines:debug` (4 phases) |
+| Execute (Large+) | `nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md` (two-stage review) |
+| Execute (parallel tasks) | `nano-disciplines:skills/nano-disciplines/references/subagents/parallel-dispatch.md` |
+| Review | `nano-disciplines:code-review` or `nano-spec:review/dois-eixos.md` (Standards + Spec) |
+| Pre-commit / pre-claim | `nano-disciplines:verification` (Iron Law: evidence before claims) |
+| Security review | `nano-disciplines:skills/code-review/references/security.md` |
+| UAT / validate | `nano-disciplines:skills/nano-disciplines/references/validate.md` |
+| Docs sync | `nano-disciplines:skills/nano-disciplines/references/docs-update.md` |
 
 Spec-Driven artifacts (specify, design, tasks, init, baseline-test-gate, dois-eixos protocol, agent-behavior, state-management) live in `nano-spec` itself.
 

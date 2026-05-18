@@ -1,6 +1,6 @@
 # Protocolo Dois-Eixos (Large/Complex pré-commit)
 
-Code review pré-commit **particionado em dois subagents paralelos** especializados — um para Standards, outro para Spec compliance. Substitui o code reviewer geral ([code-review.md](nano-disciplines:review/code-review.md)) no slot pré-commit em features Large/Complex.
+Code review pré-commit **particionado em dois subagents paralelos** especializados — um para Standards, outro para Spec compliance. Substitui o code reviewer geral ([code-review.md](nano-disciplines:code-review)) no slot pré-commit em features Large/Complex.
 
 Adaptado de `review` (matpocock-skills).
 
@@ -14,7 +14,7 @@ Adaptado de `review` (matpocock-skills).
 |---|---|---|
 | Foco | Disperso entre 5 categorias | Cada agent tem 1 critério |
 | Severidade | Subjetiva (Critical/Important/Minor) | Sem classificação — só factual (violação ou gap) |
-| Velocidade | Sequencial, lento | Paralelo (via [parallel-dispatch.md](nano-disciplines:execute/subagents/parallel-dispatch.md)) |
+| Velocidade | Sequencial, lento | Paralelo (via [parallel-dispatch.md](nano-disciplines:skills/nano-disciplines/references/subagents/parallel-dispatch.md)) |
 | Verdict | "Ready to merge: Yes/No/With fixes" — opina | Dev decide: endereçar / pular / discutir |
 | Auditabilidade | Verdict subjetivo, difícil revisar depois | Cada achado tem fonte textual (regra cited + arquivo:linha) |
 | Architecture / testing depth | ✅ Cobre | ❌ NÃO cobre (use code-review.md em outros slots) |
@@ -36,7 +36,7 @@ Adaptado de `review` (matpocock-skills).
 
 - **Complex** — sempre, antes de `nano-commit` (no slot do code reviewer geral)
 - **Large** — default; dev pode pular explicitamente
-- **Medium/Small/Quick** — skip (usar [code-review.md](nano-disciplines:review/code-review.md) se o dev pedir review)
+- **Medium/Small/Quick** — skip (usar [code-review.md](nano-disciplines:code-review) se o dev pedir review)
 
 ---
 
@@ -154,4 +154,4 @@ Loop infinito é sinal de:
 
 ## Recepção do retorno
 
-Aplicar [receiving-feedback.md](nano-disciplines:review/receiving-feedback.md). Os achados do Dois-Eixos **não são opiniões** — são fatos com fonte textual. Mas a recepção do protocolo continua valendo (zero performative agreement, verify antes de implementar).
+Aplicar [receiving-feedback.md](nano-disciplines:skills/code-review/references/receiving-feedback.md). Os achados do Dois-Eixos **não são opiniões** — são fatos com fonte textual. Mas a recepção do protocolo continua valendo (zero performative agreement, verify antes de implementar).

@@ -10,7 +10,7 @@
 >
 > **O que esperar de volta:** Status (Approved | Issues Found) + lista de Issues + Recommendations (advisory).
 >
-> **Após recepção do retorno:** aplicar [receiving-feedback.md](nano-disciplines:review/receiving-feedback.md) (READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT) — zero performative agreement.
+> **Após recepção do retorno:** aplicar [receiving-feedback.md](nano-disciplines:skills/code-review/references/receiving-feedback.md) (READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT) — zero performative agreement.
 
 ---
 

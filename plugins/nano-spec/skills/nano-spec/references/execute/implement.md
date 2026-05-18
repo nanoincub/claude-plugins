@@ -73,7 +73,7 @@ Se `context.md` registra uma decisão que parece incorreta agora, **escalar ao d
 
 ⚠️ **Pular esta carga = implementar contra constraint aprovado = retrabalho garantido.**
 
-### Read [coding-principles.md](nano-disciplines:execute/coding-principles.md) and state:
+### Read [coding-principles.md](nano-disciplines:skills/nano-disciplines/references/coding-principles.md) and state:
 
 1. **Assumptions** - What am I assuming? Any uncertainty?
 2. **Files to touch** - List ONLY files this task requires
@@ -129,7 +129,7 @@ Success: [how to verify]
 
 - Follow "What" and "Where" exactly
 - Reference "Reuses" for patterns
-- Apply [coding-principles.md](nano-disciplines:execute/coding-principles.md):
+- Apply [coding-principles.md](nano-disciplines:skills/nano-disciplines/references/coding-principles.md):
   - Simplest code that works
   - Touch ONLY listed files
   - No scope creep
@@ -149,15 +149,15 @@ Após implementar, avaliar se a task precisa de teste automatizado:
 - Rodar apenas os testes do módulo/arquivo afetado pela task (não a suite completa)
 - A suite completa de testes roda uma vez só, após todas as tasks, antes do commit
 
-**Iron Law (de [tdd.md](nano-disciplines:execute/tdd/tdd.md)):**
+**Iron Law (de [tdd.md](nano-disciplines:tdd)):**
 
 > `NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST`
 
-Escreveu código antes do teste? Delete e recomece. Não guarde "como referência". Para racionalizações comuns, ver tabela em [tdd.md](nano-disciplines:execute/tdd/tdd.md#tabela-de-racionalizações). Para red flags que disparam "start over", ver [tdd.md](nano-disciplines:execute/tdd/tdd.md#red-flags--stop-and-start-over).
+Escreveu código antes do teste? Delete e recomece. Não guarde "como referência". Para racionalizações comuns, ver tabela em [tdd.md](nano-disciplines:tdd#tabela-de-racionalizações). Para red flags que disparam "start over", ver [tdd.md](nano-disciplines:tdd#red-flags--stop-and-start-over).
 
 **Naming dos testes:** os testes DEVEM referenciar critérios de aceite da spec. Não é "criar teste que prove o comportamento" genérico — é criar teste **nomeado com ID do requisito** que prove o critério QUANDO/ENTÃO específico (ex: `test_PAY03_expired_card_returns_declined`). Cada critério testável da spec deve ter pelo menos um teste correspondente com rastreabilidade explícita.
 
-**Se a task envolve mocks:** ler [testing-anti-patterns.md](nano-disciplines:execute/tdd/testing-anti-patterns.md) antes — 5 anti-padrões com Gate Functions para evitar testar mock em vez de comportamento real.
+**Se a task envolve mocks:** ler [testing-anti-patterns.md](nano-disciplines:skills/tdd/references/testing-anti-patterns.md) antes — 5 anti-padrões com Gate Functions para evitar testar mock em vez de comportamento real.
 
 ### 7. Self-Check
 
@@ -217,7 +217,7 @@ Bug encontrado DURANTE implementação de outra task?
 | 3+ fixes consecutivos falharam | `debug.md` Fase 4.5 — questionar arquitetura, escalar ao dev |
 | Subagent retorna BLOCKED | Diagnosticar: contexto faltando? modelo subdimensionado? task grande demais? plano errado? |
 | Loop infinito reviewer ↔ implementer (3+ rodadas) | Re-ler feedback; pode ser task mal especificada no `tasks.md` |
-| Mock setup > 50% do teste | Code está acoplado demais — usar dependency injection ([testing-anti-patterns.md](nano-disciplines:execute/tdd/testing-anti-patterns.md) #3) |
+| Mock setup > 50% do teste | Code está acoplado demais — usar dependency injection ([testing-anti-patterns.md](nano-disciplines:skills/tdd/references/testing-anti-patterns.md) #3) |
 
 ---
 
@@ -228,11 +228,11 @@ O Execute aplica estas disciplinas **automaticamente** conforme decidido pela á
 | Disciplina | Quando | Regra |
 |---|---|---|
 | **Baseline test** | Antes de qualquer task | Rodar suite de testes → se falham, reportar ao dev e aguardar |
-| [tdd.md](nano-disciplines:execute/tdd/tdd.md) (ciclo TDD interno) | Tasks com lógica | RED → Verify RED → GREEN → Verify GREEN → REFACTOR. Testes nomeados com ID do requisito (ex: `test_AUTH01_...`). Config/docs/rename → verificação manual |
-| [debug.md](nano-disciplines:execute/systematic-debugging/debug.md) (4 fases) | Bug encontrado | Iron Law: NO FIXES WITHOUT ROOT CAUSE FIRST. Phase 1 → 2 → 3 → 4. Após 3 fixes falharem (Phase 4.5) → escalar ao dev, questionar arquitetura |
-| [subagents.md](nano-disciplines:execute/subagents/subagents.md) (3 subagents por task) | Large/Complex | Implementer → **Spec Compliance Review → Code Quality Review** por task. Ordem obrigatória. Continuous execution entre tasks. |
-| [parallel-dispatch.md](nano-disciplines:execute/subagents/parallel-dispatch.md) | Tasks independentes (`[P]` em tasks.md, sem dependências cruzadas) | 1 agent por domínio disjunto. Após retorno: verification 4 passos (incluindo check de conflitos) + suite completa |
-| [code-review.md](nano-disciplines:review/code-review.md) | Após todas as tasks (Large/Complex) | Code-reviewer subagent para revisão da implementação completa. Para pre-commit: Protocolo Dois-Eixos (ver [review.md](../review/review.md)) |
+| [tdd.md](nano-disciplines:tdd) (ciclo TDD interno) | Tasks com lógica | RED → Verify RED → GREEN → Verify GREEN → REFACTOR. Testes nomeados com ID do requisito (ex: `test_AUTH01_...`). Config/docs/rename → verificação manual |
+| [debug.md](nano-disciplines:debug) (4 fases) | Bug encontrado | Iron Law: NO FIXES WITHOUT ROOT CAUSE FIRST. Phase 1 → 2 → 3 → 4. Após 3 fixes falharem (Phase 4.5) → escalar ao dev, questionar arquitetura |
+| [subagents.md](nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md) (3 subagents por task) | Large/Complex | Implementer → **Spec Compliance Review → Code Quality Review** por task. Ordem obrigatória. Continuous execution entre tasks. |
+| [parallel-dispatch.md](nano-disciplines:skills/nano-disciplines/references/subagents/parallel-dispatch.md) | Tasks independentes (`[P]` em tasks.md, sem dependências cruzadas) | 1 agent por domínio disjunto. Após retorno: verification 4 passos (incluindo check de conflitos) + suite completa |
+| [code-review.md](nano-disciplines:code-review) | Após todas as tasks (Large/Complex) | Code-reviewer subagent para revisão da implementação completa. Para pre-commit: Protocolo Dois-Eixos (ver [review.md](../review/review.md)) |
 
 **Regra:** Essas disciplinas são workers. O ciclo do Execute (pick → implement → verify) continua sendo o trilho.
 

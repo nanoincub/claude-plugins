@@ -65,7 +65,7 @@ Execute concluído
     │
     ▼
 2. Suite completa de testes + Iron Law verification   ← OBRIGATÓRIO
-    └── Aplicar nano-disciplines:verification.md
+    └── Aplicar nano-disciplines:verification
         └── Evidência FRESH antes de qualquer claim de "pronto"
         └── Testes DEVEM passar — Iron Law bloqueia commit se falharem
     │
@@ -118,7 +118,7 @@ Analisa reuse, quality, efficiency em paralelo.
 
 **Iron Law: "NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE"**
 
-O agente DEVE aplicar a [Gate Function da Iron Law](nano-disciplines:verification.md#gate-function-5-passos-obrigatórios). Resumo dos 5 passos:
+O agente DEVE aplicar a [Gate Function da Iron Law](nano-disciplines:verification#gate-function-5-passos-obrigatórios). Resumo dos 5 passos:
 
 1. **IDENTIFY** — Que comando prova o claim?
 2. **RUN** — Executar o comando FULL, fresh, **nesta mensagem**
@@ -126,16 +126,16 @@ O agente DEVE aplicar a [Gate Function da Iron Law](nano-disciplines:verificatio
 4. **VERIFY** — Output confirma o claim?
 5. **ONLY THEN** — Fazer a claim COM evidência
 
-Ver [verification.md](nano-disciplines:verification.md) para a referência completa: tabela de Common Failures, Red Flags de linguagem, prevenção de racionalizações, e patterns por tipo de claim (tests / regression / build / requirements / agent delegation).
+Ver [verification.md](nano-disciplines:verification) para a referência completa: tabela de Common Failures, Red Flags de linguagem, prevenção de racionalizações, e patterns por tipo de claim (tests / regression / build / requirements / agent delegation).
 
-**Red flags que PARAM o agente** (resumo — ver lista completa em [verification.md > Red Flags](nano-disciplines:verification.md#red-flags--palavras-proibidas-até-verificar)):
+**Red flags que PARAM o agente** (resumo — ver lista completa em [verification.md > Red Flags](nano-disciplines:verification#red-flags--palavras-proibidas-até-verificar)):
 - Usar "should", "probably", "seems to" em claims de completude
 - Expressar satisfação antes de verificar ("Great!", "Done!", "Pronto!")
 - Referenciar output de execuções anteriores como prova
 
 ### 3.1. Code Review por Subagente (obrigatório para Large/Complex)
 
-Quando escopo é Large/Complex, o agente DEVE despachar um subagent code-reviewer fresh que avalia o código sem contexto da sessão, trazendo perspectiva independente. Template em [code-reviewer-prompt.md](nano-disciplines:review/code-reviewer-prompt.md), guia operacional em [code-review.md](nano-disciplines:review/code-review.md).
+Quando escopo é Large/Complex, o agente DEVE despachar um subagent code-reviewer fresh que avalia o código sem contexto da sessão, trazendo perspectiva independente. Template em [code-reviewer-prompt.md](nano-disciplines:skills/code-review/references/code-reviewer-prompt.md), guia operacional em [code-review.md](nano-disciplines:code-review).
 
 **Para pre-commit Large/Complex:** usar o **Protocolo Dois-Eixos** mais abaixo NO LUGAR deste step. Os dois eixos especializados (Standards + Spec) cobrem o mesmo terreno com mais rigor.
 
@@ -168,7 +168,7 @@ Ver [agent-behavior.md](../meta/agent-behavior.md) para regras gerais de confiab
 
 ### 5. Recepção de Feedback
 
-**Triggers automáticos** — aplicar [receiving-feedback.md](nano-disciplines:review/receiving-feedback.md) sempre que UM dos eventos abaixo ocorrer:
+**Triggers automáticos** — aplicar [receiving-feedback.md](nano-disciplines:skills/code-review/references/receiving-feedback.md) sempre que UM dos eventos abaixo ocorrer:
 
 | Evento | Trigger |
 |---|---|
@@ -202,7 +202,7 @@ Code review pré-commit particionado em dois subagents paralelos (Standards + Sp
 | **Standards** | Código segue convenções do repo? | `.specs/codebase/CONVENTIONS.md`, `CLAUDE.md` |
 | **Spec** | Código implementa fielmente o que foi pedido? | `spec.md` (acceptance criteria + `[FEAT]-XX`), `tasks.md` |
 
-Quando ativar: **Complex** sempre, **Large** default, Medium/Small/Quick skip (usar [code-review.md](nano-disciplines:review/code-review.md) se o dev pedir review).
+Quando ativar: **Complex** sempre, **Large** default, Medium/Small/Quick skip (usar [code-review.md](nano-disciplines:code-review) se o dev pedir review).
 
 ---
 
