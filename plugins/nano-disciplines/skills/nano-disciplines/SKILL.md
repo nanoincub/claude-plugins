@@ -47,11 +47,15 @@ Estas disciplinas não têm skill promovida — são invocadas POR outras skills
 
 ## Convenção de referência cross-plugin
 
-Quando outra skill referencia conteúdo deste plugin:
+Quando outra skill referencia conteúdo deste plugin, o destino aparece em uma das 3 formas:
 
-- **Invocar skill promovida**: `nano-disciplines:tdd`, `nano-disciplines:debug`, `nano-disciplines:verification`, `nano-disciplines:code-review`
-- **Arquivo específico em skill promovida**: `nano-disciplines:skills/tdd/references/testing-anti-patterns.md`
-- **Internal do umbrella**: `nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md`
+| Forma | Significado | Como o agente segue |
+|---|---|---|
+| `nano-disciplines:<skill>` | Skill promovida (tdd, debug, verification, code-review) | Invocar via tool `Skill` com o nome qualificado, ex: `Skill('nano-disciplines:tdd')` |
+| `nano-disciplines:skills/<skill>/references/<file>.md` | Arquivo específico dentro de uma skill promovida | Ler com tool `Read` no path resolvido do plugin instalado |
+| `nano-disciplines:skills/nano-disciplines/references/<file>.md` | Internal do umbrella (subagents, code-analysis, validate, etc.) | Ler com tool `Read` no path resolvido |
+
+**Importante:** o display text de markdown links pode não bater com o destino (ex: `[verification.md](nano-disciplines:verification)` — display "verification.md" mas destino é a skill, não um arquivo). Sempre seguir o URL, não o display.
 
 ## Quando NÃO usar este plugin
 

@@ -49,6 +49,14 @@ A Spec-Driven Development process for Nano Incub. It orchestrates phases (Specif
 
 Spec-Driven artifacts (specify, design, tasks, init, baseline-test-gate, dois-eixos protocol, agent-behavior, state-management) live in `nano-spec` itself.
 
+### How to follow `nano-disciplines:` references
+
+When you see `nano-disciplines:<x>` in any markdown file:
+
+- If `<x>` is a promoted skill name (`tdd`, `debug`, `verification`, `code-review`) → invoke via the `Skill` tool using the full qualified name (e.g., `Skill('nano-disciplines:tdd')`).
+- If `<x>` is `skills/<skill>/references/<file>.md` or `skills/nano-disciplines/references/<file>.md` → use the `Read` tool with the absolute path inside the installed plugin.
+- Markdown links like `[anything](nano-disciplines:tdd)` mean "invoke the tdd skill" regardless of the display text.
+
 ## Auto-Sizing (apply to EVERY development task)
 
 | Scope | Criteria | Phases | Post-Execute |

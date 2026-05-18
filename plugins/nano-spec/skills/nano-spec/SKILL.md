@@ -42,14 +42,23 @@ Depois recarregue a sessão.
 
 Este processo define **O QUE fazer e EM QUE ORDEM** (o trilho: Specify → Design → Tasks → Execute → /simplify → Docs → Commit). **O COMO de cada disciplina técnica** vive em `nano-disciplines`. A separação preserva spec-driven como forma reutilizável independente de qual conjunto de disciplinas se aplica.
 
-**Disciplinas técnicas** (workers invocados pelas fases):
-- [execute/tdd/](nano-disciplines:tdd) — TDD com Iron Law
-- [execute/systematic-debugging/](nano-disciplines:debug) — debug em 4 fases
-- [execute/subagents/](nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md) — fresh subagent per task + two-stage review
-- [execute/subagents/parallel-dispatch.md](nano-disciplines:skills/nano-disciplines/references/subagents/parallel-dispatch.md) — múltiplos subagents em paralelo
-- [meta/verification.md](nano-disciplines:verification) — Iron Law "evidência antes de claim"
-- [review/code-review.md](nano-disciplines:code-review) — code reviewer subagent (5 eixos) + Protocolo Dois-Eixos
-- [review/receiving-feedback.md](nano-disciplines:skills/code-review/references/receiving-feedback.md) — protocolo de recepção (zero performative agreement)
+**Disciplinas técnicas** (workers invocados pelas fases — todas vivem em `nano-disciplines`):
+
+| Disciplina | Como invocar | Quando |
+|---|---|---|
+| TDD | `nano-disciplines:tdd` (skill) | Tasks com lógica — Iron Law `NO PRODUCTION CODE WITHOUT FAILING TEST FIRST` |
+| Debug | `nano-disciplines:debug` (skill) | Bug encontrado — 4 fases (Root Cause → Pattern → Hypothesis → Fix) |
+| Verification | `nano-disciplines:verification` (skill) | Antes de qualquer claim "feito/passou" — evidência fresh nesta mensagem |
+| Code Review | `nano-disciplines:code-review` (skill) | Review pré-commit — 5 eixos (Correctness, Performance, Maintainability, Security, Testing) |
+| Subagent dispatch | `nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md` (ref) | Large/Complex — fresh subagent per task + two-stage review |
+| Parallel dispatch | `nano-disciplines:skills/nano-disciplines/references/subagents/parallel-dispatch.md` (ref) | Tasks `[P]` em paralelo + Protocolo Dois-Eixos |
+| Receiving feedback | `nano-disciplines:skills/code-review/references/receiving-feedback.md` (ref) | Recebeu review — zero performative agreement |
+
+### Como o agente segue uma ref `nano-disciplines:<...>`
+
+- Quando o destino é uma **skill promovida** (`nano-disciplines:tdd`, `:debug`, `:verification`, `:code-review`) → invocar via tool `Skill` com esse nome qualificado.
+- Quando o destino é um **arquivo específico** (`nano-disciplines:skills/<skill>/references/<file>.md` ou `nano-disciplines:skills/nano-disciplines/references/<file>.md`) → usar tool `Read` com o caminho absoluto resolvido no plugin instalado.
+- Markdown links neste documento usam essa convenção. Se você ver um link como `[X](nano-disciplines:tdd)`, o destino é a skill, não um arquivo literal.
 
 ## Auto-Sizing
 
