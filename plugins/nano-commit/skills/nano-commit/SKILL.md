@@ -14,7 +14,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 1.3.0
+  version: 1.4.0
 ---
 
 # Nano Commit — Gitflow + Conventional Commits

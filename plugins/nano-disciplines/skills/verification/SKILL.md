@@ -17,7 +17,7 @@ metadata:
 
 Regra transversal para qualquer claim de "feito/passou/funciona/completo": **evidência antes da afirmação, sempre.**
 
-Esta referência é citada de commit ([nano-commit](nano-spec:nano-commit:SKILL.md)), review ([review.md](nano-spec:review/review.md)), execute ([subagents.md](nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md)) e do orquestrador nano-spec (fases Review/Commit + rastreabilidade Spec→Testes→Commit).
+Esta referência é citada de commit ([nano-commit](nano-commit:skills/nano-commit/SKILL.md)), review ([review.md](nano-spec:review/review.md)), execute ([subagents.md](nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md)) e do orquestrador nano-spec (fases Review/Commit + rastreabilidade Spec→Testes→Commit).
 
 ---
 
@@ -158,7 +158,7 @@ Ver também o ciclo completo em [tdd.md > Verificação red-green completa](../e
 | **Execute → Done por task** ([implement.md](nano-spec:execute/implement.md)) | Antes de marcar task Done, verificar "Done When" rodando os comandos listados |
 | **Subagents → review loops** ([subagents.md](nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md)) | Spec reviewer DEVE ler o código e rodar testes — não confiar no report do implementer |
 | **Review** ([review.md](nano-spec:review/review.md)) | Iron Law obrigatória antes de marcar review como completo |
-| **Pre-commit** ([nano-commit](nano-spec:nano-commit:SKILL.md)) | **Gate bloqueante:** testes devem ter passado (evidência fresca) antes do dev ver opções de commit. Se falharam, BLOQUEAR o fluxo. |
+| **Pre-commit** ([nano-commit](nano-commit:skills/nano-commit/SKILL.md)) | **Gate bloqueante:** testes devem ter passado (evidência fresca) antes do dev ver opções de commit. Se falharam, BLOQUEAR o fluxo. |
 | **Spec → Commit traceability** | Antes do commit final, verificar que **todos** os requisitos `[FEAT]-XX` da spec.md têm código + teste correspondente, não só "tests pass" geral |
 
 ---

@@ -1,11 +1,11 @@
 # Commit
 
-> **Fluxo completo vive em [`nano-spec:nano-commit`](../../../nano-commit/SKILL.md).**
+> **Fluxo completo vive em [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md).**
 > Este arquivo lista os HARD BLOCKs e gates críticos para quem navega pelos references sem carregar a skill `nano-commit`.
 
 ## Quando o orquestrador entra aqui
 
-- Orquestrador `nano-spec` invoca `Skill('nano-spec:nano-commit')` na fase Commit
+- Orquestrador `nano-spec` invoca `Skill('nano-commit')` na fase Commit
 - Invocação standalone: dev diz "commitar", "criar PR", "fechar branch", etc. — a skill é auto-disparada via description
 
 ## HARD BLOCKs (não-negociáveis)
@@ -41,7 +41,7 @@ Scopes vêm do `CLAUDE.md` do projeto. Mensagem em PT-BR (ou idioma definido pel
 
 ## Detalhes operacionais
 
-Tudo abaixo está em [`nano-commit`](../../../nano-commit/SKILL.md):
+Tudo abaixo está em [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md):
 
 - Validação de branch antes do commit
 - Detecção de desvio de escopo

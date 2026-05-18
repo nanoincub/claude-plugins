@@ -236,7 +236,7 @@ Atualizar `.specs/codebase/` com o que mudou:
 
 ### Passo 11 — Commit
 
-Delegado para a skill **`nano-spec:nano-commit`**, que executa em ordem:
+Delegado para a skill **`nano-commit`**, que executa em ordem:
 
 1. **HARD BLOCK** do `git-flow-next` (instalado, ou processo bloqueado)
 2. Validação de branch (sugere `git flow feature/hotfix/release start` se você está em branch protegida)
@@ -474,7 +474,7 @@ Versões anteriores (3.x) do nano-spec dependiam do plugin externo `superpowers`
 |-------|-------------|
 | **Spec-Driven** | Especificar antes de implementar |
 | **Orquestrador** | A skill `nano-spec:nano-spec` que coordena fases |
-| **Skill filha** | Skill autônoma do plugin (ex: `nano-spec:nano-commit`) |
+| **Skill filha** | Skill autônoma do plugin (ex: `nano-commit`) |
 | **Reference** | Arquivo `.md` em `skills/nano-spec/references/`, carregado on-demand |
 | **Trilho** | Processo (o que / em que ordem) |
 | **Disciplinas internas** | Métodos técnicos (TDD, debug, verification, subagents, etc.) internalizados em `references/` |

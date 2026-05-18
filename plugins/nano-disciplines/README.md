@@ -23,6 +23,7 @@ claude plugin install nano-disciplines@nano-incub
 | **validate** | UAT contra critérios de aceite |
 | **code-analysis**, **coding-principles** | Pré-`/simplify` |
 | **docs-update** | Sincronizar `.specs/codebase/` |
+| **context-limits** | Limites de tamanho de arquivo + warning thresholds (universal — qualquer agente sobre markdown) |
 
 ## Como usar
 
@@ -57,11 +58,16 @@ plugins/nano-disciplines/
         │   ├── receiving-feedback.md
         │   ├── security.md
         │   └── validate.md
-        └── docs/
-            └── docs-update.md
+        ├── docs/
+        │   └── docs-update.md
+        └── context-limits.md     # limites de tamanho de arquivo (universal)
 ```
 
 ## Versão
+
+**1.2.0** — Absorve `context-limits.md` vindo do `nano-spec` 5.0.0 → 6.0.0 (BREAKING split do nano-commit). Regra de tamanho de arquivo / context loading deixa de ser SDD-específica e passa a viver na caixa de ferramentas universal.
+
+**1.1.0** — Split em 4 skills promovidas (tdd, debug, verification, code-review) + umbrella com internals.
 
 **1.0.0** — Extração das disciplinas internalizadas em `nano-spec` 4.0.0. Disponibilizadas como plugin standalone. `nano-spec` 5.0.0 depende deste plugin via HARD BLOCK.
 

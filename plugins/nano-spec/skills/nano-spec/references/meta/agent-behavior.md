@@ -45,7 +45,7 @@ Aplicar **antes** de qualquer outro comportamento. Sem exceção, sem skip silen
 | Gate | Quando | Onde |
 |---|---|---|
 | **Project Init Gate** | Primeira ação da sessão, antes de qualquer feature | Se `.specs/project/` ou `.specs/codebase/` faltar → rodar [project-init.md](../init/project-init.md) + [roadmap.md](../init/roadmap.md) + [brownfield-mapping.md](../init/brownfield-mapping.md). NUNCA pular. |
-| **git-flow-next instalado** | Primeira interação git da sessão | Ver [commit/gitflow.md](../commit/gitflow.md). Desativar só via `CLAUDE.md → Branching: Sem gitflow`. |
+| **git-flow-next instalado** | Primeira interação git da sessão | Ver [nano-commit](nano-commit:nano-commit). Desativar só via `CLAUDE.md → Branching: Sem gitflow`. |
 | **Baseline Test Gate** | Antes de criar branch de trabalho | Ver [execute/implement.md](../execute/implement.md#baseline-test-gate-entry-gate). RED → alerta P0 com [1] stop / [2] override + STATE.md entry. |
 | **Iron Law (verification)** | Antes de qualquer claim "pronto/passou/feito" e antes do commit | Ver [verification.md](nano-disciplines:verification). Evidência fresh **nesta mensagem**, sem exceção. |
 | **`/simplify` antes dos testes finais** | Pre-commit | Ordem fixa: `/simplify` → testes → commit. Inverter deixa janela para regressões silenciosas. |
@@ -170,7 +170,7 @@ Superpowers é obrigatório (HARD BLOCK no SessionStart). Todas as skills abaixo
 | Verificação formal | [verification.md](nano-disciplines:verification) — Iron Law: evidência fresh antes de qualquer claim |
 | Code review | [review/code-review.md](nano-disciplines:code-review) — template em [code-reviewer-prompt.md](nano-disciplines:skills/code-review/references/code-reviewer-prompt.md); Protocolo Dois-Eixos para pre-commit Large/Complex |
 | Recepção de feedback | [review/receiving-feedback.md](nano-disciplines:skills/code-review/references/receiving-feedback.md) — READ → UNDERSTAND → VERIFY → EVALUATE → RESPOND → IMPLEMENT |
-| Finish branch | Skill [`nano-commit`](../../../nano-commit/SKILL.md) — seção "Pós-Commit: Fechamento de Branch" (4 opções estruturadas) |
+| Finish branch | Skill [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md) — seção "Pós-Commit: Fechamento de Branch" (4 opções estruturadas) |
 | /simplify | Skill tool: `simplify` |
 | Diagramas | mermaid-studio (se instalado, opcional) |
 | Exploração de código | codenavi (se instalado, opcional) |

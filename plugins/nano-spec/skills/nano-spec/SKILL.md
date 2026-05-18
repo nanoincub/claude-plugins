@@ -4,14 +4,14 @@ description: >
   Processo Spec-Driven da Nano Incub. Orquestra fases: Specify → Design → Tasks →
   Execute → /simplify → Docs → Commit. Verificação executável por task. Auto-sizing por complexidade.
   Delega disciplinas técnicas (TDD, debug, verification, code review, subagents) para o plugin
-  `nano-disciplines` (HARD BLOCK).
+  `nano-disciplines` e o fluxo de commit/gitflow para o plugin `nano-commit` (HARD BLOCKs).
   Triggers: "nova feature", "implementar", "quick fix", "review", "commitar",
   "pause work", "resume work". Não use para design UI, docs isoladas, infra pura.
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 5.0.0
-  requires: nano-disciplines >= 1.0.0
+  version: 6.0.0
+  requires: nano-disciplines >= 1.2.0, nano-commit >= 1.4.0
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -73,7 +73,7 @@ Este processo define **O QUE fazer e EM QUE ORDEM** (o trilho: Specify → Desig
 - Specify e Execute são sempre obrigatórios
 - /simplify é **obrigatório antes de qualquer commit** — roda sobre o diff acumulado de todas as tasks
 - Suite completa de testes roda após /simplify, antes do commit
-- Commit nunca é automático — sempre perguntar ao dev (invocar skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md))
+- Commit nunca é automático — sempre perguntar ao dev (invocar skill [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md))
 - Docs é obrigatório para Medium+ ; no Quick Mode é checklist inline
 - Design é pulado quando não há decisões arquiteturais
 - Tasks é pulado quando há ≤3 passos óbvios
@@ -189,7 +189,7 @@ Isto garante que qualquer agente que leia o CLAUDE.md saiba exatamente onde busc
 
 ## Gate: Gitflow — em TODOS os modos (incluindo Quick Mode)
 
-Fluxo completo na skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md). **Este gate NÃO é opcional.**
+Fluxo completo na skill [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md). **Este gate NÃO é opcional.**
 
 **Pré-requisito (HARD BLOCK):** Na primeira interação com gitflow na sessão, executar `git flow version`. Se git-flow-next NÃO está instalado → **BLOQUEAR TODO O PROCESSO** até o dev instalar. Sem exceções, sem fallback para git puro. Única exceção: CLAUDE.md define `Sem gitflow` ou `trunk-based`.
 
@@ -379,8 +379,8 @@ Artefatos de feature **SEMPRE** vão para `.specs/features/YYYY-MM-DD-[feature]/
 | Review de código | [review.md](references/review/review.md) |
 | Auditoria de segurança | [security.md](nano-disciplines:skills/code-review/references/security.md) |
 | Atualizar docs do codebase | [docs-update.md](nano-disciplines:skills/nano-disciplines/references/docs-update.md) |
-| Commitar | skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md) |
-| Gitflow / branching | skill [`nano-spec:nano-commit`](../nano-commit/SKILL.md) |
+| Commitar | skill [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md) |
+| Gitflow / branching | skill [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md) |
 | Quick fix | [quick-mode.md](references/quick-mode/quick-mode.md) |
 
 ## Comportamento do Agente
@@ -405,7 +405,7 @@ Cada fase aplica disciplinas internas **automaticamente**. Dev pode desativar vi
 | **/simplify** | /simplify sobre diff acumulado (skill própria) |
 | **Review** | [verification.md](nano-disciplines:verification) (Iron Law: evidência antes de claims) + [code-review.md](nano-disciplines:code-review) (subagent reviewer com BASE_SHA/HEAD_SHA) ou Protocolo Dois-Eixos para Large/Complex pre-commit |
 | **Docs** | Checklist contra `.specs/codebase/` — [brownfield-mapping](references/init/brownfield-mapping.md) se docs muito defasados |
-| **Commit** | Skill `nano-spec:nano-commit` aplica [verification.md](nano-disciplines:verification) (Iron Law) + fechamento estruturado (4 opções: merge/PR/manter/discard) → testes bloqueiam opções |
+| **Commit** | Skill `nano-commit` aplica [verification.md](nano-disciplines:verification) (Iron Law) + fechamento estruturado (4 opções: merge/PR/manter/discard) → testes bloqueiam opções |
 
 **Regras:**
 - Aplicação automática — não perguntar antes de cada disciplina.
@@ -443,7 +443,7 @@ A rastreabilidade é reforçada em 4 pontos do trilho:
 - Documentos arquivados
 
 **Target:** <40k tokens. Reserve 160k+ para trabalho.
-**Monitoramento:** Exibir status quando >40k (ver [context-limits.md](references/meta/context-limits.md))
+**Monitoramento:** Exibir status quando >40k (ver [context-limits.md](nano-disciplines:skills/nano-disciplines/references/context-limits.md))
 
 ## Knowledge Verification Chain
 

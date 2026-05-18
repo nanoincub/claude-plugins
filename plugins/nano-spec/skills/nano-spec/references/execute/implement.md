@@ -58,7 +58,7 @@ A entrada no STATE.md é estruturada (template):
 
 ### Verificar branch (gitflow)
 
-Se em branch protegida, sugerir criação da branch de trabalho apropriada (`feature/*`, `hotfix/*`, `release/*`) conforme [gitflow.md](../commit/gitflow.md). Neste ponto o tipo de trabalho já é conhecido.
+Se em branch protegida, sugerir criação da branch de trabalho apropriada (`feature/*`, `hotfix/*`, `release/*`) conforme [nano-commit](nano-commit:nano-commit). Neste ponto o tipo de trabalho já é conhecido.
 
 ### Load context (OBRIGATÓRIO)
 

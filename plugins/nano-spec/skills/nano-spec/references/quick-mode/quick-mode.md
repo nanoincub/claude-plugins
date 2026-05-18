@@ -41,7 +41,7 @@ Get user approval before proceeding. If the pre-implementation check reveals the
 
 ### 2.5. Gate: Gitflow (obrigatório)
 
-Antes de implementar, verificar branch atual conforme [gitflow.md](../commit/gitflow.md):
+Antes de implementar, verificar branch atual conforme [nano-commit](nano-commit:nano-commit):
 
 1. Executar `git branch --show-current`
 2. Se branch protegida (`main`, `develop`, `master`):

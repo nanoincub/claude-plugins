@@ -1,6 +1,6 @@
 # Nano-Spec — Plugin para Claude Code
 
-Processo Spec-Driven da Nano Incub. Orquestra fases de desenvolvimento com verificação executável por task e /simplify obrigatório. **Requer `nano-disciplines`** (HARD BLOCK) — disciplinas técnicas extraídas em plugin separado a partir da versão 5.0.0.
+Processo Spec-Driven da Nano Incub. Orquestra fases de desenvolvimento com verificação executável por task e /simplify obrigatório. **Requer `nano-disciplines` + `nano-commit`** (HARD BLOCKs) — disciplinas técnicas em `nano-disciplines` (desde 5.0.0) e fluxo de commit/gitflow em `nano-commit` (desde 6.0.0).
 
 ```
 ┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐   ┌───────────┐   ┌──────┐   ┌────────┐
@@ -19,14 +19,15 @@ Registre o marketplace (uma vez):
 claude plugin marketplace add nanoincub/claude-plugins
 ```
 
-Instale o nano-spec e a dependência obrigatória `nano-disciplines`:
+Instale o nano-spec e as duas dependências obrigatórias:
 
 ```bash
 claude plugin install nano-disciplines@nano-incub
+claude plugin install nano-commit@nano-incub
 claude plugin install nano-spec@nano-incub
 ```
 
-> **HARD BLOCK:** desde a versão 5.0.0, o nano-spec **exige** o plugin `nano-disciplines` (disciplinas técnicas universais: TDD, debug, verification, code review, subagents, parallel dispatch, security, validate, etc.). Sem ele, o processo bloqueia na entrada.
+> **HARD BLOCK:** desde a versão 6.0.0, o nano-spec **exige** dois plugins via HARD BLOCK: `nano-disciplines` (disciplinas técnicas universais — TDD, debug, verification, code review, subagents, security, validate, etc.) e `nano-commit` (fluxo de gitflow + Conventional Commits + 4 opções de fechamento). Sem qualquer um dos dois, o processo bloqueia na entrada.
 
 ### Via organização (automático)
 
@@ -104,6 +105,8 @@ nano-spec/
 
 ## Versão
 
+**6.0.0 (BREAKING)** — Conclui a pureza arquitetural Spec-Driven iniciada na 5.0.0. Remove de nano-spec os 2 itens que não eram canonicamente SDD: a skill `nano-commit` (delivery — gitflow/Conventional Commits/PR) foi **extraída** para o plugin standalone `nano-commit` (v1.4.0), e `meta/context-limits.md` (regra de tamanho de arquivo — universal) **moveu** para `nano-disciplines` (v1.2.0). nano-spec passa a depender de DOIS plugins via HARD BLOCK: `nano-disciplines >= 1.2.0` e `nano-commit >= 1.4.0`. Refs migradas: `nano-spec:nano-commit:*` → `nano-commit:*`; `references/meta/context-limits.md` → `nano-disciplines:skills/nano-disciplines/references/context-limits.md`. Stub legado `references/commit/gitflow.md` removido (conteúdo já vive na SKILL.md do nano-commit). Para upgrade: instalar os 3 plugins via marketplace; refs hard-coded a `nano-spec:nano-commit` em código de terceiros precisam ser migradas para `nano-commit:`.
+
 **5.0.0 (BREAKING)** — Split arquitetural: as disciplinas técnicas internalizadas na 4.0.0 (verification, TDD, systematic-debugging, subagents, parallel-dispatch, code-review, receiving-feedback, security, validate, docs-update, code-analysis, coding-principles) foram **extraídas** para o plugin `nano-disciplines`. nano-spec volta a ser o que é: orquestrador puro de Spec-Driven Development. Disciplinas são consumidas via convenção `nano-disciplines:<path>`. HARD BLOCK em `nano-disciplines` no hook session-start e no SKILL.md. Motivação: preservar a identidade Spec-Driven (forma do processo) separada das ferramentas técnicas (disciplinas universais reutilizáveis fora do contexto Spec-Driven). Fica em nano-spec: `specify/`, `design/`, `tasks/`, `init/`, `quick-mode/`, `commit/`, `baseline-test-gate.md`, `execute/implement.md`, `meta/{agent-behavior,context-limits,discuss,grill,session-handoff,state-management}.md`, `review/{dois-eixos,review}.md`, e os reviewer prompts para spec/plan/tasks.
 
 **4.0.0 (BREAKING)** — Standalone total: as 10 disciplinas que viviam no plugin `superpowers` foram **internalizadas** em `references/`. HARD BLOCK do superpowers removido. Zero dependências de plugins externos. Bump major sinaliza fim da dependência obrigatória. Preserva integralmente as correções da 3.2.0 (Baseline Test Gate + fix `--fetch` no `nano-commit`). nano-commit 1.2.0 → 1.3.0 (Gate Iron Law via `verification.md` + Pós-Commit Fechamento de Branch inline). *Internalização revertida na 5.0.0 via split em `nano-disciplines`.*
@@ -116,6 +119,6 @@ nano-spec/
 
 3.0.0 (BREAKING) — Superpowers vira obrigatório (revertido na 4.0.0).
 
-2.11.0 — Feat: extrai fluxo de gitflow + commit para skill autônoma `nano-spec:nano-commit`.
+2.11.0 — Feat: extrai fluxo de gitflow + commit para skill autônoma `nano-commit`.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.

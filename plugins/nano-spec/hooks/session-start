@@ -17,7 +17,7 @@ escape_for_json() {
 # Lightweight context — awareness + rules + trigger to load full skill on-demand
 read -r -d '' CONTEXT << 'CONTEXT_EOF' || true
 <IMPORTANT>
-You have the nano-spec plugin installed (v5.0.0).
+You have the nano-spec plugin installed (v6.0.0).
 
 ## HARD BLOCK: nano-disciplines required
 
@@ -25,11 +25,23 @@ nano-spec orchestrates Spec-Driven Development but delegates technical disciplin
 
 Before any nano-spec phase, verify that `nano-disciplines` is installed. If NOT found → BLOCK the entire process and instruct:
 
-  nano-disciplines is NOT installed. This is a required dependency of nano-spec 5.0.0.
+  nano-disciplines is NOT installed. This is a required dependency of nano-spec 6.0.0.
   Install: claude plugin install nano-disciplines@nano-incub
   Then reload the session.
 
 Without nano-disciplines, nano-spec does NOT run — do not offer a standalone alternative.
+
+## HARD BLOCK: nano-commit required
+
+nano-spec invokes `nano-commit` at the Commit phase (gitflow + Conventional Commits + 4 closure options). Without it, the Commit gate cannot run.
+
+Before any nano-spec phase, verify that `nano-commit` is installed. If NOT found → BLOCK the entire process and instruct:
+
+  nano-commit is NOT installed. This is a required dependency of nano-spec 6.0.0.
+  Install: claude plugin install nano-commit@nano-incub
+  Then reload the session.
+
+Without nano-commit, nano-spec does NOT run — do not offer a standalone alternative.
 
 ## What nano-spec is
 
@@ -49,13 +61,19 @@ A Spec-Driven Development process for Nano Incub. It orchestrates phases (Specif
 
 Spec-Driven artifacts (specify, design, tasks, init, baseline-test-gate, dois-eixos protocol, agent-behavior, state-management) live in `nano-spec` itself.
 
-### How to follow `nano-disciplines:` references
+### How to follow `nano-disciplines:` and `nano-commit:` references
 
 When you see `nano-disciplines:<x>` in any markdown file:
 
 - If `<x>` is a promoted skill name (`tdd`, `debug`, `verification`, `code-review`) → invoke via the `Skill` tool using the full qualified name (e.g., `Skill('nano-disciplines:tdd')`).
 - If `<x>` is `skills/<skill>/references/<file>.md` or `skills/nano-disciplines/references/<file>.md` → use the `Read` tool with the absolute path inside the installed plugin.
 - Markdown links like `[anything](nano-disciplines:tdd)` mean "invoke the tdd skill" regardless of the display text.
+
+When you see `nano-commit` or `nano-commit:<x>`:
+
+- Bare `nano-commit` or `nano-commit:nano-commit` → invoke via `Skill('nano-commit:nano-commit')`.
+- `nano-commit:skills/nano-commit/SKILL.md` → use `Read` with the absolute path inside the installed plugin.
+- Markdown links like `[anything](nano-commit:nano-commit)` mean "invoke the nano-commit skill".
 
 ## Auto-Sizing (apply to EVERY development task)
 
@@ -79,13 +97,12 @@ When you see `nano-disciplines:<x>` in any markdown file:
 | Skill | Quando invocar | Triggers principais |
 |---|---|---|
 | `nano-spec:nano-spec` | Tarefa de dev (orquestra todas as fases) | "nova feature", "implementar", "quick fix", "review", "fix bug", "refactor", "pause work", "resume work" |
-| `nano-spec:nano-commit` | Commit/branch/PR direto (standalone, sem entrar no fluxo completo de spec) | "commitar", "criar commit", "criar branch", "criar PR", "abrir PR", "finalizar branch", "fechar feature", "merge", "gitflow" |
 
 ## Activation
 
 - Tarefa de **dev complexa** (feature, refactor, bug fix com investigação) → invocar `nano-spec:nano-spec`
-- Pedido **direto de commit/branch/PR/gitflow** (sem fluxo de spec) → invocar `nano-spec:nano-commit` standalone
-- `nano-spec:nano-spec` invoca `nano-spec:nano-commit` automaticamente na fase Commit — não é necessário invocar manualmente quando já está no fluxo completo
+- Pedido **direto de commit/branch/PR/gitflow** (sem fluxo de spec) → invocar `nano-commit:nano-commit` (plugin separado)
+- `nano-spec:nano-spec` invoca `nano-commit:nano-commit` automaticamente na fase Commit — não é necessário invocar manualmente quando já está no fluxo completo
 
 Do NOT use for: UI design only, isolated docs, pure infra.
 </IMPORTANT>

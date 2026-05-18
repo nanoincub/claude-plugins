@@ -12,7 +12,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # Nano Disciplines — Caixa de Ferramentas
@@ -44,6 +44,7 @@ Estas disciplinas não têm skill promovida — são invocadas POR outras skills
 | [coding-principles.md](references/coding-principles.md) | `/simplify`, `nano-spec` Execute | Princípios pré-`/simplify` — simplicidade, escopo, intent |
 | [validate.md](references/validate.md) | `nano-spec` Review (Complex), UAT | Validação contra critérios de aceite — User Acceptance Testing |
 | [docs-update.md](references/docs-update.md) | `nano-spec` Docs phase | Sincronizar `.specs/codebase/` após mudança arquitetural |
+| [context-limits.md](references/context-limits.md) | `nano-spec` Context Loading, qualquer agente sobre markdown | Limites de tamanho de arquivo, warning thresholds, regras de carregamento on-demand |
 
 ## Convenção de referência cross-plugin
 
@@ -60,10 +61,12 @@ Quando outra skill referencia conteúdo deste plugin, o destino aparece em uma d
 ## Quando NÃO usar este plugin
 
 - Orquestração de processo Spec-Driven → use `nano-spec`
-- Commits / branches / PRs → use `nano-spec:nano-commit`
+- Commits / branches / PRs → use `nano-commit`
 - Artefatos de spec (`spec.md`, `design.md`, `tasks.md`) → use `nano-spec`
 
 ## Versão
+
+**1.2.0** — Absorve `context-limits.md` vindo do `nano-spec` 5.0.0 → 6.0.0 (BREAKING split do nano-commit). Regra de tamanho de arquivo / context loading deixa de ser SDD-específica e passa a viver na caixa de ferramentas universal.
 
 **1.1.0** — Split em 4 skills promovidas (tdd, debug, verification, code-review) + umbrella com internals. Estrutura anterior (1.0.0) era 1 skill umbrella com todas as 20 references — substituída pela hierarquia atual para tornar as disciplinas user-facing mais assertivas no índice global.
 
