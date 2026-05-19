@@ -32,11 +32,12 @@ Basta pedir naturalmente:
 - Timeline detalhada com horário, projeto, branch, descrição e métricas
 - Resumo por projeto com divisão manhã/tarde
 - Sugestão de time track com blocos de 15 minutos
+- Cruzamento com eventos do Google Calendar (via MCP) para contextualizar gaps e reuniões
 - Saída em Markdown ou JSON
 
 ## Versão
 
-1.0.0
+1.1.0
 
 ## Licença
 
