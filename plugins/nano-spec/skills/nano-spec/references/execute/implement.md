@@ -159,6 +159,51 @@ Escreveu código antes do teste? Delete e recomece. Não guarde "como referênci
 
 **Se a task envolve mocks:** ler [testing-anti-patterns.md](nano-disciplines:skills/tdd/references/testing-anti-patterns.md) antes — 5 anti-padrões com Gate Functions para evitar testar mock em vez de comportamento real.
 
+**HARD CONSTRAINTS (anti-cheat de testes):**
+
+- NÃO modifique os testes escritos na fase RED. Os testes SÃO a spec — a implementação se conforma a eles.
+- NÃO enfraqueça assertions (deixá-las menos específicas para passar mais fácil).
+- NÃO delete ou pule casos de teste.
+- NÃO use o mecanismo de skip/disable/pending do framework para bypass de testes falhando.
+- Código mínimo para passar — melhorias estruturais ficam para task de refactor.
+
+Se um teste está genuinamente errado (testa comportamento errado segundo a spec), PARE e pergunte ao dev antes de modificá-lo. Nunca altere um teste silenciosamente.
+
+### 6.5. Tiered Gate Check (VERIFY)
+
+Rodar o gate check vindo da definição da task. Isso é OBRIGATÓRIO — não "se aplicável".
+
+1. Buscar o comando para o nível de Gate da task (quick/full/build) na seção Gate Check Commands do `TESTING.md` e rodá-lo.
+2. Exit code não-zero = STOP. Corrigir a falha. Re-rodar. Não prosseguir até verde.
+3. Confirmar que o test count bate com o esperado (nenhum teste foi silenciosamente deletado ou pulado).
+
+**Gates tiered (vindos dos Gate Check Commands do TESTING.md):**
+
+| A task inclui                          | Nível de gate | O que roda                  |
+| -------------------------------------- | ------------- | --------------------------- |
+| Apenas unit tests                      | Quick         | Comando de unit test        |
+| E2E ou integration tests               | Full          | Comandos unit + e2e         |
+| Última task de uma fase                | Build         | Build + lint + todos testes |
+| Sem testes (config, entities, etc)     | Build         | Build + lint apenas         |
+
+O gate check é determinístico. O test runner decide se o código está correto, não a auto-avaliação do agente.
+
+### 6.6. Post-Gate Review
+
+Após o gate check passar:
+
+1. **Verificar test count:** existem pelo menos tantos casos de teste quanto antes? (previne deleção silenciosa)
+2. **Verificar SPEC_DEVIATION:** se a implementação divergiu da spec/design, adicionar marker:
+
+```
+// SPEC_DEVIATION: [o que divergiu]
+// Reason: [por que a divergência foi necessária]
+```
+
+3. **Quick complexity check:** "Um senior engineer marcaria isso como overcomplicated?"
+   - Sim → simplificar, re-rodar gate
+   - Não → prosseguir
+
 ### 7. Self-Check
 
 Ask: "Would senior engineer flag this as overcomplicated?"
@@ -245,6 +290,8 @@ O Execute aplica estas disciplinas **automaticamente** conforme decidido pela á
 
 **Reading**: task definition from tasks.md
 **Dependencies**: [All done? ✅ | Blocked by: TY]
+**Tests**: [unit/e2e/integration/none]
+**Gate**: [quick/full/build]
 
 ### Pre-Implementation (MANDATORY)
 
@@ -264,6 +311,9 @@ O Execute aplica estas disciplinas **automaticamente** conforme decidido pela á
 - [x] Matches existing patterns
 - [x] Teste criado e passando (se aplicável)
 - [x] Testes do módulo afetado passando
+- [x] Gate check passou no nível apropriado (quick/full/build)
+- [x] Test count: [N] tests passam (sem deleções silenciosas)
+- [x] No SPEC_DEVIATION (ou markers adicionados)
 
 **Status**: ✅ Complete | ❌ Blocked | ⚠️ Partial
 ```

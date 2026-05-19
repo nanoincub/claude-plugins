@@ -221,6 +221,173 @@ No Quick Mode (≤3 files): /review só executa quando ativado e dev confirma. /
 
 ---
 
+## Feature-Level Validation & UAT (opcional)
+
+**Quando rodar:** após todas as tasks de uma feature (ou priority group) concluídas, antes de declarar a feature "pronta". É a verificação macro que complementa as verificações por-task feitas durante Execute.
+
+**Interactive UAT é disparado quando:** a feature tem comportamento complexo voltado ao usuário onde julgamento humano importa (fluxos de UI, padrões de interação, design visual). Para trabalho backend-only ou infraestrutura, checks automatizados bastam.
+
+**Triggers de validação explícita:** "validate", "verify work", "UAT", "test with me", "walk me through it".
+
+### 1. Check Completed Tasks
+
+Percorrer `tasks.md`:
+
+- [ ] Todas as tasks marcadas como done?
+- [ ] Alguma blocked ou partial?
+
+### 2. Verify Acceptance Criteria
+
+Para cada user story em `spec.md`:
+
+```markdown
+### P1: [Story Title]
+
+**Acceptance Criteria**:
+
+1. WHEN [X] THEN [Y] → [PASS/FAIL]
+2. WHEN [X] THEN [Y] → [PASS/FAIL]
+```
+
+### 3. Run Build-Level Gate Check (OBRIGATÓRIO)
+
+Rodar o gate check de nível Build do `TESTING.md`. NÃO é opcional.
+
+Se `TESTING.md` não existir (greenfield), usar o comando de gate combinado com o dev na fase Tasks.
+
+1. Rodar: `[comando build gate do TESTING.md, ou o comando combinado no planejamento]`
+2. Exit code não-zero = STOP. Não prosseguir para Code Quality Check.
+3. Registrar resultados:
+   - Total test count: [N]
+   - Passed: [N]
+   - Failed: [lista]
+   - Skipped: [lista — cada skip precisa ser justificado]
+
+**Test Integrity Check:**
+
+- Comparar test count atual contra o count antes da feature ser implementada
+- Se test count DIMINUIU: investigar por quê. Testes só devem ser deletados com justificativa explícita.
+- Se assertions foram enfraquecidas (menos específicas que antes): marcar como potencial regressão.
+
+### 4. Interactive UAT (se feature user-facing)
+
+Para cada deliverable testável, apresentar um teste por vez:
+
+```
+Test [N]: [Test Name]
+
+Expected: [O que deve acontecer — específico e observável]
+
+→ Funcionou? Descreva o que você vê.
+```
+
+Aguardar resposta do dev:
+
+| Dev diz                            | Interpretar como          |
+| ---------------------------------- | ------------------------- |
+| "sim", "pass", "funciona", "next"  | ✅ Pass                  |
+| "skip", "não consigo testar", "n/a"| ⏭️ Skip                  |
+| Qualquer outra coisa               | ❌ Issue — registrar verbatim |
+
+**Severity inference (nunca perguntar severidade ao dev):**
+
+| Descrição do dev contém                          | Severidade inferida |
+| ------------------------------------------------ | ------------------- |
+| crash, error, exception, fails, broken, quebrou  | Blocker             |
+| doesn't work, wrong, missing, can't, errado      | Major               |
+| slow, weird, off, minor, small, lento            | Minor               |
+| color, font, spacing, alignment, visual, cor     | Cosmetic            |
+| (não claro)                                      | Major (default)     |
+
+### 5. Generate Fix Plans (se issues encontrados)
+
+Para cada issue encontrado durante UAT:
+
+1. **Diagnose** — analisar o codebase para achar a root cause
+2. **Create fix task** — escrever definição de task com:
+   - What: o fix específico
+   - Where: paths de arquivo
+   - Verify: como provar que o fix funciona
+   - Done when: critérios de aceitação do fix
+3. **Present fix plan** — mostrar todas as fix tasks ao dev para aprovação
+
+Fix tasks seguem o mesmo formato de tasks regulares e podem ser executadas via fase implement.
+
+**Guardrail:** máximo 3 iterações diagnósticas por issue. Se a root cause não for encontrada após 3 tentativas, marcar para investigação humana.
+
+### 6. Validation Report
+
+Template:
+
+```markdown
+# [Feature] Validation
+
+**Date**: [YYYY-MM-DD]
+**Spec**: `.specs/features/YYYY-MM-DD-[feature]/spec.md`
+
+---
+
+## Task Completion
+
+| Task | Status     | Notes   |
+| ---- | ---------- | ------- |
+| T1   | ✅ Done    | -       |
+
+## User Story Validation
+
+### P1: [Story Title]
+
+| Criterion     | Result  |
+| ------------- | ------- |
+| WHEN X THEN Y | ✅ PASS |
+
+**Status**: ✅ P1 Complete
+
+## Interactive UAT Results (se realizado)
+
+| #   | Test        | Result   | Details                                              |
+| --- | ----------- | -------- | ---------------------------------------------------- |
+| 1   | [Test name] | ✅ Pass  | -                                                    |
+| 2   | [Test name] | ❌ Issue | [resposta verbatim do dev] — Severidade: [inferida] |
+
+## Tests
+
+- **Gate command**: [comando completo]
+- **Result**: [X] passed, [Y] failed, [Z] skipped
+- **Test count antes da feature**: [N]
+- **Test count depois da feature**: [M]
+- **Delta**: [+(M - N) novos tests]
+- **Skipped tests**: [lista com justificativa para cada]
+- **Failures**: [lista com detalhes]
+
+## Fix Plans (se issues encontrados)
+
+### Fix 1: [Descrição do issue]
+
+- **Root cause**: [o que está realmente errado]
+- **Fix task**: [definição de task]
+- **Priority**: [Blocker/Major/Minor/Cosmetic]
+
+## Requirement Traceability Update
+
+Atualizar status dos requisitos em `spec.md`:
+
+| Requirement | Previous Status | New Status   |
+| ----------- | --------------- | ------------ |
+| [FEAT]-01   | Implementing    | ✅ Verified  |
+| [FEAT]-02   | Implementing    | ❌ Needs Fix |
+
+## Summary
+
+**Overall**: ✅ Ready | ⚠️ Issues | ❌ Not Ready
+
+**What works**: [lista]
+**Issues found**: [Issue 1: como corrigir]
+**Next steps**: [ação]
+```
+
+---
+
 ## Tips
 
 - Review é opt-in — ativar via defaults ou quando dev pedir

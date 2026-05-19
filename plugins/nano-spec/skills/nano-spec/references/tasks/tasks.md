@@ -144,6 +144,30 @@ Antes de quebrar em tasks, carregar nesta ordem:
 
 Se `context.md` registra decisão que conflita com o design proposto, escalar ao dev antes de gerar tasks. Não inventar reconciliação silenciosa.
 
+### 1.5. Load Test Coverage Matrix
+
+Ler `.specs/codebase/TESTING.md` (se existir) antes de criar tasks. A Matriz de Cobertura de Testes
+e a Avaliação de Paralelismo orientam duas decisões críticas:
+
+**Testes co-localizados:** toda task que cria ou modifica uma camada de código com tipo de teste exigido
+DEVE incluir a escrita/atualização desses testes na mesma task. Testes NÃO são tasks separadas.
+
+| Task cria...                                  | Done When deve incluir...                          |
+| --------------------------------------------- | -------------------------------------------------- |
+| Camada com exigência "unit"                   | Unit test escrito + gate quick passa               |
+| Camada com exigência "e2e"                    | E2E test escrito + gate full passa                 |
+| Camada com exigência "integration"            | Integration test escrito + gate full passa         |
+| Camada com exigência "none"                   | Gate check no nível apropriado                     |
+
+**Flags de paralelismo:** cruzar com a Avaliação de Paralelismo ao marcar tasks `[P]`:
+
+- Se o tipo de teste exigido da task está marcado "Parallel-Safe: Não" → remover flag `[P]`
+- Se o tipo de teste exigido da task está marcado "Parallel-Safe: Sim" → `[P]` é permitido
+- Se a task não tem testes → `[P]` depende apenas de dependências de código
+
+Se `TESTING.md` não existir (projeto greenfield), perguntar ao dev quais tipos de teste e comandos
+o projeto usará antes de criar tasks.
+
 ### 2. Break Into Atomic Tasks
 
 **Task = ONE deliverable**. Examples:
@@ -159,7 +183,19 @@ What MUST be done before this task can start?
 
 Group tasks into phases. Identify what can run in parallel.
 
-### 5. ASK About MCPs and Skills
+### 5. Validate Before Presenting (OBRIGATÓRIO)
+
+Antes de apresentar as tasks ao dev, rodar TODOS os três pre-approval checks. Não são opcionais — são gates. Se qualquer check falhar, reestruturar as tasks e re-rodar até passarem.
+
+**Check 1: Task Granularity** — verificar que cada task é atômica (ver seção Task Granularity Check).
+
+**Check 2: Diagram-Definition Cross-Check** — verificar que o diagrama de execução bate com o campo `Depends on` de cada task (ver seção Diagram-Definition Cross-Check). Construir a tabela cross-check e incluí-la no output.
+
+**Check 3: Test Co-location Validation** — verificar que o campo `Tests` de cada task bate com a matriz de cobertura do `TESTING.md` (ver seção Test Co-location Validation). Construir a tabela de validação e incluí-la no output.
+
+**Apresentar ambas as tabelas junto com as tasks** para o dev ver os resultados da validação. Qualquer ❌ significa que VOCÊ deve reestruturar antes de apresentar — não mostrar tasks falhando ao dev pedindo aprovação.
+
+### 6. ASK About MCPs and Skills
 
 **CRITICAL**: Before execution, ask the user:
 
@@ -247,6 +283,9 @@ T8 → T9
 - [ ] Types exported correctly
 - [ ] No TypeScript errors
 
+**Tests**: [unit/e2e/integration/none — vindo da coverage matrix]
+**Gate**: [quick/full/build — vindo dos gate check commands]
+
 ---
 
 ### T2: [Implement Y Service] [P]
@@ -266,7 +305,11 @@ T8 → T9
 
 - [ ] Implements interface from T1
 - [ ] Handles error cases from design
-- [ ] Unit test passes
+- [ ] Gate check passa: `[comando quick gate vindo do TESTING.md]`
+- [ ] Test count: [N] tests passam (sem deleções silenciosas)
+
+**Tests**: unit
+**Gate**: quick
 
 ---
 
@@ -287,6 +330,11 @@ T8 → T9
 - [ ] Component renders correctly
 - [ ] Handles props from interface
 - [ ] Follows existing component patterns
+- [ ] Gate check passa: `[comando quick gate vindo do TESTING.md]`
+- [ ] Test count: [N] tests passam (sem deleções silenciosas)
+
+**Tests**: unit
+**Gate**: quick
 
 ---
 
@@ -305,7 +353,11 @@ T8 → T9
 **Done when**:
 
 - [ ] Feature works per acceptance criteria
-- [ ] Integration test passes
+- [ ] Gate check passa: `[comando full gate vindo do TESTING.md]`
+- [ ] Test count: [N] tests passam (sem deleções silenciosas)
+
+**Tests**: integration
+**Gate**: full
 
 **Commit**: `feat([scope]): [description]`
 
@@ -332,6 +384,14 @@ Phase 3 (Sequential):
 
 ```
 
+**Constraint de paralelismo:** uma task marcada `[P]` precisa ter TODAS estas condições:
+
+- Nenhuma dependência pendente
+- Tipo de teste exigido é parallel-safe (segundo Avaliação de Paralelismo do `TESTING.md`)
+- Sem estado mutável compartilhado com outras tasks `[P]` na mesma fase
+
+Se os testes da task NÃO são parallel-safe, ela DEVE rodar sequencial mesmo que o código de implementação não tenha dependências. A execução dos testes é o gargalo.
+
 ---
 
 ## Task Granularity Check
@@ -353,6 +413,53 @@ Before approving tasks, verify they are granular enough:
 
 ---
 
+## Diagram-Definition Cross-Check
+
+Antes de aprovar as tasks, verificar que o diagrama de execução é consistente com as definições das tasks. Esses são artefatos independentes que podem divergir — o diagrama é desenhado para clareza visual, enquanto o corpo das tasks é escrito para precisão. Os dois precisam concordar.
+
+Para cada task, conferir:
+
+| Task | Depends On (corpo da task) | Diagrama mostra              | Status                |
+| ---- | -------------------------- | ---------------------------- | --------------------- |
+| T[N] | [deps do corpo]            | [deps das setas do diagrama] | ✅ Match ou ❌ Mismatch |
+
+**Regras:**
+
+- Todo `Depends on` no corpo da task precisa ter seta correspondente no diagrama.
+- Toda seta no diagrama precisa corresponder a um `Depends on` no corpo da task alvo.
+- Tasks mostradas como paralelas (`[P]`) no diagrama não podem depender umas das outras.
+- Se uma task depende de outra na mesma fase paralela, elas NÃO são paralelas — corrigir o diagrama ou remover a flag `[P]`.
+
+---
+
+## Test Co-location Validation
+
+Antes de aprovar as tasks, verificar que o campo `Tests` de TODA task é consistente com a Matriz de Cobertura de Testes do `TESTING.md`. Este é um gate hard — tasks que falham aqui DEVEM ser corrigidas.
+
+Para cada task, conferir: a task cria ou modifica uma camada de código que tem tipo de teste exigido na matriz de cobertura? Se sim, o campo `Tests` da task DEVE bater.
+
+| Task           | Camada criada/modificada       | Matriz exige | Task diz             | Status                  |
+| -------------- | ------------------------------ | ------------ | -------------------- | ----------------------- |
+| T[N]: [nome]   | [camada da matriz]             | [tipo]       | [campo Tests da task]| ✅ OK ou ❌ VIOLATION  |
+
+**Regras:**
+
+- "Testado em outra task" NÃO é justificativa válida para `Tests: none`. Isso é test deferral — exatamente o anti-pattern que esta validação previne.
+- `Tests: none` só é válido quando a matriz de cobertura diz "none" para aquela camada de código.
+- Se a task cria MÚLTIPLAS camadas (ex: service + controller), usar o tipo de teste MAIS ALTO exigido por qualquer uma delas.
+- Qualquer ❌ VIOLATION → reestruturar a task para incluir os testes exigidos antes de prosseguir.
+
+**Resolvendo dependências de compilação:**
+
+Quando uma task cria código que só pode ser testado depois que uma task posterior completa (ex: um controller que precisa de wiring de módulo antes que seus testes e2e rodem), NÃO adiar os testes para uma task separada. Em vez disso, reestruturar:
+
+1. **Merge forward:** mover os testes da task não-testável para a task mais cedo onde eles passam a ser executáveis (ex: a task de wiring inclui wiring + testes e2e para o controller que ela habilita).
+2. **Merge backward:** absorver a dependência bloqueante na task atual para que ela se torne self-testable (ex: a task de controller inclui seu próprio registro de módulo).
+
+Escolher a opção que mantém as tasks atômicas e coesas. O objetivo: nenhuma task produz código não-verificado. Se o código não pode ser testado na task que o cria, as fronteiras da task estão erradas.
+
+---
+
 ## Tips
 
 - **[P] = Parallel OK** — Mark tasks that can run simultaneously
@@ -371,9 +478,10 @@ Every task MUST include:
 
 **Done when checklist:**
 
-- Specific, testable outcomes
-- Pass/fail criteria
-- Test execution commands
+- Outcomes específicos, testáveis
+- Critérios pass/fail
+- Comando de teste específico vindo da tabela Gate Check Commands
+- Pass count esperado (previne deleção silenciosa de testes)
 
 **Verify section:**
 
@@ -388,12 +496,15 @@ Every task MUST include:
 
 **What:** [Deliverable]
 **Where:** [File path]
+**Tests**: [unit/e2e/integration/none]
+**Gate**: [quick/full/build]
 
 **Done when:**
 
 - [ ] [Specific outcome]
 - [ ] [Specific outcome]
-- [ ] Tests pass: [command]
+- [ ] Gate check passa: `[comando vindo dos Gate Check Commands]`
+- [ ] Test count: [N] tests passam (sem deleções silenciosas)
 
 **Verify:**
 [Command to prove it works]

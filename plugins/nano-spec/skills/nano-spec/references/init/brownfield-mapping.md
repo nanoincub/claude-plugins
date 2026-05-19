@@ -337,6 +337,29 @@ Exemplos: [nomes reais de constantes]
 **Atual:** [se mensurável]
 **Objetivos:** [se documentado]
 **Enforcement:** [se automatizado]
+
+## Matriz de Cobertura de Testes
+
+Analisar o codebase para determinar quais camadas de código requerem quais tipos de teste.
+Para cada camada, documentar tipo de teste exigido, padrão de localização de arquivo e comando de execução.
+
+| Camada de Código | Tipo de Teste Exigido         | Padrão de Localização  | Comando de Execução |
+| ---------------- | ----------------------------- | ---------------------- | ------------------- |
+| [camada]         | [unit/integration/e2e/none]   | [glob ou path pattern] | [comando]           |
+
+## Avaliação de Paralelismo
+
+| Tipo de Teste | Parallel-Safe? | Modelo de Isolamento | Evidência                       |
+| ------------- | -------------- | -------------------- | ------------------------------- |
+| [tipo]        | [Sim/Não]      | [descrição]          | [arquivo/padrão que comprova]   |
+
+## Comandos de Gate Check
+
+| Nível de Gate | Quando Usar                                    | Comando                          |
+| ------------- | ---------------------------------------------- | -------------------------------- |
+| Quick         | Após tasks com apenas unit tests               | [comando de unit test]           |
+| Full          | Após tasks com testes e2e/integration          | [comandos de unit + e2e]         |
+| Build         | Após conclusão de fase                         | [build + lint + unit + e2e]      |
 ```
 
 **Instruções:**
@@ -345,6 +368,9 @@ Exemplos: [nomes reais de constantes]
 - Documentar padrões de teste reais observados
 - Anotar abordagem de organização de testes
 - Incluir instruções de execução
+- **Matriz de Cobertura de Testes:** amostrar 5-10 arquivos de teste existentes para identificar quais camadas são testadas e como. Olhar localização dos arquivos de teste em relação ao source para determinar padrões. Extrair comandos de execução de `package.json`, `project.json`, `Makefile`, config de CI. Marcar camadas sem testes existentes como "none" com nota em CONCERNS.md.
+- **Avaliação de Paralelismo:** sinais NÃO parallel-safe: conexão de DB compartilhada (mesma URL vinda do config), cleanup por tabela em `beforeEach`/`afterAll` (`.del()`, `DELETE FROM`, `TRUNCATE`), reset de mock state em globais. Sinais parallel-safe: criação de DB por teste (Testcontainers, schema dinâmico, SQLite em memória), namespacing de dados (todo dado keyed por ID único de teste), nenhum estado mutável compartilhado entre arquivos de teste, todas as deps mockadas (`jest.fn()`, `vi.fn()`).
+- **Comandos de Gate Check:** extrair dos comandos reais do projeto — não inventar comandos.
 
 ---
 
