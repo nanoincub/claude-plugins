@@ -1,0 +1,6 @@
+{
+  "name": "nano-commit",
+  "version": "1.4.0",
+  "description": "Fluxo completo de commit da Nano Incub — git-flow-next (HARD BLOCK), gitflow clássico, Conventional Commits, gates obrigatórios, 4 opções de fechamento de branch. Standalone — invocável sem nano-spec.",
+  "author": { "name": "Nano Incub" }
+}

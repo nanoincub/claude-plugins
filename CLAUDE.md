@@ -46,6 +46,9 @@ Documentação estruturada do projeto. Consultar antes de tomar decisões.
 - `.specs/codebase/CONCERNS.md` — Tech debt, riscos e áreas frágeis
 
 ### Features (criados por feature via nano-spec)
-- `.specs/features/[feature]/spec.md` — Requisitos e critérios de aceite
-- `.specs/features/[feature]/design.md` — Arquitetura e componentes
-- `.specs/features/[feature]/tasks.md` — Tasks atômicas de implementação
+
+Pasta da feature: `.specs/features/YYYY-MM-DD-[feature]/` (prefixo de data obrigatório, ordena cronologicamente).
+
+- `.specs/features/YYYY-MM-DD-[feature]/spec.md` — Requisitos e critérios de aceite
+- `.specs/features/YYYY-MM-DD-[feature]/design.md` — Arquitetura e componentes
+- `.specs/features/YYYY-MM-DD-[feature]/tasks.md` — Tasks atômicas de implementação

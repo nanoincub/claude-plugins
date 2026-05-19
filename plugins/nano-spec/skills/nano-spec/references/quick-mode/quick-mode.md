@@ -1,0 +1,211 @@
+# Quick Mode
+
+**Goal:** Execute small, ad-hoc tasks with the same quality principles but without full pipeline ceremony.
+
+**Trigger:** "Quick fix", "Quick task", "Small change", "Bug fix", "Just do X"
+
+## When to Use
+
+| Use quick mode             | Use full pipeline                   |
+| -------------------------- | ----------------------------------- |
+| Bug fixes with known cause | New features with multiple stories  |
+| Config changes             | Architectural changes               |
+| Small UI tweaks            | Features requiring design decisions |
+| Adding a field/column      | Multi-component features            |
+| One-off scripts            | Anything with unclear scope         |
+| Dependency updates         | Features requiring user stories     |
+
+**Rule of thumb:** If you can describe it in one sentence AND it touches ≤3 files, it's a quick task.
+
+## Process
+
+### 1. Describe the Task
+
+User provides a clear, one-sentence description. If vague, ask for specifics:
+
+- ❌ "Fix the login" → Ask: "What's broken? What should happen instead?"
+- ✅ "Fix: login button returns 401 because token refresh skips expired check"
+
+### 2. Pre-Implementation Check
+
+Before writing code, state:
+
+```
+Quick Task: [description]
+Files: [list ONLY files to touch]
+Approach: [one sentence]
+Verify: [how to prove it works]
+```
+
+Get user approval before proceeding. If the pre-implementation check reveals the task is bigger than expected (>3 files, unclear dependencies, design decisions needed), recommend the full pipeline instead.
+
+### 2.5. Gate: Gitflow (obrigatório)
+
+Antes de implementar, verificar branch atual conforme [nano-commit](nano-commit:nano-commit):
+
+1. Executar `git branch --show-current`
+2. Se branch protegida (`main`, `develop`, `master`):
+   - Executar `git pull` para partir da versão mais recente
+   - Sugerir criação de branch via `git flow <tipo> start <nome>`
+   - Aguardar decisão do dev antes de continuar
+3. Se branch de trabalho (`feature/*`, `hotfix/*`, etc.) → seguir normalmente
+
+**Este gate NÃO é opcional.** Quick Mode simplifica cerimônia, não pula safety gates.
+
+### 3. Implement
+
+Follow [coding-principles.md](nano-disciplines:skills/nano-disciplines/references/coding-principles.md):
+
+- Simplest code that works
+- Touch ONLY listed files
+- No scope creep — fix the thing, nothing else
+
+**Bug fixes:**
+
+Quando a task é um bug fix:
+
+1. DEVE criar failing test que reproduz o bug ANTES de corrigir
+2. Ciclo completo em [tdd.md](nano-disciplines:tdd): RED → Verify RED → GREEN → Verify GREEN → REFACTOR
+3. Aplicar a [verificação red-green completa](nano-disciplines:tdd#verificação-red-green-completa-bug-fixes) (reverter fix, rodar teste MUST FAIL, restaurar, rodar PASS) — prova que o teste captura o bug
+4. Se o bug é difícil de reproduzir, seguir [debug.md](nano-disciplines:debug) — 4 fases (Root Cause → Pattern → Hypothesis → Fix) com Iron Law "NO FIXES WITHOUT ROOT CAUSE FIRST"
+
+### 4. Verify
+
+Run verification from step 2. Mark done only after verification passes.
+
+**Verificação red-green (bug fixes):**
+
+A verificação DEVE incluir o ciclo red-green completo:
+
+1. Rodar teste novo (PASS)
+2. Reverter fix
+3. Rodar teste (MUST FAIL — prova que o teste realmente testa o bug)
+4. Restaurar fix
+5. Rodar teste (PASS)
+
+Isso prova que o teste é efetivo e não um falso positivo.
+
+### 5. Perguntar commit
+
+Após verificar, perguntar ao dev:
+
+```
+Quer commitar?
+  Arquivos: [lista]
+  Commit sugerido: <type>(<scope>): <description>
+```
+
+- Se **não** → fim. Mudanças ficam no working tree.
+- Se **sim** → continuar com /simplify → Testes → Docs → Commit.
+
+### 6. /simplify (obrigatório antes do commit)
+
+Executar `/simplify` sobre o diff — reuse, qualidade, eficiência.
+
+1. Se issues encontrados → corrigir → re-executar `/simplify` (max 3x)
+2. Se limpo → continuar
+
+### 7. Testes + Iron Law (OBRIGATÓRIO)
+
+Pedir ao dev para rodar a suite de testes do projeto, informando o comando. Motivo: evitar gasto de tokens em output de testes. Aguardar confirmação do dev.
+
+**A Iron Law aplica integralmente em Quick Mode** — sem exceção:
+
+- Não declarar "pronto" / "passou" / "funcionou" sem evidência fresca **nesta mensagem**
+- Confirmação do dev em mensagens anteriores não conta se houve mudança de código desde então
+- Se a confirmação for "passou" sem output, OK — a palavra do dev é a evidência
+- Se faltar confirmação, bloquear o commit
+
+Ver [verification.md](nano-disciplines:verification) — a Iron Law e os red flags valem 100% em Quick Mode (não é por ser "quick" que pode pular evidência).
+
+### 8. Docs Check (inline)
+
+Verificação rápida de impacto nos docs do codebase (`.specs/codebase/`):
+
+```
+Docs check: [sem impacto] ou [atualizou STACK.md — nova dependência X]
+```
+
+Se impactou → atualizar o doc relevante. Se `.specs/codebase/` não existe → pular.
+Ver [docs-update.md](nano-disciplines:skills/nano-disciplines/references/docs-update.md) para detalhes.
+
+### 9. Commit
+
+Seguir [commit.md](../commit/commit.md) **incluindo validação de branch (seção 0)**. Se o gate de gitflow foi pulado ou o dev escolheu ficar na branch protegida, esta é a última chance de criar branch antes de commitar.
+
+```
+<type>(<scope>): <description>
+```
+
+Use imperative mood, lowercase, no period.
+
+Examples:
+
+- `fix(auth): prevent 401 on token refresh`
+- `feat(settings): add dark mode toggle`
+- `chore(deps): update eslint to v9`
+
+### 10. Track
+
+Update `.specs/project/STATE.md` with quick task record (see state-management.md Quick Tasks section).
+
+---
+
+## Structure
+
+Quick tasks live separately from planned features:
+
+```
+.specs/
+└── quick/
+    └── NNN-slug/
+        ├── TASK.md       # Description + verification
+        └── SUMMARY.md    # What was done + commit
+```
+
+**TASK.md template:**
+
+```markdown
+# Quick Task NNN: [Title]
+
+**Date:** [date]
+**Status:** Done | In Progress | Blocked
+
+## Description
+
+[One sentence: what and why]
+
+## Files Changed
+
+- `src/path/to/file.ts` — [what changed]
+- `src/path/to/other.ts` — [what changed]
+
+## Verification
+
+- [ ] [How to verify it works]
+- [ ] [Expected behavior after fix]
+
+## Commit
+
+`[hash]` — [commit message]
+```
+
+---
+
+## Guardrails
+
+- **Max 3 files** — If more, use full pipeline
+- **Max 1 hour** — If longer, scope is wrong
+- **No design decisions** — If you're choosing between approaches, use full pipeline
+- **No new dependencies** — Adding packages needs full pipeline review
+- **Track everything** — Even quick tasks get commits and STATE.md entries
+- **TDD para bugs** — Mesmo no Quick Mode, bug fixes devem ter failing test. Quick ≠ sem teste.
+
+---
+
+## Tips
+
+- **Quick ≠ sloppy** — Same coding principles apply, just less ceremony
+- **When in doubt, go full** — Better to over-plan than to ship broken code
+- **Quick tasks compound** — If you're doing 5+ quick tasks for the same area, it's a feature that needs planning
+- **Verify before marking done** — The whole point is quality, even for small tasks

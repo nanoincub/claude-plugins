@@ -8,15 +8,18 @@ Centraliza plugins que automatizam e padronizam fluxos de desenvolvimento com IA
 
 | Plugin | Descrição | Versão |
 |--------|-----------|--------|
-| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven com verificação por task e /simplify obrigatório | 2.9.0 |
-| [**nano-resumo-dia**](plugins/nano-resumo-dia/) | Timeline de trabalho dos históricos de sessão do Claude Code | 1.0.0 |
+| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven — orquestrador puro (Specify → Design → Tasks → Execute → /simplify → Commit). Requer `nano-disciplines` + `nano-commit`. | 6.0.0 |
+| [**nano-disciplines**](plugins/nano-disciplines/) | Disciplinas técnicas universais: TDD, debug, verification, code review, subagents, parallel dispatch, security, validate, docs-update, context-limits. Reutilizável fora do Spec-Driven. | 1.2.0 |
+| [**nano-commit**](plugins/nano-commit/) | Fluxo de commit (gitflow + Conventional Commits + 4 opções de fechamento). Standalone, invocável sem nano-spec. | 1.4.0 |
+| [**nano-resumo-dia**](plugins/nano-resumo-dia/) | Timeline de trabalho dos históricos de sessão do Claude Code, com cruzamento de eventos do Google Calendar | 1.1.0 |
 
 ## Instalação
 
 ### Pré-requisitos
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) instalado e configurado
-- [Superpowers](https://github.com/anthropics/claude-code-plugins-official) (recomendado) — motor de TDD, debugging, worktrees, code review
+
+> **HARD BLOCK:** desde a 6.0.0, o nano-spec depende de DOIS plugins via HARD BLOCK — `nano-disciplines` (caixa de ferramentas universal) e `nano-commit` (fluxo de commit/gitflow). Sem um dos dois, o orquestrador bloqueia. Instale os três.
 
 ### Via terminal (recomendado)
 
@@ -26,10 +29,11 @@ Registre o marketplace (uma vez):
 claude plugin marketplace add nanoincub/claude-plugins
 ```
 
-Instale o superpowers (dependência recomendada) e o plugin:
+Instale os plugins (ordem: dependências primeiro, depois o orquestrador):
 
 ```bash
-claude plugin install superpowers@claude-plugins-official
+claude plugin install nano-disciplines@nano-incub
+claude plugin install nano-commit@nano-incub
 claude plugin install nano-spec@nano-incub
 ```
 

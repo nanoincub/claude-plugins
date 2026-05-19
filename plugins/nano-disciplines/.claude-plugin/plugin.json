@@ -1,0 +1,8 @@
+{
+  "name": "nano-disciplines",
+  "version": "1.2.0",
+  "description": "Disciplinas técnicas universais da Nano Incub. 4 skills promovidas (tdd, debug, verification, code-review) + umbrella com internals (subagents, code-analysis, coding-principles, validate, docs-update, context-limits).",
+  "author": {
+    "name": "Nano Incub"
+  }
+}

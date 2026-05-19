@@ -1,6 +1,6 @@
 # Nano-Spec — Plugin para Claude Code
 
-Processo Spec-Driven da Nano Incub. Orquestra fases de desenvolvimento com verificação executável por task e /simplify obrigatório.
+Processo Spec-Driven da Nano Incub. Orquestra fases de desenvolvimento com verificação executável por task e /simplify obrigatório. **Requer `nano-disciplines` + `nano-commit`** (HARD BLOCKs) — disciplinas técnicas em `nano-disciplines` (desde 5.0.0) e fluxo de commit/gitflow em `nano-commit` (desde 6.0.0).
 
 ```
 ┌──────────┐   ┌──────────┐   ┌─────────┐   ┌─────────┐   ┌───────────┐   ┌──────┐   ┌────────┐
@@ -19,14 +19,15 @@ Registre o marketplace (uma vez):
 claude plugin marketplace add nanoincub/claude-plugins
 ```
 
-Instale o nano-spec e o superpowers (dependência):
+Instale o nano-spec e as duas dependências obrigatórias:
 
 ```bash
-claude plugin install superpowers@claude-plugins-official
+claude plugin install nano-disciplines@nano-incub
+claude plugin install nano-commit@nano-incub
 claude plugin install nano-spec@nano-incub
 ```
 
-> **Nota:** O superpowers é o motor do nano-spec — fornece TDD, debugging, worktrees, code review e outras ferramentas que o processo orquestra. O nano-spec funciona sem ele, mas com capacidades reduzidas.
+> **HARD BLOCK:** desde a versão 6.0.0, o nano-spec **exige** dois plugins via HARD BLOCK: `nano-disciplines` (disciplinas técnicas universais — TDD, debug, verification, code review, subagents, security, validate, etc.) e `nano-commit` (fluxo de gitflow + Conventional Commits + 4 opções de fechamento). Sem qualquer um dos dois, o processo bloqueia na entrada.
 
 ### Via organização (automático)
 
@@ -38,81 +39,86 @@ O processo adapta a complexidade automaticamente:
 
 | Escopo | Critério | Fases | Pós-Execute |
 |--------|----------|-------|-------------|
-| **Small** | ≤3 arquivos, 1 frase | Quick Mode | /simplify → commit |
-| **Medium** | Feature clara, <10 tasks | Specify → Execute → /simplify → commit | /simplify → commit |
-| **Large** | Multi-componente | Todas as fases | /simplify → commit |
-| **Complex** | Ambiguidade, domínio novo | Todas + Discuss + Research | /simplify → commit |
+| **Small** | ≤3 arquivos, 1 frase | Quick Mode | /simplify → tests → commit |
+| **Medium** | Feature clara, <10 tasks | Specify → Execute → /simplify → commit | /simplify → tests → commit |
+| **Large** | Multi-componente | Todas as fases | /simplify → tests → commit |
+| **Complex** | Ambiguidade, domínio novo | Todas + Discuss + Research | /simplify → tests → commit |
 
 ## Quality Gates
 
 - **Specify + Execute** — sempre obrigatórios
 - **Verificação por task** — após cada task, avaliar se precisa de teste e rodar testes do módulo afetado
-- **/simplify + suite completa** — obrigatórios antes de qualquer commit
+- **Iron Law (verification)** — evidência fresh antes de qualquer claim de "pronto"
+- **/simplify + suite completa** — obrigatórios antes de qualquer commit (ordem: simplify FIRST, depois testes)
 - **Review + Security** — opt-in (ativar via defaults ou quando dev pedir)
 - **Commit** — nunca automático, sempre pergunta ao dev
 
-## Integração com Superpowers
+## Disciplinas Internas
 
-O nano-spec é o **trilho** (o que fazer e em que ordem), o superpowers é o **motor** (como fazer):
+O nano-spec é **trilho + disciplinas**. Cada fase aciona disciplinas internas (todas em `references/`):
 
-| Fase | Sem Superpowers | Com Superpowers |
-|------|-----------------|-----------------|
-| Specify | Q&A conversacional | + brainstorming → context.md |
-| Design | Pesquisa manual | + brainstorming steps 5-8 |
-| Tasks | Breakdown manual | + writing-plans → tasks.md |
-| Execute | Code + verify (teste) | + TDD, worktrees, subagents, debug |
-| /simplify | /simplify sobre diff acumulado | (mesma skill) |
-| Commit | Conventional Commits | + finishing-a-development-branch |
+| Fase | Disciplina aplicada |
+|---|---|
+| Specify | `specify/specify.md` — discovery (2-3 abordagens) + `spec-document-reviewer-prompt.md` |
+| Design | `design/design.md` — apresentação incremental por seção |
+| Tasks | `tasks/tasks.md` — premissa "zero context" + No Placeholders + TDD inline + `plan-document-reviewer-prompt.md` |
+| Execute | `execute/implement.md` + `nano-disciplines:tdd` (Iron Law) + `nano-disciplines:debug` (4 fases) |
+| Execute (Large/Complex) | `execute/subagents/` (3 subagents per task: implementer → spec compliance → code quality) |
+| /simplify | (skill própria do Claude Code) |
+| Review | `nano-disciplines:verification` (Iron Law) + `nano-disciplines:code-review` ou Protocolo Dois-Eixos |
+| Commit | Skill `nano-commit` (gitflow + verification + 4 opções de fechamento) |
 
 ## Estrutura
 
 ```
 nano-spec/
-├── .claude-plugin/
-│   └── plugin.json              # Metadados do plugin
+├── .claude-plugin/plugin.json
 ├── hooks/
-│   ├── hooks.json               # Configuração de hooks (SessionStart)
-│   ├── run-hook.cmd             # Wrapper cross-platform (bash + batch)
-│   └── session-start            # Hook de injeção de contexto (~5KB)
+│   ├── hooks.json
+│   ├── run-hook.cmd
+│   └── session-start                   # contexto leve no SessionStart
 ├── skills/
-│   └── nano-spec/
-│       ├── SKILL.md             # Orquestrador principal (~370 linhas)
-│       └── references/          # 21 guias de referência
-│           ├── project-init.md      # Inicialização de projeto
-│           ├── roadmap.md           # Criação de roadmap
-│           ├── brownfield-mapping.md # Mapeamento de codebase
-│           ├── specify.md           # Especificação de features
-│           ├── design.md            # Projeto de arquitetura
-│           ├── tasks.md             # Breakdown em tasks
-│           ├── implement.md         # Implementação (Execute)
-│           ├── validate.md          # Validação/UAT
-│           ├── review.md            # Review de código
-│           ├── security.md          # Auditoria de segurança
-│           ├── docs-update.md       # Atualização de docs
-│           ├── commit.md            # Commit com gates
-│           ├── gitflow.md           # Gitflow e validação de branch
-│           ├── quick-mode.md        # Quick fixes
-│           ├── discuss.md           # Discussão de áreas cinzas
-│           ├── concerns.md          # Documentação de riscos
-│           ├── state-management.md  # Gestão de estado/decisões
-│           ├── session-handoff.md   # Pausar/retomar trabalho
-│           ├── coding-principles.md # Princípios de código
-│           ├── code-analysis.md     # Ferramentas de análise
-│           ├── agent-behavior.md    # Comportamento do agente
-│           └── context-limits.md    # Gestão de contexto
+│   ├── nano-spec/
+│   │   ├── SKILL.md                    # orquestrador principal
+│   │   └── references/                 # disciplinas + guias por fase
+│   │       ├── init/                   # project-init, roadmap, brownfield-mapping, concerns
+│   │       ├── specify/                # specify + spec-reviewer prompt
+│   │       ├── design/
+│   │       ├── tasks/                  # tasks + plan-reviewer prompt
+│   │       ├── execute/                # implement + tdd/ + systematic-debugging/ + subagents/
+│   │       ├── review/                 # review + Dois-Eixos + code-reviewer + receiving-feedback
+│   │       ├── commit/                 # commit, gitflow (pointers para nano-commit)
+│   │       ├── docs/                   # docs-update
+│   │       ├── quick-mode/
+│   │       └── meta/                   # verification, agent-behavior, grill, discuss, state-mgmt
+│   └── nano-commit/SKILL.md            # skill standalone para commit + gitflow
 └── README.md
 ```
 
 ## Como Funciona
 
-1. **SessionStart:** Hook injeta contexto leve (~5KB) com regras essenciais e triggers
+1. **SessionStart:** Hook injeta contexto leve com regras essenciais e triggers
 2. **Trigger:** Dev pede tarefa de desenvolvimento → nano-spec ativa automaticamente
 3. **Auto-sizing:** Detecta complexidade e seleciona fases adequadas
-4. **Execução:** Percorre fases, detecta sinais, pergunta ao dev sobre gates
-5. **Output:** Artefatos em `.specs/`, código implementado, commit com Conventional Commits
+4. **Execução:** Percorre fases, aplica disciplinas internas automaticamente
+5. **Output:** Artefatos em `.specs/features/YYYY-MM-DD-[feature]/`, código implementado, commit com Conventional Commits
 
 ## Versão
 
-2.9.0 — Feat: gitflow reescrito para git-flow-next (Tower) — CLI atômica com detecção automática e instalação multiplataforma.
+**6.0.0 (BREAKING)** — Conclui a pureza arquitetural Spec-Driven iniciada na 5.0.0. Remove de nano-spec os 2 itens que não eram canonicamente SDD: a skill `nano-commit` (delivery — gitflow/Conventional Commits/PR) foi **extraída** para o plugin standalone `nano-commit` (v1.4.0), e `meta/context-limits.md` (regra de tamanho de arquivo — universal) **moveu** para `nano-disciplines` (v1.2.0). nano-spec passa a depender de DOIS plugins via HARD BLOCK: `nano-disciplines >= 1.2.0` e `nano-commit >= 1.4.0`. Refs migradas: `nano-spec:nano-commit:*` → `nano-commit:*`; `references/meta/context-limits.md` → `nano-disciplines:skills/nano-disciplines/references/context-limits.md`. Stub legado `references/commit/gitflow.md` removido (conteúdo já vive na SKILL.md do nano-commit). Para upgrade: instalar os 3 plugins via marketplace; refs hard-coded a `nano-spec:nano-commit` em código de terceiros precisam ser migradas para `nano-commit:`.
+
+**5.0.0 (BREAKING)** — Split arquitetural: as disciplinas técnicas internalizadas na 4.0.0 (verification, TDD, systematic-debugging, subagents, parallel-dispatch, code-review, receiving-feedback, security, validate, docs-update, code-analysis, coding-principles) foram **extraídas** para o plugin `nano-disciplines`. nano-spec volta a ser o que é: orquestrador puro de Spec-Driven Development. Disciplinas são consumidas via convenção `nano-disciplines:<path>`. HARD BLOCK em `nano-disciplines` no hook session-start e no SKILL.md. Motivação: preservar a identidade Spec-Driven (forma do processo) separada das ferramentas técnicas (disciplinas universais reutilizáveis fora do contexto Spec-Driven). Fica em nano-spec: `specify/`, `design/`, `tasks/`, `init/`, `quick-mode/`, `commit/`, `baseline-test-gate.md`, `execute/implement.md`, `meta/{agent-behavior,context-limits,discuss,grill,session-handoff,state-management}.md`, `review/{dois-eixos,review}.md`, e os reviewer prompts para spec/plan/tasks.
+
+**4.0.0 (BREAKING)** — Standalone total: as 10 disciplinas que viviam no plugin `superpowers` foram **internalizadas** em `references/`. HARD BLOCK do superpowers removido. Zero dependências de plugins externos. Bump major sinaliza fim da dependência obrigatória. Preserva integralmente as correções da 3.2.0 (Baseline Test Gate + fix `--fetch` no `nano-commit`). nano-commit 1.2.0 → 1.3.0 (Gate Iron Law via `verification.md` + Pós-Commit Fechamento de Branch inline). *Internalização revertida na 5.0.0 via split em `nano-disciplines`.*
+
+3.2.0 — Feat: Baseline Test Gate antes de criar branch de trabalho (roda suite na base; vermelho → PARAR ou OVERRIDE com registro em STATE.md). Ordem pré-commit fixa `/simplify → testes → commit` tornada explícita em tabelas e diagramas. Fix `--fetch`: substituído por `git checkout <base> && git pull --ff-only` antes de `git flow <type> start` (o `--fetch` do git-flow-next não fast-forwarda a base local). nano-commit 1.0.1 → 1.2.0.
+
+3.1.0 — Feat: integração de 3 skills do matpocock adaptadas ao padrão Nano — `grill.md` (stress-test de spec contra `CONVENTIONS.md` + ADRs em `.specs/decisions/`), modo vertical-slice em `tasks.md` (tracer bullets HITL/AFK), e protocolo dois-eixos em `review.md` (Standards + Spec via sub-agentes paralelos pré-commit).
+
+3.0.1 — Convenção: pasta de feature em `.specs/features/` passa a exigir prefixo de data `YYYY-MM-DD-[feature]`.
+
+3.0.0 (BREAKING) — Superpowers vira obrigatório (revertido na 4.0.0).
+
+2.11.0 — Feat: extrai fluxo de gitflow + commit para skill autônoma `nano-commit`.
 
 Baseado em [tlc-spec-driven](https://github.com/felipfr) v2.0.0 por Felipe Rodrigues. Licença CC-BY-4.0.

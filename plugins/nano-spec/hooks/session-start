@@ -17,31 +17,92 @@ escape_for_json() {
 # Lightweight context — awareness + rules + trigger to load full skill on-demand
 read -r -d '' CONTEXT << 'CONTEXT_EOF' || true
 <IMPORTANT>
-You have the nano-spec plugin installed.
+You have the nano-spec plugin installed (v6.0.0).
 
-## Hierarchy
+## HARD BLOCK: nano-disciplines required
 
-nano-spec > using-superpowers > default system prompt.
-When this process is active, superpowers does NOT orchestrate — it provides tools (TDD, debug, worktrees) that nano-spec delegates to.
+nano-spec orchestrates Spec-Driven Development but delegates technical disciplines (TDD, debug, verification, code review, subagents, parallel dispatch, receiving feedback, security, validate, code analysis, coding principles, docs update) to the `nano-disciplines` plugin.
+
+Before any nano-spec phase, verify that `nano-disciplines` is installed. If NOT found → BLOCK the entire process and instruct:
+
+  nano-disciplines is NOT installed. This is a required dependency of nano-spec 6.0.0.
+  Install: claude plugin install nano-disciplines@nano-incub
+  Then reload the session.
+
+Without nano-disciplines, nano-spec does NOT run — do not offer a standalone alternative.
+
+## HARD BLOCK: nano-commit required
+
+nano-spec invokes `nano-commit` at the Commit phase (gitflow + Conventional Commits + 4 closure options). Without it, the Commit gate cannot run.
+
+Before any nano-spec phase, verify that `nano-commit` is installed. If NOT found → BLOCK the entire process and instruct:
+
+  nano-commit is NOT installed. This is a required dependency of nano-spec 6.0.0.
+  Install: claude plugin install nano-commit@nano-incub
+  Then reload the session.
+
+Without nano-commit, nano-spec does NOT run — do not offer a standalone alternative.
+
+## What nano-spec is
+
+A Spec-Driven Development process for Nano Incub. It orchestrates phases (Specify → Design → Tasks → Execute → /simplify → Docs → Commit) and invokes technical disciplines from `nano-disciplines` at each phase:
+
+| Phase | Discipline (from nano-disciplines) |
+|---|---|
+| Execute (logic tasks) | `nano-disciplines:tdd` (Iron Law TDD) |
+| Execute (bugs) | `nano-disciplines:debug` (4 phases) |
+| Execute (Large+) | `nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md` (two-stage review) |
+| Execute (parallel tasks) | `nano-disciplines:skills/nano-disciplines/references/subagents/parallel-dispatch.md` |
+| Review | `nano-disciplines:code-review` or `nano-spec:review/dois-eixos.md` (Standards + Spec) |
+| Pre-commit / pre-claim | `nano-disciplines:verification` (Iron Law: evidence before claims) |
+| Security review | `nano-disciplines:skills/code-review/references/security.md` |
+| UAT / validate | `nano-disciplines:skills/nano-disciplines/references/validate.md` |
+| Docs sync | `nano-disciplines:skills/nano-disciplines/references/docs-update.md` |
+
+Spec-Driven artifacts (specify, design, tasks, init, baseline-test-gate, dois-eixos protocol, agent-behavior, state-management) live in `nano-spec` itself.
+
+### How to follow `nano-disciplines:` and `nano-commit:` references
+
+When you see `nano-disciplines:<x>` in any markdown file:
+
+- If `<x>` is a promoted skill name (`tdd`, `debug`, `verification`, `code-review`) → invoke via the `Skill` tool using the full qualified name (e.g., `Skill('nano-disciplines:tdd')`).
+- If `<x>` is `skills/<skill>/references/<file>.md` or `skills/nano-disciplines/references/<file>.md` → use the `Read` tool with the absolute path inside the installed plugin.
+- Markdown links like `[anything](nano-disciplines:tdd)` mean "invoke the tdd skill" regardless of the display text.
+
+When you see `nano-commit` or `nano-commit:<x>`:
+
+- Bare `nano-commit` or `nano-commit:nano-commit` → invoke via `Skill('nano-commit:nano-commit')`.
+- `nano-commit:skills/nano-commit/SKILL.md` → use `Read` with the absolute path inside the installed plugin.
+- Markdown links like `[anything](nano-commit:nano-commit)` mean "invoke the nano-commit skill".
 
 ## Auto-Sizing (apply to EVERY development task)
 
 | Scope | Criteria | Phases | Post-Execute |
 |-------|----------|--------|--------------|
-| Small | ≤3 files, 1 sentence | Quick Mode | /simplify → commit |
-| Medium | Clear feature, <10 tasks | Specify → Execute → /simplify → commit | /simplify → commit |
-| Large | Multi-component | All phases | /simplify → commit |
-| Complex | Ambiguity, new domain | All + Discuss + Research | /simplify → commit |
+| Small | ≤3 files, 1 sentence | Quick Mode | /simplify → tests → commit |
+| Medium | Clear feature, <10 tasks | Specify → Execute → /simplify → commit | /simplify → tests → commit |
+| Large | Multi-component | All phases | /simplify → tests → commit |
+| Complex | Ambiguity, new domain | All + Discuss + Research | /simplify → tests → commit |
 
 ## Gates
 
-- **/simplify + full test suite** are MANDATORY before any commit.
+- **Baseline Test Gate (entry):** Before creating any work branch (feature/bugfix/hotfix/release), run the full test suite on the updated base. If GREEN, proceed. If RED, alert the dev with two options: [1] STOP and fix baseline, [2] OVERRIDE with entry recorded in `.specs/project/STATE.md`.
+- **Pre-commit order is fixed:** `/simplify` FIRST (refactors the diff), THEN full test suite (validates refactored diff), then commit. Never invert.
+- `/simplify` + full test suite are both MANDATORY before any commit.
 - **Commit** is NEVER automatic — always ask the dev first.
 - Specify and Execute are always required.
 
+## Skills disponíveis neste plugin
+
+| Skill | Quando invocar | Triggers principais |
+|---|---|---|
+| `nano-spec:nano-spec` | Tarefa de dev (orquestra todas as fases) | "nova feature", "implementar", "quick fix", "review", "fix bug", "refactor", "pause work", "resume work" |
+
 ## Activation
 
-When the user requests ANY development work ("nova feature", "implementar", "quick fix", "review", "commitar", "fix bug", "refactor", or similar), you MUST invoke the Skill tool with 'nano-spec:nano-spec' to load the full process BEFORE starting work.
+- Tarefa de **dev complexa** (feature, refactor, bug fix com investigação) → invocar `nano-spec:nano-spec`
+- Pedido **direto de commit/branch/PR/gitflow** (sem fluxo de spec) → invocar `nano-commit:nano-commit` (plugin separado)
+- `nano-spec:nano-spec` invoca `nano-commit:nano-commit` automaticamente na fase Commit — não é necessário invocar manualmente quando já está no fluxo completo
 
 Do NOT use for: UI design only, isolated docs, pure infra.
 </IMPORTANT>

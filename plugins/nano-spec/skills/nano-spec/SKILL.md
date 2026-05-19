@@ -3,13 +3,15 @@ name: nanoincub-spec-driven
 description: >
   Processo Spec-Driven da Nano Incub. Orquestra fases: Specify → Design → Tasks →
   Execute → /simplify → Docs → Commit. Verificação executável por task. Auto-sizing por complexidade.
-  Usa superpowers como motor quando instalado, funciona standalone quando não.
+  Delega disciplinas técnicas (TDD, debug, verification, code review, subagents) para o plugin
+  `nano-disciplines` e o fluxo de commit/gitflow para o plugin `nano-commit` (HARD BLOCKs).
   Triggers: "nova feature", "implementar", "quick fix", "review", "commitar",
   "pause work", "resume work". Não use para design UI, docs isoladas, infra pura.
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 2.9.0
+  version: 6.0.0
+  requires: nano-disciplines >= 1.2.0, nano-commit >= 1.4.0
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---
 
@@ -24,13 +26,39 @@ Orquestrador leve. Gates obrigatórios. Zero cerimônia.
    required      optional*      optional*     required       required       req M+     ask-dev
 ```
 
-## Princípio: nanoincub = trilho, superpowers = motor
+## HARD BLOCK: nano-disciplines obrigatório
 
-Este processo define O QUE fazer e EM QUE ORDEM. Quando `superpowers` está instalado,
-delega O COMO para suas skills. Sem superpowers, funciona 100% standalone.
+Esta skill **orquestra o processo** (trilho Spec-Driven + artefatos `.specs/`). As disciplinas técnicas (TDD, debug, verification, code review, subagents, parallel dispatch, security, validate, docs-update, coding principles, code analysis, receiving feedback) vivem no plugin `nano-disciplines` e são referenciadas via `nano-disciplines:<path>`.
 
-**Hierarquia:** nanoincub-spec-driven > using-superpowers > default system prompt.
-O dispatcher do superpowers NÃO orquestra quando este processo está ativo.
+**Antes de qualquer fase**, verificar que `nano-disciplines` está instalado. Se NÃO encontrado → BLOQUEAR o processo e pedir ao dev:
+
+```
+nano-disciplines NÃO está instalado. Dependência obrigatória do nano-spec 5.0.0.
+Instale: claude plugin install nano-disciplines@nano-incub
+Depois recarregue a sessão.
+```
+
+## Princípio: trilho aqui, disciplinas no nano-disciplines
+
+Este processo define **O QUE fazer e EM QUE ORDEM** (o trilho: Specify → Design → Tasks → Execute → /simplify → Docs → Commit). **O COMO de cada disciplina técnica** vive em `nano-disciplines`. A separação preserva spec-driven como forma reutilizável independente de qual conjunto de disciplinas se aplica.
+
+**Disciplinas técnicas** (workers invocados pelas fases — todas vivem em `nano-disciplines`):
+
+| Disciplina | Como invocar | Quando |
+|---|---|---|
+| TDD | `nano-disciplines:tdd` (skill) | Tasks com lógica — Iron Law `NO PRODUCTION CODE WITHOUT FAILING TEST FIRST` |
+| Debug | `nano-disciplines:debug` (skill) | Bug encontrado — 4 fases (Root Cause → Pattern → Hypothesis → Fix) |
+| Verification | `nano-disciplines:verification` (skill) | Antes de qualquer claim "feito/passou" — evidência fresh nesta mensagem |
+| Code Review | `nano-disciplines:code-review` (skill) | Review pré-commit — 5 eixos (Correctness, Performance, Maintainability, Security, Testing) |
+| Subagent dispatch | `nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md` (ref) | Large/Complex — fresh subagent per task + two-stage review |
+| Parallel dispatch | `nano-disciplines:skills/nano-disciplines/references/subagents/parallel-dispatch.md` (ref) | Tasks `[P]` em paralelo + Protocolo Dois-Eixos |
+| Receiving feedback | `nano-disciplines:skills/code-review/references/receiving-feedback.md` (ref) | Recebeu review — zero performative agreement |
+
+### Como o agente segue uma ref `nano-disciplines:<...>`
+
+- Quando o destino é uma **skill promovida** (`nano-disciplines:tdd`, `:debug`, `:verification`, `:code-review`) → invocar via tool `Skill` com esse nome qualificado.
+- Quando o destino é um **arquivo específico** (`nano-disciplines:skills/<skill>/references/<file>.md` ou `nano-disciplines:skills/nano-disciplines/references/<file>.md`) → usar tool `Read` com o caminho absoluto resolvido no plugin instalado.
+- Markdown links neste documento usam essa convenção. Se você ver um link como `[X](nano-disciplines:tdd)`, o destino é a skill, não um arquivo literal.
 
 ## Auto-Sizing
 
@@ -39,19 +67,19 @@ O dispatcher do superpowers NÃO orquestra quando este processo está ativo.
 | **Small** | ≤3 files, 1 frase | **Quick mode** | — | — | Implement + verify | /simplify → commit |
 | **Medium** | Feature clara, <10 tasks | Spec breve | Skip — inline | Skip — implícito | Implement + verify | /simplify → commit |
 | **Large** | Multi-componente | Full spec + IDs | Arquitetura + componentes | Breakdown + deps | Implement + verify por task | /simplify → commit |
-| **Complex** | Ambiguidade, domínio novo | Full spec + [discuss](references/discuss.md) | [Research](references/design.md) + arq. | Breakdown + paralelo | Implement + [UAT](references/validate.md) | /simplify → commit |
+| **Complex** | Ambiguidade, domínio novo | Full spec + [discuss](references/meta/discuss.md) | [Research](references/design/design.md) + arq. | Breakdown + paralelo | Implement + [UAT](nano-disciplines:skills/nano-disciplines/references/validate.md) | /simplify → commit |
 
 **Regras:**
 - Specify e Execute são sempre obrigatórios
 - /simplify é **obrigatório antes de qualquer commit** — roda sobre o diff acumulado de todas as tasks
 - Suite completa de testes roda após /simplify, antes do commit
-- Commit nunca é automático — sempre perguntar ao dev (ver [commit.md](references/commit.md))
+- Commit nunca é automático — sempre perguntar ao dev (invocar skill [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md))
 - Docs é obrigatório para Medium+ ; no Quick Mode é checklist inline
 - Design é pulado quando não há decisões arquiteturais
 - Tasks é pulado quando há ≤3 passos óbvios
 - Discuss é triggered *dentro* do Specify apenas quando o agente detecta áreas ambíguas que precisam de input do usuário (apenas Complex)
 - UAT interativo é triggered *dentro* do Execute apenas para features user-facing com comportamento complexo (apenas Complex)
-- Review e Security estão **desativados por padrão** — ativar via defaults opt-out se dev pedir (ver [review.md](references/review.md) e [security.md](references/security.md))
+- Review e Security estão **desativados por padrão** — ativar via defaults opt-out se dev pedir (ver [review.md](references/review/review.md) e [security.md](nano-disciplines:skills/code-review/references/security.md))
 
 **Safety valve:** Se inline steps revelarem >5 steps → PARAR e criar tasks.md formal.
 
@@ -122,8 +150,8 @@ Verificar:
                                  STRUCTURE.md, TESTING.md, INTEGRATIONS.md, CONCERNS.md
 ```
 
-- Se `.specs/project/` NÃO existe → rodar [project-init.md](references/project-init.md) + [roadmap.md](references/roadmap.md)
-- Se `.specs/codebase/` NÃO existe → rodar [brownfield-mapping.md](references/brownfield-mapping.md) (mesmo em projetos novos com scaffold)
+- Se `.specs/project/` NÃO existe → rodar [project-init.md](references/init/project-init.md) + [roadmap.md](references/init/roadmap.md)
+- Se `.specs/codebase/` NÃO existe → rodar [brownfield-mapping.md](references/init/brownfield-mapping.md) (mesmo em projetos novos com scaffold)
 - Se ambos existem → carregar e continuar
 - **NUNCA pular esta verificação.** CLAUDE.md NÃO substitui estes artefatos — são documentos com propósitos diferentes.
 - Para projetos recém-scaffoldados, os docs de codebase serão breves mas ainda assim necessários para estabelecer a baseline.
@@ -149,23 +177,28 @@ Documentação estruturada do projeto. Consultar antes de tomar decisões.
 - `.specs/codebase/CONCERNS.md` — Tech debt, riscos e áreas frágeis
 
 ### Features
-- `.specs/features/[feature]/spec.md` — Requisitos e critérios de aceite
-- `.specs/features/[feature]/design.md` — Arquitetura e componentes
-- `.specs/features/[feature]/tasks.md` — Tasks atômicas de implementação
+- `.specs/features/YYYY-MM-DD-[feature]/spec.md` — Requisitos e critérios de aceite
+- `.specs/features/YYYY-MM-DD-[feature]/design.md` — Arquitetura e componentes
+- `.specs/features/YYYY-MM-DD-[feature]/tasks.md` — Tasks atômicas de implementação
+
+### Decisões (opcional, criado lazy pelo grill)
+- `.specs/decisions/NNNN-titulo.md` — ADRs (Architecture Decision Records) — criadas via [grill.md](references/meta/grill.md) quando hard-to-reverse + surprising + trade-off real
 ```
 
 Isto garante que qualquer agente que leia o CLAUDE.md saiba exatamente onde buscar cada tipo de informação.
 
 ## Gate: Gitflow — em TODOS os modos (incluindo Quick Mode)
 
-Conforme [gitflow.md](references/gitflow.md). **Este gate NÃO é opcional.**
+Fluxo completo na skill [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md). **Este gate NÃO é opcional.**
+
+**Pré-requisito (HARD BLOCK):** Na primeira interação com gitflow na sessão, executar `git flow version`. Se git-flow-next NÃO está instalado → **BLOQUEAR TODO O PROCESSO** até o dev instalar. Sem exceções, sem fallback para git puro. Única exceção: CLAUDE.md define `Sem gitflow` ou `trunk-based`.
 
 1. **Pré-specify (ou pré-describe no Quick Mode):** Se em branch protegida (`main`, `develop`, `master`), executar `git pull` para garantir que o trabalho parte da versão mais recente. Se o CLAUDE.md desativa gitflow, pular.
 2. **Pré-execute (ou pré-implement no Quick Mode):** Sugerir criação da branch de trabalho (`feature/*`, `hotfix/*`, `release/*`) — neste ponto já se sabe o tipo de trabalho. Aguardar decisão do dev antes de implementar.
 3. **Pré-commit (última chance):** Se steps 1-2 foram pulados, verificar branch antes de commitar. Última oportunidade de criar branch de trabalho.
 4. **Pós-commit:** Perguntar ao dev sobre fechamento da branch — merge, PR, continuar trabalhando, ou manter.
 
-**Quick Mode simplifica cerimônia de planejamento, não pula safety gates.** Ver seção "Gate: Gitflow" em [quick-mode.md](references/quick-mode.md).
+**Quick Mode simplifica cerimônia de planejamento, não pula safety gates.** Ver seção "Gate: Gitflow" em [quick-mode.md](references/quick-mode/quick-mode.md).
 
 ## Defaults Opt-Out
 
@@ -173,9 +206,10 @@ No início de cada feature (Medium+), apresentar defaults e deixar dev ajustar:
 
 ```
 Escopo detectado: [Large]
-Defaults: spec completa, tasks formais, execução sequencial,
-          /simplify + suite de testes + commit.
-Opções disponíveis: TDD, git worktree, subagent por task, review, security.
+Defaults: discovery + spec-reviewer → tasks + plan-reviewer →
+          subagent-driven (two-stage review) → /simplify → verification → commit.
+Opções para DESATIVAR: discovery extenso, TDD, subagents.
+Opções para ATIVAR: code review extra, security.
 Quer ajustar algo? (Enter para seguir com defaults)
 ```
 
@@ -202,7 +236,7 @@ no CLAUDE.md do projeto, nunca mais perguntar.
 Dev: "nova feature: login com Google"
 
 Agente: Escopo Medium. Defaults: spec breve → execute → /simplify → suite de testes → commit.
-        Opções: TDD, worktree, review, security. Ajustar? (Enter = defaults)
+        Opções: TDD, review, security. Ajustar? (Enter = defaults)
 
 Dev: [Enter]
 
@@ -245,7 +279,7 @@ Agente: [Commit] feat(auth): add Google OAuth login — Refs: AUTH-01
 │   ├── STACK.md, ARCHITECTURE.md, CONVENTIONS.md
 │   ├── STRUCTURE.md, TESTING.md, INTEGRATIONS.md
 │   └── CONCERNS.md
-├── features/[feature]/
+├── features/YYYY-MM-DD-[feature]/    # Prefixo de data OBRIGATÓRIO (ex: 2026-05-12-google-login)
 │   ├── spec.md         # Requisitos com IDs rastreáveis
 │   ├── context.md      # Decisões do usuário (inclui output de brainstorming)
 │   ├── design.md       # Arquitetura & componentes
@@ -255,21 +289,69 @@ Agente: [Commit] feat(auth): add Google OAuth login — Refs: AUTH-01
     ├── TASK.md, SUMMARY.md
 ```
 
-## Superpowers: Output para .specs/ (OBRIGATÓRIO)
+## Naming da pasta de feature (OBRIGATÓRIO)
 
-Quando skills do superpowers gerarem artefatos de feature, **SEMPRE** salvar
-dentro de `.specs/features/[feature]/` — **NUNCA** em `docs/superpowers/` ou `.superpowers/`.
+Toda pasta em `.specs/features/` **DEVE** seguir o padrão `YYYY-MM-DD-[feature]`, onde:
 
-| Skill superpowers | Output padrão (NÃO usar) | Output correto (.specs/) |
+- `YYYY-MM-DD` = data de criação da feature (data atual quando a fase Specify rodar)
+- `[feature]` = slug em kebab-case derivado do título/intenção
+
+**Exemplos válidos:**
+- `.specs/features/2026-05-12-google-login/`
+- `.specs/features/2026-05-12-payment-checkout/`
+- `.specs/features/2026-05-13-fix-token-refresh/`
+
+**Razão:** garante ordenação cronológica natural no filesystem e preserva histórico mesmo após renames.
+
+**Quando criar:** no início da fase Specify, antes de escrever `spec.md`. Use a data corrente (não a data de início da sessão se diferente).
+
+**Quando NÃO renomear:** depois de criada, a pasta mantém a data original mesmo que a feature seja revisada em outro dia.
+
+### Migração de pastas legadas (pré-3.0.1)
+
+Na detecção de contexto da sessão, **o agente DEVE** rodar:
+
+```bash
+find .specs/features -mindepth 1 -maxdepth 1 -type d \
+  ! -regex '.*/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-.*' 2>/dev/null
+```
+
+Se retornar 1+ pastas, oferecer **uma vez por sessão** (não a cada feature):
+
+```
+Detectei N pasta(s) em .specs/features/ sem prefixo de data (padrão pré-3.0.1):
+  - <pasta1>
+  - <pasta2>
+
+Quer renomear para o padrão YYYY-MM-DD-[feature]? A data vem do primeiro commit
+do spec.md (ou do filesystem, se a pasta nunca foi commitada).
+
+[s] sim, renomear todas    [d] dry-run primeiro    [n] não, deixar como está
+```
+
+Resposta do dev:
+- **s** → rodar `bash <PLUGIN_ROOT>/scripts/migrate-feature-dates.sh --yes`
+- **d** → rodar `bash <PLUGIN_ROOT>/scripts/migrate-feature-dates.sh --dry-run` e perguntar de novo
+- **n** → não tocar; lembrar do `STATE.md` que a migração foi recusada (não perguntar de novo na mesma sessão)
+
+O script usa `git mv` quando possível (preserva histórico) e cai para `mv` simples fora de repo git.
+
+## Output: tudo em .specs/ (OBRIGATÓRIO)
+
+Artefatos de feature **SEMPRE** vão para `.specs/features/YYYY-MM-DD-[feature]/`:
+
+| Artefato | Origem | Destino |
 |---|---|---|
-| `brainstorming` | `.superpowers/brainstorm/` | `.specs/features/[feature]/context.md` |
-| `writing-plans` (plano) | `docs/superpowers/plans/` | `.specs/features/[feature]/tasks.md` |
-| `writing-plans` (design) | `docs/superpowers/specs/` | `.specs/features/[feature]/design.md` |
+| Decisões + abordagem aprovada do discovery | Specify | `.specs/features/YYYY-MM-DD-[feature]/context.md` |
+| Requisitos com IDs `[FEAT]-XX` | Specify | `.specs/features/YYYY-MM-DD-[feature]/spec.md` |
+| Arquitetura + componentes | Design | `.specs/features/YYYY-MM-DD-[feature]/design.md` |
+| Tasks atômicas (TDD inline) | Tasks | `.specs/features/YYYY-MM-DD-[feature]/tasks.md` |
+| Artefatos visuais (mockups, diagramas exportados) | Discovery / Design | `.specs/features/YYYY-MM-DD-[feature]/assets/` |
 
 **Regras de merge:**
-- **brainstorming → context.md:** Decisões e escolhas vão para `context.md` no formato nano-spec. Artefatos HTML interativos vão para `assets/`.
-- **writing-plans → tasks.md:** O plano vira `tasks.md` no formato TLC (What/Where/Depends/Done-when/Verify). Código inline vai como seção `**Código de referência**` dentro de cada task — marcado como referência, NÃO copy-paste.
-- **writing-plans design → design.md:** Se `design.md` já existe, fundir — não sobrescrever.
+- **context.md:** Decisões e trade-offs do discovery. Artefatos HTML interativos vão para `assets/`.
+- **tasks.md (formato Nano):** Tasks no formato What/Where/Depends/Done-when/Verify. Código inline vai como seção `**Código de referência**` dentro de cada task — marcado como referência, NÃO copy-paste.
+- **design.md:** Se já existe, fundir — não sobrescrever.
 - Se o arquivo `.specs/` **já existir**, ler antes de editar — nunca sobrescrever sem merge.
 
 ## Commands
@@ -277,48 +359,68 @@ dentro de `.specs/features/[feature]/` — **NUNCA** em `docs/superpowers/` ou `
 **Projeto:**
 | Trigger | Reference |
 |---------|-----------|
-| Inicializar projeto | [project-init.md](references/project-init.md) |
-| Criar roadmap | [roadmap.md](references/roadmap.md) |
-| Mapear codebase | [brownfield-mapping.md](references/brownfield-mapping.md) |
-| Documentar riscos | [concerns.md](references/concerns.md) |
-| Registrar decisão/blocker | [state-management.md](references/state-management.md) |
-| Pausar/retomar trabalho | [session-handoff.md](references/session-handoff.md) |
+| Inicializar projeto | [project-init.md](references/init/project-init.md) |
+| Criar roadmap | [roadmap.md](references/init/roadmap.md) |
+| Mapear codebase | [brownfield-mapping.md](references/init/brownfield-mapping.md) |
+| Documentar riscos | [concerns.md](references/init/concerns.md) |
+| Registrar decisão/blocker | [state-management.md](references/meta/state-management.md) |
+| Pausar/retomar trabalho | [session-handoff.md](references/meta/session-handoff.md) |
 
 **Feature:**
 | Trigger | Reference |
 |---------|-----------|
-| Especificar feature | [specify.md](references/specify.md) |
-| Discutir áreas cinzas | [discuss.md](references/discuss.md) |
-| Projetar arquitetura | [design.md](references/design.md) |
-| Quebrar em tasks | [tasks.md](references/tasks.md) |
-| Implementar | [implement.md](references/implement.md) |
-| Validar/UAT | [validate.md](references/validate.md) |
-| Review de código | [review.md](references/review.md) |
-| Auditoria de segurança | [security.md](references/security.md) |
-| Atualizar docs do codebase | [docs-update.md](references/docs-update.md) |
-| Commitar | [commit.md](references/commit.md) |
-| Gitflow / branching | [gitflow.md](references/gitflow.md) |
-| Quick fix | [quick-mode.md](references/quick-mode.md) |
+| Especificar feature | [specify.md](references/specify/specify.md) |
+| Discutir áreas cinzas | [discuss.md](references/meta/discuss.md) |
+| Stress-test de spec / glossário | [grill.md](references/meta/grill.md) |
+| Projetar arquitetura | [design.md](references/design/design.md) |
+| Quebrar em tasks (horizontal ou vertical-slice) | [tasks.md](references/tasks/tasks.md) |
+| Implementar | [implement.md](references/execute/implement.md) |
+| Validar/UAT | [validate.md](nano-disciplines:skills/nano-disciplines/references/validate.md) |
+| Review de código | [review.md](references/review/review.md) |
+| Auditoria de segurança | [security.md](nano-disciplines:skills/code-review/references/security.md) |
+| Atualizar docs do codebase | [docs-update.md](nano-disciplines:skills/nano-disciplines/references/docs-update.md) |
+| Commitar | skill [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md) |
+| Gitflow / branching | skill [`nano-commit`](nano-commit:skills/nano-commit/SKILL.md) |
+| Quick fix | [quick-mode.md](references/quick-mode/quick-mode.md) |
 
 ## Comportamento do Agente
 
-Ver [agent-behavior.md](references/agent-behavior.md). Resumo:
+Ver [agent-behavior.md](references/meta/agent-behavior.md). Resumo:
 - Direto, sem cerimônia. Dev como senior.
 - **Progress tracker obrigatório** — exibir fase atual e fases concluídas ao entrar em cada fase. Nunca omitir.
 - Push-back quando spec vaga, scope creep, ou skip de gates.
 - Flexibilizar quando dev pede, projeto legado, ou hotfix.
 
-## Integração com Superpowers
+## Disciplinas por fase
 
-| Fase | Sem superpowers | Com superpowers |
-|------|----------------|-----------------|
-| Specify | Perguntas conversacionais | `brainstorming` (opcional) → output para `context.md` |
-| Design | Research + design.md | `brainstorming` steps 5-8 → output para `design.md` |
-| Tasks | Breakdown manual | `writing-plans` → output para `tasks.md` |
-| Execute | Ciclo implement → verify (teste) | + TDD, worktrees, subagents, debug (opcionais) |
-| /simplify | /simplify sobre diff acumulado | (mesma skill) |
-| Docs | Checklist manual contra `.specs/codebase/` | `brownfield-mapping` para regenerar docs se necessário |
-| Commit | Conventional Commits + gitflow gate | + `finishing-a-development-branch` (se worktree) |
+Cada fase aplica disciplinas internas **automaticamente**. Dev pode desativar via defaults opt-out ou CLAUDE.md.
+
+| Fase | Disciplina aplicada |
+|---|---|
+| **Specify** | [specify/specify.md](references/specify/specify.md) — discovery (2-3 abordagens, perguntas one-at-a-time) → spec self-review (5 critérios) → [spec-document-reviewer](references/specify/spec-document-reviewer-prompt.md) para Large/Complex → outputs em `context.md` + `spec.md` |
+| **Design** | [design/design.md](references/design/design.md) — apresentar design incremental por seção com aprovação do dev → output para `design.md` |
+| **Tasks** | [tasks/tasks.md](references/tasks/tasks.md) — premissa "zero context" + No Placeholders + TDD steps inline → plan self-review → [plan-document-reviewer](references/tasks/plan-document-reviewer-prompt.md) para Large/Complex → output para `tasks.md` |
+| **Execute** | [execute/implement.md](references/execute/implement.md) com [tdd.md](nano-disciplines:tdd) para tasks com lógica, [debug.md](nano-disciplines:debug) quando encontrar bug, [subagents.md](nano-disciplines:skills/nano-disciplines/references/subagents/subagents.md) (two-stage review) para Large/Complex. Baseline test antes de começar. Sem worktree — trabalho na branch. |
+| **Execute (bug)** | [debug.md](nano-disciplines:debug) → Iron Law + 4 fases (Root Cause → Pattern → Hypothesis → Fix) → failing test antes de corrigir |
+| **/simplify** | /simplify sobre diff acumulado (skill própria) |
+| **Review** | [verification.md](nano-disciplines:verification) (Iron Law: evidência antes de claims) + [code-review.md](nano-disciplines:code-review) (subagent reviewer com BASE_SHA/HEAD_SHA) ou Protocolo Dois-Eixos para Large/Complex pre-commit |
+| **Docs** | Checklist contra `.specs/codebase/` — [brownfield-mapping](references/init/brownfield-mapping.md) se docs muito defasados |
+| **Commit** | Skill `nano-commit` aplica [verification.md](nano-disciplines:verification) (Iron Law) + fechamento estruturado (4 opções: merge/PR/manter/discard) → testes bloqueiam opções |
+
+**Regras:**
+- Aplicação automática — não perguntar antes de cada disciplina.
+- Dev pode desativar via defaults opt-out, mas o padrão é ON.
+- Disciplinas são workers — o ciclo do nano-spec (Specify → Execute → /simplify → Commit) é o trilho.
+- Todo output vai para `.specs/`.
+
+### Rastreabilidade Spec → Testes → Commit
+
+A rastreabilidade é reforçada em 4 pontos do trilho:
+
+1. **Spec → Tasks:** Após gerar `tasks.md`, o [plan-document-reviewer](references/tasks/plan-document-reviewer-prompt.md) DEVE verificar que TODOS os critérios QUANDO/ENTÃO da spec.md estão cobertos por pelo menos uma task.
+2. **Spec → Testes:** Cada critério de aceite QUANDO/ENTÃO DEVE gerar um teste nomeado com o ID do requisito (ex: `test_AUTH01_invalid_email_returns_422`).
+3. **Tasks → Commit:** Antes de commitar, aplicar [verification.md](nano-disciplines:verification) (Iron Law) para verificar que todos os requisitos mapeados na spec.md foram implementados e têm testes passando.
+4. **Execute → STATE.md:** Quando [debug.md](nano-disciplines:debug) é acionado (bug encontrado), lessons learned DEVEM ser registradas em STATE.md com contexto estruturado.
 
 ## Context Loading
 
@@ -341,7 +443,7 @@ Ver [agent-behavior.md](references/agent-behavior.md). Resumo:
 - Documentos arquivados
 
 **Target:** <40k tokens. Reserve 160k+ para trabalho.
-**Monitoramento:** Exibir status quando >40k (ver [context-limits.md](references/context-limits.md))
+**Monitoramento:** Exibir status quando >40k (ver [context-limits.md](nano-disciplines:skills/nano-disciplines/references/context-limits.md))
 
 ## Knowledge Verification Chain
 
@@ -372,7 +474,7 @@ está instalado. Se sim, delegar. Se não, usar blocos mermaid inline e recomend
 
 Sempre que o workflow precisar explorar código existente (brownfield mapping, análise de reuso,
 identificação de padrões), verificar se `codenavi` está instalado. Se sim, delegar.
-Se não, usar ferramentas built-in (ver [code-analysis.md](references/code-analysis.md))
+Se não, usar ferramentas built-in (ver [code-analysis.md](nano-disciplines:skills/nano-disciplines/references/code-analysis.md))
 e recomendar instalação (uma vez por sessão).
 
 ## Output Behavior
@@ -389,4 +491,4 @@ natural ao final. Pular se dev parece experiente ou já reconheceu a dica.
 
 ## Code Analysis
 
-Ferramentas com graceful degradation. Ver [code-analysis.md](references/code-analysis.md).
+Ferramentas com graceful degradation. Ver [code-analysis.md](nano-disciplines:skills/nano-disciplines/references/code-analysis.md).
