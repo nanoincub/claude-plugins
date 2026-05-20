@@ -8,7 +8,7 @@ Centraliza plugins que automatizam e padronizam fluxos de desenvolvimento com IA
 
 | Plugin | Descrição | Versão |
 |--------|-----------|--------|
-| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven — orquestrador puro (Specify → Design → Tasks → Execute → /simplify → Commit). Requer `nano-disciplines` + `nano-commit`. | 6.0.1 |
+| [**nano-spec**](plugins/nano-spec/) | Processo Spec-Driven — orquestrador puro (Specify → Design → Tasks → Execute → /simplify → Commit). Requer `nano-disciplines` + `nano-commit`. | 6.0.2 |
 | [**nano-disciplines**](plugins/nano-disciplines/) | Disciplinas técnicas universais: TDD, debug, verification, code review, subagents, parallel dispatch, security, validate, docs-update, context-limits. Reutilizável fora do Spec-Driven. | 1.2.0 |
 | [**nano-commit**](plugins/nano-commit/) | Fluxo de commit (gitflow + Conventional Commits + 4 opções de fechamento). Standalone, invocável sem nano-spec. | 1.4.0 |
 | [**nano-resumo-dia**](plugins/nano-resumo-dia/) | Timeline de trabalho dos históricos de sessão do Claude Code, com cruzamento de eventos do Google Calendar | 1.1.0 |

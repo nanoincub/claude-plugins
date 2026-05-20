@@ -10,7 +10,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 6.0.1
+  version: 6.0.2
   requires: nano-disciplines >= 1.2.0, nano-commit >= 1.4.0
   based-on: tlc-spec-driven v2.0.0 by Felipe Rodrigues (github.com/felipfr)
 ---

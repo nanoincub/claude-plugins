@@ -105,6 +105,8 @@ nano-spec/
 
 ## Versão
 
+**6.0.2** — Fix no hook `SessionStart`: detecção de plugins agora consulta apenas `installed_plugins.json` (fonte de verdade). Removido fallback que checava `~/.claude/plugins/cache/nano-incub/<plugin>/`, que dava falso ✅ porque esse diretório contém todos os plugins do marketplace (instalados ou não). Resultado: o bloco de status passa a refletir corretamente quais plugins estão instalados.
+
 **6.0.1** — Hook `SessionStart` agora detecta os 4 plugins nano-* (nano-spec, nano-commit, nano-disciplines, nano-resumo-dia) e injeta no contexto da sessão um bloco de status visual com ✅/❌ por plugin, exibido como primeira coisa da primeira resposta do assistente. Facilita diagnóstico imediato de dependências faltantes sem precisar rodar `claude plugin list`.
 
 **6.0.0 (BREAKING)** — Conclui a pureza arquitetural Spec-Driven iniciada na 5.0.0. Remove de nano-spec os 2 itens que não eram canonicamente SDD: a skill `nano-commit` (delivery — gitflow/Conventional Commits/PR) foi **extraída** para o plugin standalone `nano-commit` (v1.4.0), e `meta/context-limits.md` (regra de tamanho de arquivo — universal) **moveu** para `nano-disciplines` (v1.2.0). nano-spec passa a depender de DOIS plugins via HARD BLOCK: `nano-disciplines >= 1.2.0` e `nano-commit >= 1.4.0`. Refs migradas: `nano-spec:nano-commit:*` → `nano-commit:*`; `references/meta/context-limits.md` → `nano-disciplines:skills/nano-disciplines/references/context-limits.md`. Stub legado `references/commit/gitflow.md` removido (conteúdo já vive na SKILL.md do nano-commit). Para upgrade: instalar os 3 plugins via marketplace; refs hard-coded a `nano-spec:nano-commit` em código de terceiros precisam ser migradas para `nano-commit:`.
