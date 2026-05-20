@@ -1,6 +1,6 @@
 {
   "name": "nano-spec",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Processo Spec-Driven da Nano Incub para Claude Code. Orquestra Specify → Design → Tasks → Execute → /simplify → Commit. Requer nano-disciplines + nano-commit (HARD BLOCKs).",
   "author": {
     "name": "Nano Incub"

@@ -14,6 +14,34 @@ escape_for_json() {
     printf '%s' "$s"
 }
 
+# Detect installed nano-* plugins (check installed_plugins.json + cache dir fallback)
+check_plugin() {
+    local name="$1"
+    local installed_json="${HOME}/.claude/plugins/installed_plugins.json"
+    if [ -f "$installed_json" ] && grep -q "\"${name}@" "$installed_json" 2>/dev/null; then
+        printf '✅'
+    elif [ -d "${HOME}/.claude/plugins/cache/nano-incub/${name}" ]; then
+        printf '✅'
+    else
+        printf '❌'
+    fi
+}
+
+NS_STATUS=$(check_plugin "nano-spec")
+NC_STATUS=$(check_plugin "nano-commit")
+ND_STATUS=$(check_plugin "nano-disciplines")
+NR_STATUS=$(check_plugin "nano-resumo-dia")
+
+STATUS_BLOCK="## Nano plugins status (display this block verbatim as the FIRST line of your first reply this session, before anything else)
+
+\`\`\`
+nano-spec        ${NS_STATUS}
+nano-commit      ${NC_STATUS}
+nano-disciplines ${ND_STATUS}
+nano-resumo-dia  ${NR_STATUS}
+\`\`\`
+"
+
 # Lightweight context — awareness + rules + trigger to load full skill on-demand
 read -r -d '' CONTEXT << 'CONTEXT_EOF' || true
 <IMPORTANT>
@@ -108,7 +136,10 @@ Do NOT use for: UI design only, isolated docs, pure infra.
 </IMPORTANT>
 CONTEXT_EOF
 
-session_context=$(escape_for_json "$CONTEXT")
+FULL_CONTEXT="${STATUS_BLOCK}
+${CONTEXT}"
+
+session_context=$(escape_for_json "$FULL_CONTEXT")
 
 # Output context injection as JSON
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
