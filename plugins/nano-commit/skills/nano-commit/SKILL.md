@@ -484,12 +484,21 @@ Sem explicação extra. **Sempre perguntar** — nunca executar merge/push autom
 No GitHub o PR **não substitui** o `git flow finish`: ele entra no meio. O `finish` roda
 depois do merge do PR e é o que cria a tag e faz o back-merge em `develop`.
 
+**Base do PR por tipo de branch** — um PR tem um destino só:
+
+| Tipo | Base do PR | Como o segundo destino é coberto |
+|---|---|---|
+| `feature/*` / `bugfix/*` | `develop` | não há segundo destino |
+| `release/*` / `hotfix/*` | `main` | pelo back-merge que o `finish` faz em `develop` |
+
 ```bash
-# 1. publica a branch (o hook post-flow-*-publish cria o PR, se configurado)
+# 1. publica a branch. O `publish` é o gatilho do PR (hook post-flow-*-publish).
+#    Para só compartilhar a branch com um colega SEM abrir PR, use
+#    `git push -u origin <branch>` — não o publish.
 git flow publish
 
-# 2. sem hook, criar o PR na mão — base = destino do tipo da branch
-gh pr create --base <destino> --title "<title>" --body "$(cat <<'EOF'
+# 2. sem hook, criar o PR na mão — base conforme a tabela acima
+gh pr create --base <base-do-PR> --title "<title>" --body "$(cat <<'EOF'
 ## Sumário
 - <bullet do que mudou>
 
@@ -505,8 +514,8 @@ EOF
 # 3. revisar e mergear o PR SEM deletar a branch
 gh pr merge --merge          # nunca --squash nem --rebase (achatam a bolha de merge)
 
-# 4. trazer o merge para a base local
-git checkout <destino> && git pull --ff-only
+# 4. trazer o merge para a base local (a base do PR: develop, ou main em release/hotfix)
+git checkout <base-do-PR> && git pull --ff-only
 
 # 5. finalizar — o merge já feito é no-op; o finish faz o resto
 git flow finish --no-ff
