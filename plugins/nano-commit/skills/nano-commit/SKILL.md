@@ -5,8 +5,10 @@ description: >
   gitflow clássico (feature/hotfix/release com semver), Conventional Commits,
   gates obrigatórios (/simplify + suite de testes + rastreabilidade),
   detecção de desvio de escopo e 4 opções de fechamento de branch (merge/PR/
-  continuar/discard com confirmação). Invocação direta sem precisar carregar
-  o orquestrador nano-spec inteiro.
+  continuar/discard com confirmação), com o fechamento por PR bifurcado por
+  plataforma: no GitHub o fluxo é publish → PR → finish (o finish roda depois
+  do merge e cria a tag); no GitLab segue push + Merge Request como sempre.
+  Invocação direta sem precisar carregar o orquestrador nano-spec inteiro.
   Triggers: "commitar", "fazer commit", "criar commit", "criar branch",
   "criar PR", "abrir PR", "finalizar branch", "fechar feature", "gitflow",
   "merge feature", "merge branch", "fechar branch", "git flow". Não use para
@@ -14,7 +16,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 1.4.0
+  version: 1.5.0
 ---
 
 # Nano Commit — Gitflow + Conventional Commits
@@ -412,6 +414,7 @@ Flags podem ser combinadas: `git flow feature finish --no-ff --push`.
 - **Tag em release e hotfix:** nome da branch vira nome da tag. Para tag diferente, passar `--tagname <tag>`.
 - Agente orienta mas NÃO executa `git flow finish` em branches protegidas sem confirmação do dev
 - Branch local é deletada automaticamente pelo `git flow finish` (usar `--keep` para preservar)
+- **No GitHub, o `finish` roda DEPOIS do merge do PR**, não no lugar dele — ver "Opção 2 (GitHub)" no fechamento de branch
 
 ---
 
@@ -432,6 +435,21 @@ Aplicar [verification.md](nano-disciplines:verification) — confirmar **com evi
 | `feature/*` / `bugfix/*` | `develop` |
 | `hotfix/*` | `main` + `develop` |
 | `release/*` | `main` + `develop` |
+
+### Step 2.1 — Detectar a plataforma
+
+O fechamento muda conforme onde o repositório vive. Detectar pelo remote:
+
+```bash
+git remote get-url origin
+```
+
+| Remote | Plataforma | Opção 2 vira |
+|---|---|---|
+| `github.com` | GitHub | `publish` → PR → `finish` (Step 4, Opção 2-GitHub) |
+| `gitlab.com` ou GitLab self-hosted | GitLab | push + Merge Request, sem `finish` (Opção 2-GitLab) |
+
+As opções 1, 3 e 4 são idênticas nas duas plataformas. Só a Opção 2 bifurca.
 
 ### Step 3 — Apresentar 4 opções (texto exato)
 
@@ -461,18 +479,70 @@ Sem explicação extra. **Sempre perguntar** — nunca executar merge/push autom
 3. Branch local é deletada automaticamente pelo `git flow finish` (passar `--keep` se quiser preservar)
 4. Para `hotfix/release` com tag: nome da branch vira nome da tag por default; usar `--tagname <tag>` para customizar
 
-#### Opção 2 — Push + PR
+#### Opção 2 (GitHub) — publish → PR → finish
+
+No GitHub o PR **não substitui** o `git flow finish`: ele entra no meio. O `finish` roda
+depois do merge do PR e é o que cria a tag e faz o back-merge em `develop`.
 
 ```bash
-git push -u origin <feature-branch>
+# 1. publica a branch (o hook post-flow-*-publish cria o PR, se configurado)
+git flow publish
 
-gh pr create --title "<title>" --body "$(cat <<'EOF'
+# 2. sem hook, criar o PR na mão — base = destino do tipo da branch
+gh pr create --base <destino> --title "<title>" --body "$(cat <<'EOF'
 ## Sumário
-- <bullet do que mudou>
 - <bullet do que mudou>
 
 ## Test Plan
 - [ ] <passo de verificação>
+
+Não deletar a branch ao mergear — o `git flow finish` precisa dela.
+
+Refs: [FEAT]-XX (se aplicável)
+EOF
+)"
+
+# 3. revisar e mergear o PR SEM deletar a branch
+gh pr merge --merge          # nunca --squash nem --rebase (achatam a bolha de merge)
+
+# 4. trazer o merge para a base local
+git checkout <destino> && git pull --ff-only
+
+# 5. finalizar — o merge já feito é no-op; o finish faz o resto
+git flow finish --no-ff
+```
+
+O que o `finish` faz em cada caso, rodando **depois** do PR:
+
+| Tipo | O que sobra para o `finish` |
+|---|---|
+| `feature/*` / `bugfix/*` | só o cleanup (apaga a branch local e remota) |
+| `release/*` / `hotfix/*` | cria a **tag** e faz o **back-merge em `develop`** — o PR cobriu só `main` |
+
+**Pré-requisitos no repositório** (ver skill `configurar-repo-github`):
+
+- `delete_branch_on_merge` **desligado** — se o GitHub apagar a branch no merge, o `finish` não tem o que finalizar
+- squash e rebase **desligados** — achatam a bolha de merge que o gitflow usa
+- `main` **sem** branch protection — `release finish` e `hotfix finish` fazem push direto nela
+
+> **Branch protegida e back-merge:** com `develop` protegida por required status check, o
+> back-merge de release/hotfix é um push direto e só passa para quem é admin
+> (`enforce_admins: false`). Dev sem admin trava no meio do hotfix, com `main` já mergeada
+> e `develop` não. Se o time precisa que qualquer dev toque hotfix, abra um segundo PR para
+> `develop` e crie a tag com `git tag -a`, em vez de usar o `finish`.
+
+#### Opção 2 (GitLab) — push + Merge Request
+
+No GitLab o fluxo segue como sempre foi: o MR faz o merge e o `git flow finish` **não** roda.
+
+```bash
+git push -u origin <feature-branch>
+
+glab mr create --target-branch <destino> --title "<title>" --description "$(cat <<'EOF'
+## Sumário
+- <bullet do que mudou>
+
+## Test Plan
 - [ ] <passo de verificação>
 
 Refs: [FEAT]-XX (se aplicável)
@@ -480,7 +550,15 @@ EOF
 )"
 ```
 
-A branch fica viva para iterações do PR — **não** deletar.
+A branch fica viva para iterações do MR — **não** deletar. Depois do merge, limpar a local:
+
+```bash
+git checkout <destino> && git pull --ff-only
+git branch -d <feature-branch>
+```
+
+Para `release/*` e `hotfix/*` no GitLab, a tag é criada à parte (`git tag -a <versão>` e
+`git push origin <versão>`), já que o `finish` não roda.
 
 #### Opção 3 — Manter
 
@@ -511,7 +589,8 @@ git branch -D <feature-branch>
 | Opção | Merge | Push | Keep branch | Delete branch |
 |---|---|---|---|---|
 | 1. Merge local | ✅ via `git flow finish --no-ff` | — | — | ✅ automático |
-| 2. Push + PR | — | ✅ | ✅ (para iterar PR) | — |
+| 2. PR (GitHub) | ✅ no PR | ✅ `git flow publish` | ✅ até o `finish` | ✅ pelo `finish`, no fim |
+| 2. MR (GitLab) | ✅ no MR | ✅ | ✅ (para iterar MR) | manual (`git branch -d`) |
 | 3. Manter | — | — | ✅ | — |
 | 4. Descartar | — | — | — | ✅ force (após `discard` tipado) |
 
@@ -524,12 +603,18 @@ git branch -D <feature-branch>
 - Deletar a branch antes do merge ter sido confirmado bem-sucedido
 - `git push --force` em branch protegida sem pedido explícito do dev
 - Fazer perguntas open-ended ("o que fazer agora?") em vez das 4 opções estruturadas
+- **GitHub:** mergear o PR com `--squash` ou `--rebase` (achata a bolha que o gitflow usa)
+- **GitHub:** deixar o GitHub apagar a branch no merge — o `git flow finish` precisa dela
+- **GitHub:** parar no merge do PR em release/hotfix e nunca rodar o `finish` — fica sem tag e sem back-merge em `develop`
+- Tratar "PR" e "`git flow finish`" como alternativas no GitHub: ali eles são a mesma sequência
 
 ### Common Mistakes
 
 | Erro | Correção |
 |---|---|
 | Pular verificação de testes antes das opções | Iron Law primeiro, sempre |
+| GitHub: PR mergeado e branch apagada pelo GitHub | Desligar `delete_branch_on_merge` (skill `configurar-repo-github`) |
+| GitHub: release/hotfix sem tag após o PR | Rodar `git flow finish` depois do `git pull` na base |
 | Aceitar `Discard` / `DESCARTAR` / variações | Exigir a string exata `discard` (lowercase) |
 | Esquecer `--no-ff` em fast-forward merge | Sempre passar inline |
 | Cleanup de branch antes do merge concluído | Merge primeiro, depois delete |

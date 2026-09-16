@@ -60,6 +60,8 @@ plugins/nano-commit/
 
 ## Versão
 
+**1.5.0** — Fechamento por PR bifurcado por plataforma. No GitHub o PR não substitui o `git flow finish`: o fluxo é `publish` → PR → `finish`, e o `finish` roda depois do merge para criar a tag e fazer o back-merge em `develop`. No GitLab nada muda — segue push + Merge Request. Inclui os pré-requisitos de configuração do repositório no GitHub (`delete_branch_on_merge` desligado, squash/rebase desligados) e a ressalva sobre back-merge com `develop` protegida.
+
 **1.4.0** — Promovido a plugin standalone, extraído do `nano-spec` 5.0.0 → 6.0.0 (BREAKING split). Conteúdo da skill inalterado em relação a 1.3.0; bump minor pela mudança de empacotamento (sub-skill → plugin top-level).
 
 **1.3.0** — Última versão interna ao `nano-spec`.
