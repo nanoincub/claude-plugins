@@ -6,8 +6,9 @@ description: >
   gates obrigatórios (/simplify + suite de testes + rastreabilidade),
   detecção de desvio de escopo e 4 opções de fechamento de branch (merge/PR/
   continuar/discard com confirmação), com o fechamento por PR bifurcado por
-  plataforma: no GitHub o fluxo é publish → PR → finish (o finish roda depois
-  do merge e cria a tag); no GitLab segue push + Merge Request como sempre.
+  plataforma: no GitHub o fluxo é publish → PR → finish --push (o finish roda
+  depois do merge, cria a tag e publica), com hooks de gitflow que abrem o PR
+  sozinhos; no GitLab segue push + Merge Request como sempre.
   Invocação direta sem precisar carregar o orquestrador nano-spec inteiro.
   Triggers: "commitar", "fazer commit", "criar commit", "criar branch",
   "criar PR", "abrir PR", "finalizar branch", "fechar feature", "gitflow",
@@ -16,7 +17,7 @@ description: >
 license: CC-BY-4.0
 metadata:
   author: Nano Incub
-  version: 1.5.0
+  version: 1.6.0
 ---
 
 # Nano Commit — Gitflow + Conventional Commits
@@ -33,15 +34,26 @@ Na primeira interação com gitflow na sessão, executar:
 git flow version
 ```
 
-- **Se output contém "git-flow-next"** → cachear `gitflow = true`, prosseguir
+- **Se output contém "git-flow-next" E versão ≥ 1.2.0** → cachear `gitflow = true`, prosseguir
 - **Se comando falha ou indica outra implementação** → **BLOQUEAR TODO O PROCESSO**
+- **Se é git-flow-next mas versão < 1.2.0** → **BLOQUEAR** e pedir upgrade
+
+O formato do output mudou entre versões (`git-flow-next version 1.1.0` na 1.x,
+`2.1.0 (git-flow-next)` na 2.x) — extrair o número, não casar a linha inteira.
+
+**Por que 1.2.0 é o piso:** abaixo dela o `finish` não tem `--push`, então tag e
+back-merge ficam só na máquina do dev; e uma falha no cleanup da branch remota
+grava um estado que trava **todo `finish` seguinte do repositório**, inclusive de
+outras branches — `--continue` e `--abort` não resolvem, só `rm -rf .git/gitflow/state`.
+Ambos corrigidos na 1.2.0.
 
 Quando bloqueado, exibir:
 
 ```
-⛔ git-flow-next NÃO está instalado. Este é um requisito obrigatório.
+⛔ git-flow-next NÃO está instalado (ou está abaixo de 1.2.0).
+   É um requisito obrigatório — o fechamento por PR depende de `finish --push`.
 
-Instale antes de continuar:
+Instale/atualize antes de continuar:
   macOS:    brew install gittower/tap/git-flow-next
   Linux:    brew install gittower/tap/git-flow-next
   Windows:  winget install GitTower.GitFlowNext
@@ -398,8 +410,8 @@ Preferir sempre que o agente já está na branch correta:
 ```bash
 git flow feature finish --no-ff       # força merge commit (preserva bolha) — SEMPRE usar
 git flow feature finish --keep        # não deleta a branch após merge
-git flow release finish --no-tag      # finaliza sem criar tag
-git flow hotfix finish --push         # push automático após finish
+git flow release finish --notag       # finaliza sem criar tag (a flag é --notag, não --no-tag)
+git flow hotfix finish --push         # publica destino, back-merge e tag (git-flow-next 1.2.0+)
 ```
 
 Flags podem ser combinadas: `git flow feature finish --no-ff --push`.
@@ -446,7 +458,7 @@ git remote get-url origin
 
 | Remote | Plataforma | Opção 2 vira |
 |---|---|---|
-| `github.com` | GitHub | `publish` → PR → `finish` (Step 4, Opção 2-GitHub) |
+| `github.com` | GitHub | `publish` → PR → `finish --push` (Step 4, Opção 2-GitHub) |
 | `gitlab.com` ou GitLab self-hosted | GitLab | push + Merge Request, sem `finish` (Opção 2-GitLab) |
 
 As opções 1, 3 e 4 são idênticas nas duas plataformas. Só a Opção 2 bifurca.
@@ -473,11 +485,17 @@ Sem explicação extra. **Sempre perguntar** — nunca executar merge/push autom
 1. Review do diff da branch contra o destino (mostrar ao dev antes de mergear)
 2. Executar:
    ```bash
-   git flow <tipo> finish --no-ff <nome>
+   git flow <tipo> finish <nome> --no-ff --push
    ```
    `--no-ff` é **sempre inline**. Preserva a bolha de merge mesmo em fast-forward.
+   `--push` também: sem ele o `finish` só faz trabalho local e o merge, a tag e o
+   back-merge ficam na máquina do dev. Em git-flow-next < 1.2.0, publicar à mão
+   (`git push origin <destino>` e, em release/hotfix, `git push origin <versão>`).
 3. Branch local é deletada automaticamente pelo `git flow finish` (passar `--keep` se quiser preservar)
 4. Para `hotfix/release` com tag: nome da branch vira nome da tag por default; usar `--tagname <tag>` para customizar
+5. Nesta opção o `finish` faz **push direto** em `main`/`develop` — branch protegida com
+   required status check rejeita e o comando morre no meio. Ou o dev é admin
+   (`enforce_admins: false`), ou o fechamento é pela Opção 2
 
 #### Opção 2 (GitHub) — publish → PR → finish
 
@@ -492,12 +510,12 @@ depois do merge do PR e é o que cria a tag e faz o back-merge em `develop`.
 | `release/*` / `hotfix/*` | `main` | pelo back-merge que o `finish` faz em `develop` |
 
 ```bash
-# 1. publica a branch. O `publish` é o gatilho do PR (hook post-flow-*-publish).
-#    Para só compartilhar a branch com um colega SEM abrir PR, use
-#    `git push -u origin <branch>` — não o publish.
+# 1. publica a branch. O `publish` é o gatilho do PR (hook post-flow-*-publish,
+#    em hooks/gitflow/ deste plugin). Para só compartilhar a branch com um colega
+#    SEM abrir PR, use `git push -u origin <branch>` — não o publish.
 git flow publish
 
-# 2. sem hook, criar o PR na mão — base conforme a tabela acima
+# 2. sem o hook instalado, criar o PR na mão — base conforme a tabela acima
 gh pr create --base <base-do-PR> --title "<title>" --body "$(cat <<'EOF'
 ## Sumário
 - <bullet do que mudou>
@@ -515,11 +533,29 @@ EOF
 gh pr merge --merge          # nunca --squash nem --rebase (achatam a bolha de merge)
 
 # 4. trazer o merge para a base local (a base do PR: develop, ou main em release/hotfix)
+#    OBRIGATÓRIO: sem isso o finish mergeia sobre a base local velha e cria um
+#    merge commit DUPLICADO, divergindo de origin.
 git checkout <base-do-PR> && git pull --ff-only
 
-# 5. finalizar — o merge já feito é no-op; o finish faz o resto
-git flow finish --no-ff
+# 5. finalizar — o merge já feito é no-op; o finish faz o resto e publica
+git flow <tipo> finish <nome> --no-ff --push
 ```
+
+**O passo 5 exige o tipo e o nome.** Depois do passo 4 a branch atual é a base, e
+`git flow finish` sem argumento opera na branch **atual** — ele falha com
+`current branch 'develop' is not a valid topic branch`. Use a forma completa:
+`git flow feature finish auth-login`, `git flow release finish 1.2.0`.
+
+**O `--push` não é opcional.** Por default o `finish` só faz trabalho local: a tag
+e o back-merge em `develop` ficam na máquina do dev e ninguém percebe. Em
+git-flow-next < 1.2.0 (sem `--push`), publicar à mão logo depois:
+
+```bash
+git push origin develop
+git push origin <versão>      # a tag, em release/hotfix
+```
+
+O hook `post-flow-<tipo>-finish` deste plugin avisa quando sobrou algo por publicar.
 
 O que o `finish` faz em cada caso, rodando **depois** do PR:
 
@@ -530,15 +566,44 @@ O que o `finish` faz em cada caso, rodando **depois** do PR:
 
 **Pré-requisitos no repositório** (ver skill `configurar-repo-github`):
 
-- `delete_branch_on_merge` **desligado** — se o GitHub apagar a branch no merge, o `finish` não tem o que finalizar
+- `delete_branch_on_merge` **desligado** — o `finish` usa a branch **local**, então ele até
+  roda com a remota apagada; o que quebra é o caso real de quem não tem cópia local
+  (outro dev, outra máquina) — sem branch em lugar nenhum, ninguém gera a tag
 - squash e rebase **desligados** — achatam a bolha de merge que o gitflow usa
-- `main` **sem** branch protection — `release finish` e `hotfix finish` fazem push direto nela
+- `main` **pode ficar protegida** neste fluxo: o merge vem pelo PR (server-side), e o push
+  que o `finish` faz em `main` é no-op, aceito mesmo sob required status check. Desproteger
+  `main` só é necessário na Opção 1, em que o `finish` faz o push do merge
 
 > **Branch protegida e back-merge:** com `develop` protegida por required status check, o
-> back-merge de release/hotfix é um push direto e só passa para quem é admin
-> (`enforce_admins: false`). Dev sem admin trava no meio do hotfix, com `main` já mergeada
-> e `develop` não. Se o time precisa que qualquer dev toque hotfix, abra um segundo PR para
-> `develop` e crie a tag com `git tag -a`, em vez de usar o `finish`.
+> push do back-merge é direto e só passa para quem é admin (`enforce_admins: false`). O
+> `finish` empurra na ordem `main` → `develop` → tag e aborta no primeiro erro, então o dev
+> sem admin fica com **a tag também presa localmente** — e a branch já foi apagada dos dois
+> lados, sem PR para reabrir. Recuperação: pedir o `git push origin develop <versão>` a
+> alguém com permissão. Se o time precisa que qualquer dev toque hotfix, feche release e
+> hotfix com um segundo PR para `develop` e `git tag -a` manual, em vez do `finish`.
+
+#### Automação: hooks de gitflow (GitHub)
+
+O plugin traz hooks prontos em `hooks/gitflow/`. Instalação no repositório alvo:
+
+```bash
+${CLAUDE_PLUGIN_ROOT}/hooks/gitflow/install.sh .
+```
+
+Copia os hooks para `.githooks/` (versionável, o time inteiro herda) e aponta
+`gitflow.path.hooks` para lá. Se o repo já define `gitflow.path.hooks` ou
+`core.hooksPath`, usa o diretório que já está configurado.
+
+| Hook | O que faz |
+|---|---|
+| `post-flow-<tipo>-publish` | abre o PR com `gh` na base certa (`develop` para feature/bugfix, `main` para release/hotfix), com o aviso de não deletar a branch e o comando exato do `finish` no corpo |
+| `post-flow-<tipo>-finish` | compara tag e branches base com o remote e avisa o que ficou só local |
+
+Os dois saem em silêncio sem fazer nada quando o remote não é GitHub, quando `gh`
+não está instalado ou autenticado, ou quando já existe PR aberto para a branch —
+nunca fazem o comando de gitflow falhar.
+
+Variáveis de override no `publish`: `NANO_PR_TITLE`, `NANO_PR_DRAFT=1`, `NANO_PR_SKIP=1`.
 
 #### Opção 2 (GitLab) — push + Merge Request
 
@@ -597,8 +662,8 @@ git branch -D <feature-branch>
 
 | Opção | Merge | Push | Keep branch | Delete branch |
 |---|---|---|---|---|
-| 1. Merge local | ✅ via `git flow finish --no-ff` | — | — | ✅ automático |
-| 2. PR (GitHub) | ✅ no PR | ✅ `git flow publish` | ✅ até o `finish` | ✅ pelo `finish`, no fim |
+| 1. Merge local | ✅ via `git flow finish --no-ff` | ✅ `--push` (senão fica local) | — | ✅ automático |
+| 2. PR (GitHub) | ✅ no PR | ✅ `git flow publish` + `finish --push` | ✅ até o `finish` | ✅ pelo `finish`, no fim |
 | 2. MR (GitLab) | ✅ no MR | ✅ | ✅ (para iterar MR) | manual (`git branch -d`) |
 | 3. Manter | — | — | ✅ | — |
 | 4. Descartar | — | — | — | ✅ force (após `discard` tipado) |
@@ -613,8 +678,10 @@ git branch -D <feature-branch>
 - `git push --force` em branch protegida sem pedido explícito do dev
 - Fazer perguntas open-ended ("o que fazer agora?") em vez das 4 opções estruturadas
 - **GitHub:** mergear o PR com `--squash` ou `--rebase` (achata a bolha que o gitflow usa)
-- **GitHub:** deixar o GitHub apagar a branch no merge — o `git flow finish` precisa dela
+- **GitHub:** deixar o GitHub apagar a branch no merge — quem não tem cópia local fica sem como finalizar
 - **GitHub:** parar no merge do PR em release/hotfix e nunca rodar o `finish` — fica sem tag e sem back-merge em `develop`
+- **GitHub:** rodar o `finish` sem `--push` e dar o fluxo por encerrado — tag e back-merge ficam só na máquina do dev
+- **GitHub:** rodar `git flow finish` sem tipo e nome depois do checkout na base — o comando opera na branch atual e falha
 - Tratar "PR" e "`git flow finish`" como alternativas no GitHub: ali eles são a mesma sequência
 
 ### Common Mistakes
@@ -623,7 +690,11 @@ git branch -D <feature-branch>
 |---|---|
 | Pular verificação de testes antes das opções | Iron Law primeiro, sempre |
 | GitHub: PR mergeado e branch apagada pelo GitHub | Desligar `delete_branch_on_merge` (skill `configurar-repo-github`) |
-| GitHub: release/hotfix sem tag após o PR | Rodar `git flow finish` depois do `git pull` na base |
+| GitHub: release/hotfix sem tag após o PR | Rodar `git flow <tipo> finish <nome> --no-ff --push` depois do `git pull` na base |
+| GitHub: tag existe local mas não no remote | Faltou `--push` no finish — `git push origin <versão>` |
+| `current branch 'develop' is not a valid topic branch` | Passar tipo e nome: `git flow release finish 1.2.0` |
+| `a merge is already in progress for branch 'X'` e nem `--continue` nem `--abort` resolvem | Bug de git-flow-next < 1.2.0: `rm -rf .git/gitflow/state` e atualizar |
+| Merge commit duplicado na base após o finish | Faltou `git pull --ff-only` na base antes de finalizar |
 | Aceitar `Discard` / `DESCARTAR` / variações | Exigir a string exata `discard` (lowercase) |
 | Esquecer `--no-ff` em fast-forward merge | Sempre passar inline |
 | Cleanup de branch antes do merge concluído | Merge primeiro, depois delete |

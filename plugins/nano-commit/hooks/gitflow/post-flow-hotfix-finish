@@ -1,0 +1,3 @@
+#!/bin/sh
+# Avisa se a tag / o back-merge do finish ficaram só locais. Ver nano-finish-check.
+exec "$(dirname "$0")/nano-finish-check" "$@"

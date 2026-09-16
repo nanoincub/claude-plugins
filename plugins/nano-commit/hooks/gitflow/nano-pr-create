@@ -1,0 +1,97 @@
+#!/bin/sh
+# nano-pr-create — abre o PR no GitHub logo após `git flow publish`.
+#
+# Chamado pelos hooks post-flow-<tipo>-publish. Nunca falha o publish:
+# qualquer condição não atendida vira aviso e sai 0.
+#
+# Contexto recebido do git-flow-next:
+#   $1=name  $2=origin  $3=branch
+#   BRANCH, BRANCH_NAME, BRANCH_TYPE, BASE_BRANCH, ORIGIN, VERSION, EXIT_CODE
+#
+# Overrides opcionais:
+#   NANO_PR_TITLE   título do PR (default: subject do 1º commit da branch)
+#   NANO_PR_DRAFT=1 abre como rascunho
+#   NANO_PR_SKIP=1  não abre PR nenhum
+
+set -eu
+
+BRANCH="${BRANCH:-${3:-}}"
+BRANCH_NAME="${BRANCH_NAME:-${1:-}}"
+BRANCH_TYPE="${BRANCH_TYPE:-}"
+BASE="${BASE_BRANCH:-}"
+REMOTE="${ORIGIN:-${2:-origin}}"
+
+note() { printf 'nano-commit: %s\n' "$1" >&2; }
+
+# publish falhou → nada a fazer
+[ "${EXIT_CODE:-0}" = "0" ] || exit 0
+[ "${NANO_PR_SKIP:-0}" = "1" ] && { note "NANO_PR_SKIP=1 — PR não criado."; exit 0; }
+[ -n "$BRANCH" ] || exit 0
+
+# só GitHub. GitLab segue push + Merge Request, sem finish.
+case "$(git remote get-url "$REMOTE" 2>/dev/null || echo '')" in
+  *github.com*) ;;
+  *) exit 0 ;;
+esac
+
+command -v gh >/dev/null 2>&1 || { note "gh não encontrado — abra o PR à mão com base em '$BASE'."; exit 0; }
+gh auth status >/dev/null 2>&1 || { note "gh não autenticado (\`gh auth login\`) — PR não criado."; exit 0; }
+
+# PR já aberto para esta branch? não duplica.
+EXISTING="$(gh pr list --head "$BRANCH" --state open --json url --jq '.[0].url' 2>/dev/null || echo '')"
+[ -n "$EXISTING" ] && { note "PR já aberto: $EXISTING"; exit 0; }
+
+# base: o parent configurado no gitflow (develop para feature/bugfix, main para release/hotfix)
+if [ -z "$BASE" ] && [ -n "$BRANCH_TYPE" ]; then
+  BASE="$(git config "gitflow.branch.$BRANCH_TYPE.parent" 2>/dev/null || echo '')"
+fi
+[ -n "$BASE" ] || { note "base do PR indeterminada — abra o PR à mão."; exit 0; }
+
+COMMITS="$(git log --reverse --format='- %s' "$REMOTE/$BASE..$BRANCH" 2>/dev/null || echo '')"
+FIRST="$(git log --reverse --format='%s' "$REMOTE/$BASE..$BRANCH" 2>/dev/null | head -1)"
+TITLE="${NANO_PR_TITLE:-${FIRST:-$BRANCH_TYPE $BRANCH_NAME}}"
+[ -n "$COMMITS" ] || COMMITS="- (sem commits próprios em relação a $BASE)"
+
+FINISH_CMD="git flow ${BRANCH_TYPE:-feature} finish ${BRANCH_NAME} --no-ff --push"
+
+# rastreabilidade: reaproveita os `Refs:` dos commits da branch
+REFS="$(git log --format='%b' "$REMOTE/$BASE..$BRANCH" 2>/dev/null \
+        | grep -E '^Refs:' | sed 's/^Refs: *//' | sort -u | paste -sd' ' - || echo '')"
+SUMMARY="$COMMITS"
+[ -n "$REFS" ] && SUMMARY="$(printf '%s\n\nRefs: %s' "$COMMITS" "$REFS")"
+
+BODY="$(cat <<EOF
+## Sumário
+
+$SUMMARY
+
+## Test Plan
+
+- [ ] <passo de verificação>
+
+---
+
+⚠️ **Não delete a branch ao mergear.** Este repositório fecha branch por
+\`publish → PR → finish\`: depois do merge, quem cria a tag e faz o back-merge
+em \`develop\` é o \`git flow finish\`, e ele precisa da branch viva.
+
+Depois de mergear (merge commit — nunca squash nem rebase):
+
+\`\`\`sh
+git checkout $BASE && git pull --ff-only
+$FINISH_CMD
+\`\`\`
+EOF
+)"
+
+DRAFT=""
+[ "${NANO_PR_DRAFT:-0}" = "1" ] && DRAFT="--draft"
+
+# shellcheck disable=SC2086
+URL="$(gh pr create --base "$BASE" --head "$BRANCH" --title "$TITLE" --body "$BODY" $DRAFT 2>&1)" || {
+  note "gh pr create falhou: $URL"
+  exit 0
+}
+
+note "PR aberto: $URL"
+exit 0

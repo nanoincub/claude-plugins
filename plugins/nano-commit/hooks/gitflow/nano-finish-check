@@ -1,0 +1,44 @@
+#!/bin/sh
+# nano-finish-check — depois do `git flow finish`, confere se o que o finish
+# produziu localmente (tag + back-merge) chegou ao remote.
+#
+# O finish do git-flow-next só empurra com `--push` (v1.2.0+). Sem isso, a tag
+# e o merge em `develop` ficam na máquina do dev e ninguém percebe.
+#
+# Chamado pelos hooks post-flow-<tipo>-finish. Nunca falha o finish.
+
+set -eu
+
+REMOTE="${ORIGIN:-${2:-origin}}"
+VERSION="${VERSION:-${1:-}}"
+
+note() { printf 'nano-commit: %s\n' "$1" >&2; }
+
+[ "${EXIT_CODE:-0}" = "0" ] || exit 0
+git remote get-url "$REMOTE" >/dev/null 2>&1 || exit 0
+
+PENDING=""
+
+# tag criada localmente e ausente no remote
+if [ -n "$VERSION" ] && git rev-parse -q --verify "refs/tags/$VERSION" >/dev/null 2>&1; then
+  if [ -z "$(git ls-remote --tags "$REMOTE" "refs/tags/$VERSION" 2>/dev/null)" ]; then
+    PENDING="$PENDING  git push $REMOTE $VERSION\n"
+  fi
+fi
+
+# branches base à frente do remote
+for b in $(git config --get-regexp '^gitflow\.branch\..*\.type$' 2>/dev/null \
+           | awk '$2 == "base" {print $1}' \
+           | sed 's/^gitflow\.branch\.//; s/\.type$//'); do
+  git rev-parse -q --verify "refs/heads/$b" >/dev/null 2>&1 || continue
+  git rev-parse -q --verify "refs/remotes/$REMOTE/$b" >/dev/null 2>&1 || continue
+  AHEAD="$(git rev-list --count "refs/remotes/$REMOTE/$b..refs/heads/$b" 2>/dev/null || echo 0)"
+  [ "$AHEAD" -gt 0 ] && PENDING="$PENDING  git push $REMOTE $b\n"
+done
+
+[ -n "$PENDING" ] || exit 0
+
+note "o finish rodou só local — falta publicar:"
+printf "$PENDING" >&2
+note "ou refaça com \`--push\` (git-flow-next 1.2.0+) para que o finish publique sozinho."
+exit 0

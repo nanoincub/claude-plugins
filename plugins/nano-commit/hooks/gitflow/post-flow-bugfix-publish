@@ -1,0 +1,3 @@
+#!/bin/sh
+# Abre o PR no GitHub após `git flow publish`. Ver nano-pr-create.
+exec "$(dirname "$0")/nano-pr-create" "$@"
